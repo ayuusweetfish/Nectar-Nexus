@@ -1,0 +1,8 @@
+https://github.com/Davidobot/love.js.git
+b4dbbbb427cc721e90c536d4493233bd6367e31b
+
+https://github.com/Davidobot/megasource.git
+b1faef45bd5ec10b9b5a78ffea57401188790283
+
+https://github.com/Davidobot/love.git
+32e0716b43a51686f5fa9ac04ca08b6410b698a5

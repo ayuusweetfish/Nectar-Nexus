@@ -1,0 +1,238 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 59a3799..a8133db 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -493,8 +493,8 @@ source_group("modules\\filesystem\\physfs" FILES ${LOVE_SRC_MODULE_FILESYSTEM_PH
+ #
+ 
+ set(LOVE_SRC_MODULE_FONT_ROOT
+-	src/modules/font/BMFontRasterizer.cpp
+-	src/modules/font/BMFontRasterizer.h
++	# src/modules/font/BMFontRasterizer.cpp
++	# src/modules/font/BMFontRasterizer.h
+ 	src/modules/font/Font.cpp
+ 	src/modules/font/Font.h
+ 	src/modules/font/GlyphData.cpp
+@@ -1698,13 +1698,13 @@ set(LOVE_SRC_3P_XXHASH
+ add_library(love_3p_xxhash ${LOVE_SRC_3P_XXHASH})
+ 
+ set(LOVE_3P
+-	love_3p_box2d
++	# love_3p_box2d
+ 	love_3p_ddsparse
+-	love_3p_enet
++	# love_3p_enet
+ 	love_3p_glad
+ 	love_3p_glslang
+ 	love_3p_lodepng
+-	love_3p_luasocket
++	# love_3p_luasocket
+ 	love_3p_lua53
+ 	love_3p_lz4
+ 	love_3p_noise1234
+@@ -1733,13 +1733,13 @@ set(LOVE_LIB_SRC
+ 	${LOVE_SRC_MODULE_LOVE}
+ 	${LOVE_SRC_MODULE_MATH}
+ 	${LOVE_SRC_MODULE_MOUSE}
+-	${LOVE_SRC_MODULE_PHYSICS}
++	# ${LOVE_SRC_MODULE_PHYSICS}
+ 	${LOVE_SRC_MODULE_SOUND}
+ 	${LOVE_SRC_MODULE_SYSTEM}
+ 	${LOVE_SRC_MODULE_THREAD}
+ 	${LOVE_SRC_MODULE_TIMER}
+ 	${LOVE_SRC_MODULE_TOUCH}
+-	${LOVE_SRC_MODULE_VIDEO}
++	# ${LOVE_SRC_MODULE_VIDEO}
+ 	${LOVE_SRC_MODULE_WINDOW}
+ )
+ 
+diff --git a/src/common/config.h b/src/common/config.h
+index 63a93c7..487664f 100644
+--- a/src/common/config.h
++++ b/src/common/config.h
+@@ -155,17 +155,17 @@
+ #	define LOVE_ENABLE_KEYBOARD
+ #	define LOVE_ENABLE_MATH
+ #	define LOVE_ENABLE_MOUSE
+-#	define LOVE_ENABLE_PHYSICS
++// #	define LOVE_ENABLE_PHYSICS
+ #	define LOVE_ENABLE_SOUND
+ #	define LOVE_ENABLE_SYSTEM
+ #	define LOVE_ENABLE_THREAD
+ #	define LOVE_ENABLE_TIMER
+ #	define LOVE_ENABLE_TOUCH
+-#	define LOVE_ENABLE_VIDEO
++// #	define LOVE_ENABLE_VIDEO
+ #	define LOVE_ENABLE_WINDOW
+ 
+-#	define LOVE_ENABLE_ENET
+-#	define LOVE_ENABLE_LUASOCKET
++// #	define LOVE_ENABLE_ENET
++// #	define LOVE_ENABLE_LUASOCKET
+ #	define LOVE_ENABLE_LUA53
+ #endif
+ 
+diff --git a/src/modules/font/Font.cpp b/src/modules/font/Font.cpp
+index 406d8d6..db4c6db 100644
+--- a/src/modules/font/Font.cpp
++++ b/src/modules/font/Font.cpp
+@@ -20,7 +20,7 @@
+ 
+ // LOVE
+ #include "Font.h"
+-#include "BMFontRasterizer.h"
++// #include "BMFontRasterizer.h"
+ #include "ImageRasterizer.h"
+ 
+ #include "libraries/utf8/utf8.h"
+@@ -54,10 +54,12 @@ Rasterizer *Font::newTrueTypeRasterizer(int size, float dpiscale, TrueTypeRaster
+ 	return newTrueTypeRasterizer(data.get(), size, dpiscale, hinting);
+ }
+ 
++/*
+ Rasterizer *Font::newBMFontRasterizer(love::filesystem::FileData *fontdef, const std::vector<image::ImageData *> &images, float dpiscale)
+ {
+ 	return new BMFontRasterizer(fontdef, images, dpiscale);
+ }
++*/
+ 
+ Rasterizer *Font::newImageRasterizer(love::image::ImageData *data, const std::string &text, int extraspacing, float dpiscale)
+ {
+diff --git a/src/modules/font/Font.h b/src/modules/font/Font.h
+index 3f74b93..b8e79b9 100644
+--- a/src/modules/font/Font.h
++++ b/src/modules/font/Font.h
+@@ -52,7 +52,7 @@ class Font : public Module
+ 	virtual Rasterizer *newTrueTypeRasterizer(love::Data *data, int size, TrueTypeRasterizer::Hinting hinting) = 0;
+ 	virtual Rasterizer *newTrueTypeRasterizer(love::Data *data, int size, float dpiscale, TrueTypeRasterizer::Hinting hinting) = 0;
+ 
+-	virtual Rasterizer *newBMFontRasterizer(love::filesystem::FileData *fontdef, const std::vector<image::ImageData *> &images, float dpiscale);
++	// virtual Rasterizer *newBMFontRasterizer(love::filesystem::FileData *fontdef, const std::vector<image::ImageData *> &images, float dpiscale);
+ 
+ 	virtual Rasterizer *newImageRasterizer(love::image::ImageData *data, const std::string &glyphs, int extraspacing, float dpiscale);
+ 	virtual Rasterizer *newImageRasterizer(love::image::ImageData *data, uint32 *glyphs, int length, int extraspacing, float dpiscale);
+diff --git a/src/modules/font/freetype/Font.cpp b/src/modules/font/freetype/Font.cpp
+index 4df8310..ed3f3bd 100644
+--- a/src/modules/font/freetype/Font.cpp
++++ b/src/modules/font/freetype/Font.cpp
+@@ -22,7 +22,7 @@
+ 
+ // LOVE
+ #include "TrueTypeRasterizer.h"
+-#include "font/BMFontRasterizer.h"
++// #include "font/BMFontRasterizer.h"
+ #include "window/Window.h"
+ 
+ // C++
+@@ -50,8 +50,8 @@ Rasterizer *Font::newRasterizer(love::filesystem::FileData *data)
+ {
+ 	if (TrueTypeRasterizer::accepts(library, data))
+ 		return newTrueTypeRasterizer(data, 12, TrueTypeRasterizer::HINTING_NORMAL);
+-	else if (BMFontRasterizer::accepts(data))
+-		return newBMFontRasterizer(data, {}, 1.0f);
++	// else if (BMFontRasterizer::accepts(data))
++	// 	return newBMFontRasterizer(data, {}, 1.0f);
+ 
+ 	throw love::Exception("Invalid font file: %s", data->getFilename().c_str());
+ }
+diff --git a/src/modules/font/wrap_Font.cpp b/src/modules/font/wrap_Font.cpp
+index 90406c0..98eaba4 100644
+--- a/src/modules/font/wrap_Font.cpp
++++ b/src/modules/font/wrap_Font.cpp
+@@ -60,7 +60,8 @@ int w_newRasterizer(lua_State *L)
+ 	else
+ 	{
+ 		// Otherwise call newBMFontRasterizer.
+-		return w_newBMFontRasterizer(L);
++		// return w_newBMFontRasterizer(L);
++        return 0;
+ 	}
+ }
+ 
+@@ -132,6 +133,7 @@ static void convimagedata(lua_State *L, int idx)
+ 		luax_convobj(L, idx, "image", "newImageData");
+ }
+ 
++/*
+ int w_newBMFontRasterizer(lua_State *L)
+ {
+ 	Rasterizer *t = nullptr;
+@@ -171,6 +173,7 @@ int w_newBMFontRasterizer(lua_State *L)
+ 	t->release();
+ 	return 1;
+ }
++*/
+ 
+ int w_newImageRasterizer(lua_State *L)
+ {
+@@ -217,7 +220,7 @@ static const luaL_Reg functions[] =
+ {
+ 	{ "newRasterizer",  w_newRasterizer },
+ 	{ "newTrueTypeRasterizer", w_newTrueTypeRasterizer },
+-	{ "newBMFontRasterizer", w_newBMFontRasterizer },
++	// { "newBMFontRasterizer", w_newBMFontRasterizer },
+ 	{ "newImageRasterizer", w_newImageRasterizer },
+ 	{ "newGlyphData",  w_newGlyphData },
+ 	{ 0, 0 }
+diff --git a/src/modules/font/wrap_Font.h b/src/modules/font/wrap_Font.h
+index ff3d0da..af5faff 100644
+--- a/src/modules/font/wrap_Font.h
++++ b/src/modules/font/wrap_Font.h
+@@ -32,7 +32,7 @@ namespace font
+ 
+ int w_newRasterizer(lua_State *L);
+ int w_newTrueTypeRasterizer(lua_State *L);
+-int w_newBMFontRasterizer(lua_State *L);
++// int w_newBMFontRasterizer(lua_State *L);
+ int w_newImageRasterizer(lua_State *L);
+ int w_newGlyphData(lua_State *L);
+ extern "C" LOVE_EXPORT int luaopen_love_font(lua_State *L);
+diff --git a/src/modules/love/boot.lua b/src/modules/love/boot.lua
+index 53825db..a68a0b9 100644
+--- a/src/modules/love/boot.lua
++++ b/src/modules/love/boot.lua
+@@ -161,13 +161,13 @@ function love.init()
+ 			graphics = true,
+ 			audio = true,
+ 			math = true,
+-			physics = true,
++			-- physics = true,
+ 			sound = true,
+ 			system = true,
+ 			font = true,
+ 			thread = true,
+ 			window = true,
+-			video = true,
++			-- video = true,
+ 		},
+ 		audio = {
+ 			mixwithsystem = true, -- Only relevant for Android / iOS.
+diff --git a/src/modules/sound/lullaby/Sound.cpp b/src/modules/sound/lullaby/Sound.cpp
+index 4eaf5b0..0ac0ca0 100644
+--- a/src/modules/sound/lullaby/Sound.cpp
++++ b/src/modules/sound/lullaby/Sound.cpp
+@@ -89,13 +89,16 @@ sound::Decoder *Sound::newDecoder(love::filesystem::FileData *data, int bufferSi
+ 	std::transform(ext.begin(), ext.end(), ext.begin(), tolower);
+ 
+ 	std::vector<DecoderImpl> possibleDecoders = {
++/*
+ #ifndef LOVE_NO_MODPLUG
+ 		DecoderImplFor<ModPlugDecoder>(),
+ #endif // LOVE_NO_MODPLUG
+ #ifndef LOVE_NOMPG123
+ 		DecoderImplFor<Mpg123Decoder>(),
+ #endif // LOVE_NOMPG123
++*/
+ 		DecoderImplFor<VorbisDecoder>(),
++/*
+ #ifdef LOVE_SUPPORT_GME
+ 		DecoderImplFor<GmeDecoder>(),
+ #endif // LOVE_SUPPORT_GME
+@@ -104,6 +107,7 @@ sound::Decoder *Sound::newDecoder(love::filesystem::FileData *data, int bufferSi
+ #endif
+ 		DecoderImplFor<WaveDecoder>(),
+ 		DecoderImplFor<FLACDecoder>(),
++*/
+ 		// DecoderImplFor<OtherDecoder>(),
+ 	};
+ 
