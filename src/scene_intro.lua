@@ -6,11 +6,11 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local t1 = love.graphics.newText(font[80], 'B')
+  local t1 = love.graphics.newText(font(80), 'B')
 
   local btnStart = button(
-    draw.enclose(love.graphics.newText(font[36], 'Start'), 120, 60),
-    function () replaceScene(sceneIntro(), 'fadeBlack') end
+    draw.enclose(love.graphics.newText(font(36), 'Start'), 120, 60),
+    function () replaceScene(sceneIntro(), transitions['fade'](0.1, 0.1, 0.1)) end
   )
   btnStart.x = W * 0.5
   btnStart.y = H * 0.65
