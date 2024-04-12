@@ -6,7 +6,7 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local t1 = love.graphics.newText(font[80], 'A')
+  local t1 = love.graphics.newText(font[80], 'B')
 
   local btnStart = button(
     draw.enclose(love.graphics.newText(font[36], 'Start'), 120, 60),
