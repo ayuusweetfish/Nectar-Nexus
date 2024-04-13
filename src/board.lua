@@ -82,16 +82,20 @@ function Board.create()
     each('butterfly', function (o)
       local ro, co = o.r, o.c
       local best_dist, best_dir_diff, best_dir =
-        b.nrows + b.ncols, 4, nil
+        (b.nrows + b.ncols) * 2, 4, nil
       if r == nil then
         best_dir = o.dir
       else
+        local manh_dist0 = math.abs(ro - r) + math.abs(co - c)
         for step_dir = 1, 4 do
           local r1 = ro + moves[step_dir][1]
           local c1 = co + moves[step_dir][2]
           local dist = math.max(math.abs(r1 - r), math.abs(c1 - c))
+          local manh_dist = math.abs(r1 - r) + math.abs(c1 - c)
+          if manh_dist > manh_dist0 then dist = (b.nrows + b.ncols) * 2 end
           local dir_delta = (step_dir - o.dir + 4) % 4
           local dir_diff = (dir_delta == 3 and 1 or dir_delta)
+          if dir_diff == 2 then dist = dist + (b.nrows + b.ncols) end
           if dist < best_dist or (dist == best_dist and (
               dir_diff < best_dir_diff or (
               dir_diff == best_dir_diff and dir_delta == 3))) then
@@ -111,7 +115,7 @@ function Board.create()
           undoable_set(changes, o, 'c', c1)
           -- Meet any flowers?
           local target = find_one(r1, c1, 'pollen')
-          if target ~= nil then
+          if target ~= nil and not target.visited then
             if o.carrying ~= nil then
               if o.carrying.group == target.group then
                 undoable_set(changes, target, 'visited', true)
