@@ -22,26 +22,20 @@ return function ()
   local board = Board.create()
 
   local button = require 'button'
-  local btnUndo
-  btnUndo = button(
+  local btn_undo, btn_undo_fn
+  btn_undo = button(
     draw.enclose(love.graphics.newText(font(36), 'Undo'), 120, 60),
-    function ()
-      board.undo()
-      btnUndo.enabled = board.can_undo()
-    end
+    function () btn_undo_fn() end
   )
-  btnUndo.x = W * 0.2
-  btnUndo.y = H * 0.1
-  btnUndo.enabled = false
-  btnUndo.response_when_disabled = true
-  local buttons = { btnUndo }
+  btn_undo.x = W * 0.2
+  btn_undo.y = H * 0.1
+  btn_undo.enabled = false
+  btn_undo.response_when_disabled = true
+  local buttons = { btn_undo }
 
   local cell_w = 100
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
-
-  local board_anims
-  local since_anim = 0
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -53,6 +47,15 @@ return function ()
   end
 
   local pt_r, pt_c
+
+  local board_anims
+  local since_anim = 0
+
+  btn_undo_fn = function ()
+    board.undo()
+    btn_undo.enabled = board.can_undo()
+    board_anims = nil
+  end
 
   s.press = function (x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
@@ -71,7 +74,7 @@ return function ()
     local r1, c1 = pt_to_cell(x, y)
     if r1 == pt_r and c1 == pt_c then
       board_anims = board.trigger(r1, c1)
-      btnUndo.enabled = board.can_undo()
+      btn_undo.enabled = board.can_undo()
       since_anim = 0
     end
     pt_r, pt_c = nil, nil
