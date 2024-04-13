@@ -8,6 +8,15 @@ return function ()
 
   local board = Board.create()
 
+  local button = require 'button'
+  local btnUndo = button(
+    draw.enclose(love.graphics.newText(font(36), 'Undo'), 120, 60),
+    function () board.undo() end
+  )
+  btnUndo.x = W * 0.2
+  btnUndo.y = H * 0.1
+  local buttons = { btnUndo }
+
   local cell_w = 100
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
@@ -24,6 +33,7 @@ return function ()
   local pt_r, pt_c
 
   s.press = function (x, y)
+    for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
   end
 
@@ -31,9 +41,11 @@ return function ()
   end
 
   s.move = function (x, y)
+    for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
   end
 
   s.release = function (x, y)
+    for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
     local r1, c1 = pt_to_cell(x, y)
     if r1 == pt_r and c1 == pt_c then
       board.trigger(r1, c1)
@@ -42,6 +54,7 @@ return function ()
   end
 
   s.update = function ()
+    for i = 1, #buttons do buttons[i].update() end
   end
 
   s.draw = function ()
@@ -114,6 +127,10 @@ return function ()
         board_offs_y + cell_w * pt_r,
         cell_w, cell_w)
     end
+
+    -- Buttons
+    love.graphics.setColor(1, 1, 1)
+    for i = 1, #buttons do buttons[i].draw() end
   end
 
   s.destroy = function ()

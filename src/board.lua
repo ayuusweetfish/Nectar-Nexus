@@ -6,7 +6,7 @@ function Board.create()
   local b = {}
 
   b.nrows = 3
-  b.ncols = 5
+  b.ncols = 6
 
   b.objs = {
     obstacle = {},
@@ -18,16 +18,16 @@ function Board.create()
     local t = b.objs[name]
     t[#t + 1] = obj
   end
-  add('obstacle', {r = 0, c = 3})
   add('obstacle', {r = 0, c = 4})
-  add('bloom', {r = 0, c = 1, used = false})
-  add('bloom', {r = 1, c = 0, used = false})
-  add('bloom', {r = 2, c = 3, used = false})
+  add('obstacle', {r = 0, c = 5})
+  add('bloom', {r = 0, c = 2, used = false})
+  add('bloom', {r = 0, c = 0, used = false})
+  add('bloom', {r = 2, c = 4, used = false})
+  add('pollen', {r = 1, c = 3, group = 1, visited = false})
   add('pollen', {r = 1, c = 2, group = 1, visited = false})
-  add('pollen', {r = 1, c = 1, group = 1, visited = false})
-  add('pollen', {r = 2, c = 1, group = 2, visited = false})
   add('pollen', {r = 2, c = 2, group = 2, visited = false})
-  add('butterfly', {r = 1, c = 4, dir = 2, carrying = nil})
+  add('pollen', {r = 2, c = 3, group = 2, visited = false})
+  add('butterfly', {r = 1, c = 5, dir = 2, carrying = nil})
 
   local each = function (name, fn)
     local t = b.objs[name]
@@ -58,7 +58,20 @@ function Board.create()
 
   local moves = Board.moves
 
+  -- List of (list of {table, index, value})
+  local undo = {}
+
+  local undoable_set = function (changes, table, key, value)
+    local prev_value = table[key]
+    table[key] = value
+    changes[#changes + 1] = {table, key, prev_value}
+  end
+
+  -- Returns undo list and animations
   local move_insects = function (r, c)
+    local changes = {}
+    local anims = {}
+
     each('butterfly', function (o)
       local ro, co = o.r, o.c
       local best_dist, best_dir_diff, best_dir =
@@ -84,41 +97,56 @@ function Board.create()
         local c1 = o.c + moves[best_dir][2]
         if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols and
             find_one(r1, c1, 'obstacle') == nil then
-          o.r = r1
-          o.c = c1
+          undoable_set(changes, o, 'r', r1)
+          undoable_set(changes, o, 'c', c1)
           -- Meet any flowers?
           local target = find_one(r1, c1, 'pollen')
           if target ~= nil then
             if o.carrying ~= nil then
               if o.carrying.group == target.group then
-                target.visited = true
-                o.carrying = nil
+                undoable_set(changes, target, 'visited', true)
+                undoable_set(changes, o, 'carrying', nil)
               end
             else
-              target.visited = true
-              o.carrying = target
+              undoable_set(changes, target, 'visited', true)
+              undoable_set(changes, o, 'carrying', target)
             end
           end
         end
       end
-      o.dir = best_dir
+      undoable_set(changes, o, 'dir', best_dir)
     end)
+
+    return changes, anims
   end
 
   b.trigger = function (r, c)
     if r == nil then
-      move_insects(nil, nil)
+      local changes, anims = move_insects(nil, nil)
+      undo[#undo + 1] = changes
     end
     local t = b.objs['bloom']
     for i = 1, #t do
       local o = t[i]
       if o.r == r and o.c == c then
         if not o.used then
+          local changes, anims = move_insects(r, c)
           o.used = true
-          move_insects(r, c)
+          changes[#changes + 1] = {o, 'used', false}
+          undo[#undo + 1] = changes
         end
         break
       end
+    end
+  end
+
+  b.undo = function ()
+    if #undo == 0 then return end
+    local changes = undo[#undo]
+    undo[#undo] = nil
+    for i = #changes, 1, -1 do
+      local table, key, value = unpack(changes[i])
+      table[key] = value
     end
   end
 
