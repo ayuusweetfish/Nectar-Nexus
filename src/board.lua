@@ -176,6 +176,7 @@ function Board.create()
       table[key] = value
     end
   end
+  b.can_undo = function () return #undo > 0 end
 
   return b
 end

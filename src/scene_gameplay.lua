@@ -22,12 +22,18 @@ return function ()
   local board = Board.create()
 
   local button = require 'button'
-  local btnUndo = button(
+  local btnUndo
+  btnUndo = button(
     draw.enclose(love.graphics.newText(font(36), 'Undo'), 120, 60),
-    function () board.undo() end
+    function ()
+      board.undo()
+      btnUndo.enabled = board.can_undo()
+    end
   )
   btnUndo.x = W * 0.2
   btnUndo.y = H * 0.1
+  btnUndo.enabled = false
+  btnUndo.response_when_disabled = true
   local buttons = { btnUndo }
 
   local cell_w = 100
@@ -65,6 +71,7 @@ return function ()
     local r1, c1 = pt_to_cell(x, y)
     if r1 == pt_r and c1 == pt_c then
       board_anims = board.trigger(r1, c1)
+      btnUndo.enabled = board.can_undo()
       since_anim = 0
     end
     pt_r, pt_c = nil, nil
@@ -224,8 +231,10 @@ return function ()
     end
 
     -- Buttons
-    love.graphics.setColor(1, 1, 1)
-    for i = 1, #buttons do buttons[i].draw() end
+    for i = 1, #buttons do
+      love.graphics.setColor(1, 1, 1, buttons[i].enabled and 1 or 0.3)
+      buttons[i].draw()
+    end
   end
 
   s.destroy = function ()

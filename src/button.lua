@@ -14,7 +14,7 @@ return function (drawable, fn)
   local inside = false
 
   s.press = function (x, y)
-    if not s.enabled then return false end
+    if not s.enabled and not s.response_when_disabled then return false end
     if x >= s.x - w/2 and x <= s.x + w/2 and
        y >= s.y - h/2 and y <= s.y + h/2 then
       held = true
@@ -35,13 +35,14 @@ return function (drawable, fn)
 
   s.release = function (x, y)
     if not held then return false end
-    if inside then fn() inside = false end
+    if s.enabled and inside then fn() end
+    inside = false
     held = false
     return true
   end
 
   s.update = function ()
-    local target = (inside and 1.12 or 1)
+    local target = ((s.enabled and inside) and 1.12 or 1)
     if math.abs(target - scale) <= 0.005 then
       scale = target
     else
