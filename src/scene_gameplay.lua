@@ -64,6 +64,13 @@ return function ()
     end
 
     -- Objects
+    board.each('obstacle', function (o)
+      love.graphics.setColor(0.7, 0.7, 0.7, 0.3)
+      love.graphics.rectangle('fill',
+        board_offs_x + cell_w * o.c,
+        board_offs_y + cell_w * o.r,
+        cell_w, cell_w)
+    end)
     board.each('bloom', function (o)
       love.graphics.setColor(1, 0.4, 0.5, o.used and 0.2 or 1)
       love.graphics.circle('fill',

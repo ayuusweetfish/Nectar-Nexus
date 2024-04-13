@@ -9,6 +9,7 @@ function Board.create()
   b.ncols = 5
 
   b.objs = {
+    obstacle = {},
     bloom = {},
     pollen = {},
     butterfly = {},
@@ -17,6 +18,8 @@ function Board.create()
     local t = b.objs[name]
     t[#t + 1] = obj
   end
+  add('obstacle', {r = 0, c = 3})
+  add('obstacle', {r = 0, c = 4})
   add('bloom', {r = 0, c = 1, used = false})
   add('bloom', {r = 1, c = 0, used = false})
   add('bloom', {r = 2, c = 3, used = false})
@@ -79,11 +82,12 @@ function Board.create()
       if best_dir_diff ~= 2 then
         local r1 = o.r + moves[best_dir][1]
         local c1 = o.c + moves[best_dir][2]
-        if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols then
+        if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols and
+            find_one(r1, c1, 'obstacle') == nil then
           o.r = r1
           o.c = c1
           -- Meet any flowers?
-          local target = find_one(o.r, o.c, 'pollen')
+          local target = find_one(r1, c1, 'pollen')
           if target ~= nil then
             if o.carrying ~= nil then
               if o.carrying.group == target.group then
