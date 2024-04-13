@@ -9,8 +9,8 @@ return function ()
   local board = Board.create()
 
   local cell_w = 100
-  local board_offs_x = 200
-  local board_offs_y = 100
+  local board_offs_x = (W - cell_w * board.ncols) / 2
+  local board_offs_y = (H - cell_w * board.nrows) / 2
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -35,7 +35,7 @@ return function ()
 
   s.release = function (x, y)
     local r1, c1 = pt_to_cell(x, y)
-    if r1 ~= nil and r1 == pt_r and c1 == pt_c then
+    if r1 == pt_r and c1 == pt_c then
       board.trigger(r1, c1)
     end
     pt_r, pt_c = nil, nil
@@ -73,9 +73,11 @@ return function ()
     end)
     local group_colours = {
       {0.8, 0.5, 1},
+      {0.5, 0.9, 0.5},
     }
     board.each('pollen', function (o)
-      love.graphics.setColor(unpack(group_colours[o.group]))
+      local tint = group_colours[o.group]
+      love.graphics.setColor(tint[1], tint[2], tint[3], o.visited and 0.2 or 1)
       love.graphics.circle('fill',
         board_offs_x + cell_w * (o.c + 0.5),
         board_offs_y + cell_w * (o.r + 0.5),
@@ -84,6 +86,11 @@ return function ()
     board.each('butterfly', function (o)
       local x0 = board_offs_x + cell_w * (o.c + 0.5)
       local y0 = board_offs_y + cell_w * (o.r + 0.5)
+      if o.carrying ~= nil then
+        local tint = group_colours[o.carrying.group]
+        love.graphics.setColor(tint[1], tint[2], tint[3])
+        love.graphics.circle('fill', x0, y0, cell_w * 0.25)
+      end
       love.graphics.setColor(1, 1, 0.3)
       love.graphics.circle('fill', x0, y0, cell_w * 0.2)
       love.graphics.setLineWidth(4.0)
