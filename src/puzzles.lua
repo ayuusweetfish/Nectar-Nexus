@@ -45,6 +45,7 @@ return {
       {'pollen', 2, 5, group = 3},
       {'pollen', 2, 6, group = 3},
       {'butterfly', 1, 2, dir = 1},
+      -- {'butterfly', 2, 2, dir = 1},
     },
   --[[
     size = {3, 6},

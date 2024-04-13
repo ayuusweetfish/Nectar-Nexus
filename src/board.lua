@@ -44,7 +44,12 @@ function Board.create(puzzle)
 
   local each = function (name, fn)
     local t = b.objs[name]
-    for i = 1, #t do fn(t[i]) end
+    -- Handles all newly spawned objects
+    local i = 1
+    while i <= #t do
+      fn(t[i])
+      i = i + 1
+    end
   end
   b.each = each
 
@@ -80,6 +85,10 @@ function Board.create(puzzle)
     table[key] = value
     changes[#changes + 1] = {table, key, prev_value}
   end
+  local undoable_add = function (changes, o)
+    local table = b.objs[o.name]
+    undoable_set(changes, table, #table + 1, o)
+  end
 
   local add_anim = function (anims, target, name, args)
     if anims[target] == nil then anims[target] = {} end
@@ -96,8 +105,9 @@ function Board.create(puzzle)
       local ro, co = o.r, o.c
       local best_dist, best_dir_diff, best_dir =
         (b.nrows + b.ncols) * 2, 4, nil
-      if r == nil then
+      if r == nil or o.newly_spawned then
         best_dir = o.dir
+        o.newly_spawned = nil
       else
         local manh_dist0 = math.abs(ro - r) + math.abs(co - c)
         for step_dir = 1, 4 do
@@ -137,12 +147,10 @@ function Board.create(puzzle)
             undoable_set(changes, weeds, 'triggered', true)
             -- Spawn butterflies!
             local d1, d2 = best_dir % 4 + 1, (best_dir + 2) % 4 + 1
-            local b1 = add({'butterfly', r1 + moves[d1][1], c1 + moves[d1][2], dir = d1}, true)
-            local b2 = add({'butterfly', r1 + moves[d2][1], c1 + moves[d2][2], dir = d2}, true)
-            spawned[#spawned + 1] = b1
-            spawned[#spawned + 1] = b2
-            add_anim(anims, b1, 'move', {from_r = r1, from_c = c1})
-            add_anim(anims, b2, 'move', {from_r = r1, from_c = c1})
+            local b1 = add({'butterfly', r1, c1, dir = d1, newly_spawned = true}, true)
+            local b2 = add({'butterfly', r1, c1, dir = d2, newly_spawned = true}, true)
+            undoable_add(changes, b1)
+            undoable_add(changes, b2)
             add_anim(anims, b1, 'spawn_from_weeds')
             add_anim(anims, b2, 'spawn_from_weeds')
             r1 = r1 + moves[best_dir][1]
@@ -184,12 +192,6 @@ function Board.create(puzzle)
       end
       undoable_set(changes, o, 'dir', best_dir)
     end)
-
-    for i = 1, #spawned do
-      local o = spawned[i]
-      local t = b.objs[o.name]
-      undoable_set(changes, t, #t + 1, o)
-    end
 
     return changes, anims
   end
