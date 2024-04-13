@@ -20,7 +20,7 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local board = Board.create(puzzles[2])
+  local board = Board.create(puzzles[3])
 
   local button = require 'button'
   local btn_undo, btn_undo_fn
@@ -126,6 +126,13 @@ return function ()
         board_offs_y + cell_w * o.r,
         cell_w, cell_w)
     end)
+    board.each('weeds', function (o)
+      love.graphics.setColor(0.7, 1, 0.8, 0.5)
+      love.graphics.rectangle('fill',
+        board_offs_x + cell_w * o.c,
+        board_offs_y + cell_w * o.r,
+        cell_w, cell_w)
+    end)
     board.each('bloom', function (o)
       local used_rate = (o.used and 1 or 0)
       local anim_progress = clamp_01(since_anim / 50)
@@ -141,6 +148,7 @@ return function ()
     local group_colours = {
       {0.8, 0.5, 1},
       {0.5, 0.9, 0.5},
+      {0.4, 0.8, 1},
     }
     board.each('pollen', function (o)
       local tint = group_colours[o.group]
@@ -177,7 +185,8 @@ return function ()
     end)
     board.each('butterfly', function (o)
       local r0, c0 = o.r, o.c
-      local anim_progress = clamp_01((since_anim - (find_anim(o, 'turn') and 30 or 0)) / 60)
+      local anim_progress = clamp_01((since_anim -
+        (find_anim(o, 'turn') and 30 or (find_anim(o, 'spawn_from_weeds') and 60 or 0))) / 60)
       if anim_progress < 1 then
         local a = find_anim(o, 'move')
         if a ~= nil then
@@ -212,7 +221,8 @@ return function ()
         love.graphics.circle('fill', x0, y0, cell_w * (0.2 + carrying_rate * 0.05))
       end
 
-      love.graphics.setColor(1, 1, 0.3)
+      local alpha = find_anim(o, 'spawn_from_weeds') and clamp_01((since_anim - 60) / 60) or 1
+      love.graphics.setColor(1, 1, 0.3, alpha)
       love.graphics.circle('fill', x0, y0, cell_w * 0.2)
 
       local dir_angle = (o.dir - 1)

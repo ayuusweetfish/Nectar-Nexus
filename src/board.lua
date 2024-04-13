@@ -9,27 +9,37 @@ function Board.create(puzzle)
     obstacle = {},
     reflect_obstacle = {},
     bloom = {},
+    weeds = {},
     pollen = {},
     butterfly = {},
   }
 
-  b.nrows, b.ncols = unpack(puzzle.size)
-  for i = 1, #puzzle.objs do
-    local name, r, c = unpack(puzzle.objs[i])
-    local o = {r = r, c = c}
-    for k, v in pairs(puzzle.objs[i]) do
+  local add = function (args, defer)
+    local name, r, c = unpack(args)
+    local o = {r = r, c = c, name = name}
+    for k, v in pairs(args) do
       if type(k) == 'string' then o[k] = v end
     end
     if name == 'bloom' then
       o.used = false
+    elseif name == 'weeds' then
+      o.triggered = false
     elseif name == 'pollen' then
       o.visited = false
       o.matched = false
     elseif name == 'butterfly' then
       o.carrying = nil
     end
-    local t = b.objs[name]
-    t[#t + 1] = o
+    if not defer then
+      local t = b.objs[name]
+      t[#t + 1] = o
+    end
+    return o
+  end
+
+  b.nrows, b.ncols = unpack(puzzle.size)
+  for i = 1, #puzzle.objs do
+    add(puzzle.objs[i])
   end
 
   local each = function (name, fn)
@@ -80,6 +90,7 @@ function Board.create(puzzle)
   local move_insects = function (r, c)
     local changes = {}
     local anims = {}
+    local spawned = {}
 
     each('butterfly', function (o)
       local ro, co = o.r, o.c
@@ -109,6 +120,7 @@ function Board.create(puzzle)
         local r1 = o.r + moves[best_dir][1]
         local c1 = o.c + moves[best_dir][2]
         if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols then
+          -- Reflect?
           if find_one(r1, c1, 'reflect_obstacle') then
             best_dir = (best_dir + 1) % 4 + 1
             local r2 = o.r + moves[best_dir][1]
@@ -119,6 +131,24 @@ function Board.create(puzzle)
               r1, c1 = r2, c2
             end
           end
+          -- Weeds?
+          local weeds = find_one(r1, c1, 'weeds')
+          if weeds ~= nil and not weeds.triggered then
+            undoable_set(changes, weeds, 'triggered', true)
+            -- Spawn butterflies!
+            local d1, d2 = best_dir % 4 + 1, (best_dir + 2) % 4 + 1
+            local b1 = add({'butterfly', r1 + moves[d1][1], c1 + moves[d1][2], dir = d1}, true)
+            local b2 = add({'butterfly', r1 + moves[d2][1], c1 + moves[d2][2], dir = d2}, true)
+            spawned[#spawned + 1] = b1
+            spawned[#spawned + 1] = b2
+            add_anim(anims, b1, 'move', {from_r = r1, from_c = c1})
+            add_anim(anims, b2, 'move', {from_r = r1, from_c = c1})
+            add_anim(anims, b1, 'spawn_from_weeds')
+            add_anim(anims, b2, 'spawn_from_weeds')
+            r1 = r1 + moves[best_dir][1]
+            c1 = c1 + moves[best_dir][2]
+          end
+          -- Move if not blocked
           if not find_one(r1, c1, 'obstacle') then
             -- Animation
             add_anim(anims, o, 'move', {from_r = o.r, from_c = o.c})
@@ -154,6 +184,12 @@ function Board.create(puzzle)
       end
       undoable_set(changes, o, 'dir', best_dir)
     end)
+
+    for i = 1, #spawned do
+      local o = spawned[i]
+      local t = b.objs[o.name]
+      undoable_set(changes, t, #t + 1, o)
+    end
 
     return changes, anims
   end
