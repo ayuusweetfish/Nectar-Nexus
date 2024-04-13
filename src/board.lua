@@ -2,7 +2,7 @@ local Board = {
   moves = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}},
 }
 
-function Board.create()
+function Board.create(puzzle)
   local b = {}
 
   b.objs = {
@@ -12,36 +12,25 @@ function Board.create()
     pollen = {},
     butterfly = {},
   }
-  local add = function (name, obj)
+
+  b.nrows, b.ncols = unpack(puzzle.size)
+  for i = 1, #puzzle.objs do
+    local name, r, c = unpack(puzzle.objs[i])
+    local o = {r = r, c = c}
+    for k, v in pairs(puzzle.objs[i]) do
+      if type(k) == 'string' then o[k] = v end
+    end
+    if name == 'bloom' then
+      o.used = false
+    elseif name == 'pollen' then
+      o.visited = false
+      o.matched = false
+    elseif name == 'butterfly' then
+      o.carrying = nil
+    end
     local t = b.objs[name]
-    t[#t + 1] = obj
+    t[#t + 1] = o
   end
---[[
-  b.nrows = 3
-  b.ncols = 7
-  add('obstacle', {r = 0, c = 5})
-  add('obstacle', {r = 0, c = 6})
-  add('obstacle', {r = 1, c = 1})
-  add('bloom', {r = 0, c = 3, used = false})
-  add('bloom', {r = 0, c = 0, used = false})
-  add('bloom', {r = 2, c = 5, used = false})
-  add('pollen', {r = 1, c = 4, group = 1, visited = false, matched = false})
-  add('pollen', {r = 1, c = 3, group = 1, visited = false, matched = false})
-  add('pollen', {r = 2, c = 3, group = 2, visited = false, matched = false})
-  add('pollen', {r = 2, c = 4, group = 2, visited = false, matched = false})
-  add('butterfly', {r = 1, c = 6, dir = 2, carrying = nil})
-]]
-  b.nrows = 5
-  b.ncols = 5
-  add('reflect_obstacle', {r = 4, c = 0})
-  add('bloom', {r = 2, c = 1, used = false})
-  add('bloom', {r = 1, c = 3, used = false})
-  add('pollen', {r = 0, c = 2, group = 1, visited = false, matched = false})
-  add('pollen', {r = 1, c = 2, group = 1, visited = false, matched = false})
-  add('pollen', {r = 2, c = 3, group = 2, visited = false, matched = false})
-  add('pollen', {r = 2, c = 4, group = 2, visited = false, matched = false})
-  add('butterfly', {r = 3, c = 4, dir = 3, carrying = nil})
-  add('butterfly', {r = 4, c = 4, dir = 3, carrying = nil})
 
   local each = function (name, fn)
     local t = b.objs[name]

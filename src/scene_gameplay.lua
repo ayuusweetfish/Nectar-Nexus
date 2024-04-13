@@ -1,5 +1,6 @@
 local draw = require 'draw_utils'
 local Board = require 'board'
+local puzzles = require 'puzzles'
 
 local ease_quad_in_out = function (x)
   if x < 0.5 then return x * x * 2
@@ -19,7 +20,7 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local board = Board.create()
+  local board = Board.create(puzzles[2])
 
   local button = require 'button'
   local btn_undo, btn_undo_fn
