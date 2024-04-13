@@ -1,6 +1,19 @@
 local draw = require 'draw_utils'
 local Board = require 'board'
 
+local ease_quad_in_out = function (x)
+  if x < 0.5 then return x * x * 2
+  else return 1 - (1 - x) * (1 - x) * 2 end
+end
+local ease_exp_out = function (x)
+  return 1 - (1 - x) * math.exp(-3 * x)
+end
+local clamp_01 = function (x)
+  if x < 0 then return 0
+  elseif x > 1 then return 1
+  else return x end
+end
+
 return function ()
   local s = {}
   local W, H = W, H
@@ -20,6 +33,9 @@ return function ()
   local cell_w = 100
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
+
+  local board_anims
+  local since_anim = 0
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -48,13 +64,21 @@ return function ()
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
     local r1, c1 = pt_to_cell(x, y)
     if r1 == pt_r and c1 == pt_c then
-      board.trigger(r1, c1)
+      board_anims = board.trigger(r1, c1)
+      since_anim = 0
     end
     pt_r, pt_c = nil, nil
   end
 
   s.update = function ()
     for i = 1, #buttons do buttons[i].update() end
+    since_anim = since_anim + 1
+  end
+
+  local find_anim = function (o, name)
+    if board_anims == nil then return nil end
+    if board_anims[o] == nil then return nil end
+    return board_anims[o][name]
   end
 
   s.draw = function ()
@@ -85,11 +109,16 @@ return function ()
         cell_w, cell_w)
     end)
     board.each('bloom', function (o)
-      love.graphics.setColor(1, 0.4, 0.5, o.used and 0.2 or 1)
+      local used_rate = (o.used and 1 or 0)
+      local anim_progress = clamp_01(since_anim / 50)
+      if anim_progress < 1 and find_anim(o, 'use') then
+        used_rate = ease_exp_out(anim_progress)
+      end
+      love.graphics.setColor(1, 0.4, 0.5, 1 - 0.8 * used_rate)
       love.graphics.circle('fill',
         board_offs_x + cell_w * (o.c + 0.5),
         board_offs_y + cell_w * (o.r + 0.5),
-        cell_w * (o.used and 0.4 or 0.25))
+        cell_w * (0.15 + 0.25 * used_rate))
     end)
     local group_colours = {
       {0.8, 0.5, 1},
@@ -97,26 +126,74 @@ return function ()
     }
     board.each('pollen', function (o)
       local tint = group_colours[o.group]
-      love.graphics.setColor(tint[1], tint[2], tint[3], o.visited and 0.2 or 1)
+
+      local shadow_radius = (o.matched and 0 or 1)
+      local anim_progress = clamp_01((since_anim - 120) / 60)
+      if anim_progress < 1 and find_anim(o, 'pollen_match') then
+        shadow_radius = 1 - ease_quad_in_out(anim_progress)
+      end
+      love.graphics.setColor(tint[1], tint[2], tint[3], 0.2)
       love.graphics.circle('fill',
         board_offs_x + cell_w * (o.c + 0.5),
         board_offs_y + cell_w * (o.r + 0.5),
+        cell_w * shadow_radius * 0.4)
+      love.graphics.setColor(tint[1], tint[2], tint[3], 0.2 * (1 - shadow_radius))
+      love.graphics.setLineWidth(2.0)
+      love.graphics.circle('line',
+        board_offs_x + cell_w * (o.c + 0.5),
+        board_offs_y + cell_w * (o.r + 0.5),
         cell_w * 0.4)
+
+      local highlight_radius = (o.visited and 0 or 1)
+      local anim_progress = clamp_01((since_anim - 50) / 60)
+      if anim_progress < 1 and find_anim(o, 'pollen_visit') ~= nil then
+        highlight_radius = 1 - ease_quad_in_out(anim_progress)
+      end
+      if highlight_radius > 0 then
+        love.graphics.setColor(tint[1], tint[2], tint[3], 1)
+        love.graphics.circle('fill',
+          board_offs_x + cell_w * (o.c + 0.5),
+          board_offs_y + cell_w * (o.r + 0.5),
+          cell_w * highlight_radius * 0.4)
+      end
     end)
     board.each('butterfly', function (o)
-      local x0 = board_offs_x + cell_w * (o.c + 0.5)
-      local y0 = board_offs_y + cell_w * (o.r + 0.5)
+      local r0, c0 = o.r, o.c
+      local anim_progress = clamp_01((since_anim - (find_anim(o, 'turn') and 30 or 0)) / 60)
+      if anim_progress < 1 then
+        local a = find_anim(o, 'move')
+        if a ~= nil then
+          anim_progress = ease_exp_out(anim_progress)
+          r0 = a.from_r + (r0 - a.from_r) * anim_progress
+          c0 = a.from_c + (c0 - a.from_c) * anim_progress
+        end
+      end
+      local x0 = board_offs_x + cell_w * (c0 + 0.5)
+      local y0 = board_offs_y + cell_w * (r0 + 0.5)
       if o.carrying ~= nil then
         local tint = group_colours[o.carrying.group]
         love.graphics.setColor(tint[1], tint[2], tint[3])
         love.graphics.circle('fill', x0, y0, cell_w * 0.25)
       end
+
       love.graphics.setColor(1, 1, 0.3)
       love.graphics.circle('fill', x0, y0, cell_w * 0.2)
+
+      local dir_angle = (o.dir - 1)
+      local anim_progress = clamp_01(since_anim / 60)
+      if anim_progress < 1 then
+        local a = find_anim(o, 'turn')
+        if a ~= nil then
+          local from_angle = (a.from_dir - 1)
+          local diff = (dir_angle - from_angle + 4) % 4
+          if diff == 3 then diff = -1 end
+          dir_angle = from_angle + diff * ease_exp_out(anim_progress)
+        end
+      end
       love.graphics.setLineWidth(4.0)
       love.graphics.line(x0, y0,
-        x0 + cell_w * 0.4 * Board.moves[o.dir][2],
-        y0 + cell_w * 0.4 * Board.moves[o.dir][1])
+        x0 + cell_w * 0.4 * math.cos(dir_angle * (math.pi / 2)),
+        y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
     end)
 
     -- Pointer
