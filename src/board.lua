@@ -6,7 +6,7 @@ function Board.create()
   local b = {}
 
   b.nrows = 3
-  b.ncols = 6
+  b.ncols = 7
 
   b.objs = {
     obstacle = {},
@@ -18,16 +18,17 @@ function Board.create()
     local t = b.objs[name]
     t[#t + 1] = obj
   end
-  add('obstacle', {r = 0, c = 4})
   add('obstacle', {r = 0, c = 5})
-  add('bloom', {r = 0, c = 2, used = false})
+  add('obstacle', {r = 0, c = 6})
+  add('obstacle', {r = 1, c = 1})
+  add('bloom', {r = 0, c = 3, used = false})
   add('bloom', {r = 0, c = 0, used = false})
-  add('bloom', {r = 2, c = 4, used = false})
+  add('bloom', {r = 2, c = 5, used = false})
+  add('pollen', {r = 1, c = 4, group = 1, visited = false})
   add('pollen', {r = 1, c = 3, group = 1, visited = false})
-  add('pollen', {r = 1, c = 2, group = 1, visited = false})
-  add('pollen', {r = 2, c = 2, group = 2, visited = false})
   add('pollen', {r = 2, c = 3, group = 2, visited = false})
-  add('butterfly', {r = 1, c = 5, dir = 2, carrying = nil})
+  add('pollen', {r = 2, c = 4, group = 2, visited = false})
+  add('butterfly', {r = 1, c = 6, dir = 2, carrying = nil})
 
   local each = function (name, fn)
     local t = b.objs[name]
@@ -82,7 +83,7 @@ function Board.create()
         for step_dir = 1, 4 do
           local r1 = ro + moves[step_dir][1]
           local c1 = co + moves[step_dir][2]
-          local dist = math.abs(r1 - r) + math.abs(c1 - c)
+          local dist = math.max(math.abs(r1 - r), math.abs(c1 - c))
           local dir_delta = (step_dir - o.dir + 4) % 4
           local dir_diff = (dir_delta == 3 and 1 or dir_delta)
           if dist < best_dist or (dist == best_dist and (
