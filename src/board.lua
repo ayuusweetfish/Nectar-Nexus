@@ -70,7 +70,7 @@ function Board.create()
 
   local add_anim = function (anims, target, name, args)
     if anims[target] == nil then anims[target] = {} end
-    anims[target][name] = args or true
+    anims[target][name] = args or {}
   end
 
   -- Returns undo list and animations
@@ -120,11 +120,13 @@ function Board.create()
                 add_anim(anims, target, 'pollen_match')
                 add_anim(anims, o.carrying, 'pollen_match')
                 undoable_set(changes, o, 'carrying', nil)
+                add_anim(anims, o, 'carry_pollen', {release_group = target.group})
               end
             else
               undoable_set(changes, target, 'visited', true)
               undoable_set(changes, o, 'carrying', target)
               add_anim(anims, target, 'pollen_visit')
+              add_anim(anims, o, 'carry_pollen')  -- release_group = nil: taking on
             end
           end
         end

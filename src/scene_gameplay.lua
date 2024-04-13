@@ -170,10 +170,28 @@ return function ()
       end
       local x0 = board_offs_x + cell_w * (c0 + 0.5)
       local y0 = board_offs_y + cell_w * (r0 + 0.5)
-      if o.carrying ~= nil then
-        local tint = group_colours[o.carrying.group]
+
+      local carrying_group = nil
+      local carrying_rate = 0
+      local a
+      local anim_progress = clamp_01((since_anim - 60) / 60)
+      if anim_progress < 1 then
+        a = find_anim(o, 'carry_pollen')
+      end
+      if o.carrying ~= nil or a ~= nil then
+        if o.carrying ~= nil then
+          carrying_group = o.carrying.group
+          carrying_rate = 1
+          if a ~= nil then
+            carrying_rate = ease_exp_out(anim_progress)
+          end
+        else
+          carrying_group = a.release_group
+          carrying_rate = 1 - ease_exp_out(anim_progress)
+        end
+        local tint = group_colours[carrying_group]
         love.graphics.setColor(tint[1], tint[2], tint[3])
-        love.graphics.circle('fill', x0, y0, cell_w * 0.25)
+        love.graphics.circle('fill', x0, y0, cell_w * (0.2 + carrying_rate * 0.05))
       end
 
       love.graphics.setColor(1, 1, 0.3)
