@@ -64,6 +64,7 @@ function Board.create()
 
   local undoable_set = function (changes, table, key, value)
     local prev_value = table[key]
+    if prev_value == value then return end
     table[key] = value
     changes[#changes + 1] = {table, key, prev_value}
   end
@@ -143,6 +144,10 @@ function Board.create()
   b.trigger = function (r, c)
     if r == nil then
       local changes, anims = move_insects(nil, nil)
+      if #changes == 0 then
+        -- Nothing happens
+        return nil
+      end
       undo[#undo + 1] = changes
       return anims
     end
