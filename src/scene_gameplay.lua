@@ -82,11 +82,14 @@ return function ()
         cell_w * 0.4)
     end)
     board.each('butterfly', function (o)
+      local x0 = board_offs_x + cell_w * (o.c + 0.5)
+      local y0 = board_offs_y + cell_w * (o.r + 0.5)
       love.graphics.setColor(1, 1, 0.3)
-      love.graphics.circle('fill',
-        board_offs_x + cell_w * (o.c + 0.5),
-        board_offs_y + cell_w * (o.r + 0.5),
-        cell_w * 0.2)
+      love.graphics.circle('fill', x0, y0, cell_w * 0.2)
+      love.graphics.setLineWidth(4.0)
+      love.graphics.line(x0, y0,
+        x0 + cell_w * 0.4 * Board.moves[o.dir][2],
+        y0 + cell_w * 0.4 * Board.moves[o.dir][1])
     end)
 
     -- Pointer
