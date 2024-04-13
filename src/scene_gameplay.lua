@@ -118,6 +118,13 @@ return function ()
         board_offs_y + cell_w * o.r,
         cell_w, cell_w)
     end)
+    board.each('reflect_obstacle', function (o)
+      love.graphics.setColor(1, 0.8, 0.7, 0.5)
+      love.graphics.rectangle('fill',
+        board_offs_x + cell_w * o.c,
+        board_offs_y + cell_w * o.r,
+        cell_w, cell_w)
+    end)
     board.each('bloom', function (o)
       local used_rate = (o.used and 1 or 0)
       local anim_progress = clamp_01(since_anim / 50)

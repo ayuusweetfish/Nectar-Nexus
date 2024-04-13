@@ -5,11 +5,9 @@ local Board = {
 function Board.create()
   local b = {}
 
-  b.nrows = 3
-  b.ncols = 7
-
   b.objs = {
     obstacle = {},
+    reflect_obstacle = {},
     bloom = {},
     pollen = {},
     butterfly = {},
@@ -18,6 +16,9 @@ function Board.create()
     local t = b.objs[name]
     t[#t + 1] = obj
   end
+--[[
+  b.nrows = 3
+  b.ncols = 7
   add('obstacle', {r = 0, c = 5})
   add('obstacle', {r = 0, c = 6})
   add('obstacle', {r = 1, c = 1})
@@ -29,6 +30,18 @@ function Board.create()
   add('pollen', {r = 2, c = 3, group = 2, visited = false, matched = false})
   add('pollen', {r = 2, c = 4, group = 2, visited = false, matched = false})
   add('butterfly', {r = 1, c = 6, dir = 2, carrying = nil})
+]]
+  b.nrows = 5
+  b.ncols = 5
+  add('reflect_obstacle', {r = 4, c = 0})
+  add('bloom', {r = 2, c = 1, used = false})
+  add('bloom', {r = 1, c = 3, used = false})
+  add('pollen', {r = 0, c = 2, group = 1, visited = false, matched = false})
+  add('pollen', {r = 1, c = 2, group = 1, visited = false, matched = false})
+  add('pollen', {r = 2, c = 3, group = 2, visited = false, matched = false})
+  add('pollen', {r = 2, c = 4, group = 2, visited = false, matched = false})
+  add('butterfly', {r = 3, c = 4, dir = 3, carrying = nil})
+  add('butterfly', {r = 4, c = 4, dir = 3, carrying = nil})
 
   local each = function (name, fn)
     local t = b.objs[name]
@@ -106,32 +119,43 @@ function Board.create()
       if best_dir_diff ~= 2 then
         local r1 = o.r + moves[best_dir][1]
         local c1 = o.c + moves[best_dir][2]
-        if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols and
-            find_one(r1, c1, 'obstacle') == nil then
-          -- Animation
-          add_anim(anims, o, 'move', {from_r = o.r, from_c = o.c})
-          -- Apply changes
-          undoable_set(changes, o, 'r', r1)
-          undoable_set(changes, o, 'c', c1)
-          -- Meet any flowers?
-          local target = find_one(r1, c1, 'pollen')
-          if target ~= nil and not target.visited then
-            if o.carrying ~= nil then
-              if o.carrying.group == target.group then
+        if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols then
+          if find_one(r1, c1, 'reflect_obstacle') then
+            best_dir = (best_dir + 1) % 4 + 1
+            local r2 = o.r + moves[best_dir][1]
+            local c2 = o.c + moves[best_dir][2]
+            if r2 >= 0 and r2 < b.nrows and c2 >= 0 and c2 < b.ncols
+                and not find_one(r2, c2, 'obstacle')
+                and not find_one(r2, c2, 'reflect_obstacle') then
+              r1, c1 = r2, c2
+            end
+          end
+          if not find_one(r1, c1, 'obstacle') then
+            -- Animation
+            add_anim(anims, o, 'move', {from_r = o.r, from_c = o.c})
+            -- Apply changes
+            undoable_set(changes, o, 'r', r1)
+            undoable_set(changes, o, 'c', c1)
+            -- Meet any flowers?
+            local target = find_one(r1, c1, 'pollen')
+            if target ~= nil and not target.visited then
+              if o.carrying ~= nil then
+                if o.carrying.group == target.group then
+                  undoable_set(changes, target, 'visited', true)
+                  undoable_set(changes, target, 'matched', true)
+                  undoable_set(changes, o.carrying, 'matched', true)
+                  add_anim(anims, target, 'pollen_visit')
+                  add_anim(anims, target, 'pollen_match')
+                  add_anim(anims, o.carrying, 'pollen_match')
+                  undoable_set(changes, o, 'carrying', nil)
+                  add_anim(anims, o, 'carry_pollen', {release_group = target.group})
+                end
+              else
                 undoable_set(changes, target, 'visited', true)
-                undoable_set(changes, target, 'matched', true)
-                undoable_set(changes, o.carrying, 'matched', true)
+                undoable_set(changes, o, 'carrying', target)
                 add_anim(anims, target, 'pollen_visit')
-                add_anim(anims, target, 'pollen_match')
-                add_anim(anims, o.carrying, 'pollen_match')
-                undoable_set(changes, o, 'carrying', nil)
-                add_anim(anims, o, 'carry_pollen', {release_group = target.group})
+                add_anim(anims, o, 'carry_pollen')  -- release_group = nil: taking on
               end
-            else
-              undoable_set(changes, target, 'visited', true)
-              undoable_set(changes, o, 'carrying', target)
-              add_anim(anims, target, 'pollen_visit')
-              add_anim(anims, o, 'carry_pollen')  -- release_group = nil: taking on
             end
           end
         end
