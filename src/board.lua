@@ -196,7 +196,8 @@ function Board.create(puzzle)
     return changes, anims
   end
 
-  b.trigger = function (r, c)
+  local trigger
+  trigger = function (r, c)
     if r == nil then
       local changes, anims = move_insects(nil, nil)
       if #changes == 0 then
@@ -220,7 +221,9 @@ function Board.create(puzzle)
         break
       end
     end
+    return trigger(nil, nil)
   end
+  b.trigger = trigger
 
   b.undo = function ()
     if #undo == 0 then return end
