@@ -137,6 +137,12 @@ return function (puzzle_index)
     psys_by_obj[o] = p
   end)
   board.each('bloom', function (o)
+    local p = particles({ y_max = 40, x_spread = 40 })
+    p.x = board_offs_x + cell_w * (o.c + 0.5)
+    p.y = board_offs_y + cell_w * (o.r + 0.5)
+    p.tint = {1, 0.6, 0.5}
+    psys[#psys + 1] = p
+    psys_by_obj[o] = p
   end)
 
   s.press = function (x, y)
@@ -287,6 +293,13 @@ return function (puzzle_index)
         board_offs_x + cell_w * (o.c + 0.5),
         board_offs_y + cell_w * (o.r + 0.5),
         cell_w * (0.15 + 0.25 * used_rate))
+
+      local used_rate = (o.used and 1 or 0)
+      local anim_progress = clamp_01(since_anim / 90)
+      if anim_progress < 1 and find_anim(o, 'use') then
+        used_rate = ease_exp_out(anim_progress)
+      end
+      psys_by_obj[o].ordinary_fade = used_rate
     end)
 
     -- Animated positions

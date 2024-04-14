@@ -6,7 +6,8 @@ uniform float fade;
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
   float alpha;
   alpha = clamp(1 - 2 * length(vec2(texture_coords.x - 0.5, (texture_coords.y - 0.5) * 1.1)) - fade, 0.0, 1.0);
-  alpha = (sin((alpha - 0.5) * 3.14159265359) + 1) / 2;
+  // Map [0, 1 - fade] onto [0, (1 - fade)^2], with a sine easing
+  alpha = (sin((alpha / (1 - fade) - 0.5) * 3.14159265359) + 1) / 2 * (1 - fade) * (1 - fade);
   return vec4(color.rgb, alpha);
 }
 ]])
@@ -14,7 +15,7 @@ local rect = function (x1, y1, x2, y2)
   love.graphics.draw(white_tex_1x1, x1, y1, 0, x2 - x1, y2 - y1, 0, 0)
 end
 
-return function ()
+return function (options)
   local s = {}
   s.x = 0
   s.y = 0
@@ -26,6 +27,9 @@ return function ()
 
   local until_next_spawn = 0
 
+  local y_max = (options and options.y_max) or 70
+  local x_spread = (options and options.x_spread) or 20
+
   s.update = function ()
     local map_asin = function (x) return 0.5 + math.asin(2 * x - 1) / math.pi end
     until_next_spawn = until_next_spawn - 1
@@ -33,9 +37,9 @@ return function ()
       -- Spawn a new particle
       ps[#ps + 1] = {
         x_rg = (map_asin(map_asin(math.random())) - 0.5) * 0.04,
-        x_offs = (math.random() - 0.5) * 20,
+        x_offs = (math.random() - 0.5) * x_spread,
         v = (1 + math.random() * 0.1) * 0.06,
-        y_lim = 70 * (1 + math.random()^2 * 0.4),
+        y_lim = (1 + math.random()^2 * 0.4) * y_max,
         y_offs = (math.random() - 0.5) * 10,
         lfo1_f = (1 + math.random() * 0.3) * 0.012,
         lfo1_a = math.random() * 15,
@@ -75,6 +79,8 @@ return function ()
     local x, y = s.x, s.y
     local r, g, b = unpack(s.tint)
 
+    local ordinary_fade = s.ordinary_fade or 0
+
     local follow_rate = 0
     local follow_x, follow_y = x, y
     if s.follow ~= nil then
@@ -82,12 +88,11 @@ return function ()
       follow_rate = s.follow_rate
     end
 
-
     local wave_out = s.wave_out
 
     love.graphics.setColor(r, g, b)
     love.graphics.setShader(shader_light)
-    shader_light:send('fade', follow_rate)
+    shader_light:send('fade', 1 - (1 - follow_rate) * (1 - ordinary_fade))
     rect(x - 30, y - 30, x + 30, y + 30)
 
     love.graphics.setShader(nil)
@@ -100,6 +105,9 @@ return function ()
       local alpha = opacity_mapping(y_rate)
       local radius = math.sqrt(alpha) + y_rate * 0.75
       x1, y1 = x + x1, y + y1
+
+      -- Ordinary fade
+      radius = radius * (1 - ordinary_fade)
 
       -- Following
       if s.follow ~= nil then
