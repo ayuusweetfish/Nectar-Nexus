@@ -32,6 +32,21 @@ return {
   [3] = {
     size = {4, 7},
     objs = {
+      {'bloom', 2, 3},
+      {'bloom', 1, 4},
+      {'weeds', 1, 3},
+      {'pollen', 1, 0, group = 2},
+      {'pollen', 1, 1, group = 3},
+      {'pollen', 1, 5, group = 2},
+      {'pollen', 1, 6, group = 3},
+      {'pollen', 3, 5, group = 4},
+      {'pollen', 3, 6, group = 4},
+      {'butterfly', 0, 2, dir = 1},
+    },
+  },
+  [4] = {
+    size = {4, 7},
+    objs = {
       {'obstacle', 3, 0},
       {'obstacle', 3, 1},
       {'bloom', 3, 3},
