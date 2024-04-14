@@ -114,6 +114,17 @@ function Board.create(puzzle)
     local table = b.objs[o.name]
     undoable_set(changes, table, #table + 1, o)
   end
+  local undoable_remove = function (changes, o)
+    local table = b.objs[o.name]
+    for i = 1, #table do
+      if table[i] == o then
+        for j = i, #table do
+          undoable_set(changes, table, j, table[j + 1])
+        end
+        break
+      end
+    end
+  end
 
   local add_anim = function (anims, target, name, args)
     if anims[target] == nil then anims[target] = {} end
@@ -129,6 +140,8 @@ function Board.create(puzzle)
     local updated_chameleons = {}
 
     each('butterfly', function (o)
+      if o.eaten then return end
+
       local ro, co = o.r, o.c
       local best_dist, best_dir_diff, best_dir =
         (b.nrows + b.ncols) * 2, 4, nil
@@ -220,6 +233,8 @@ function Board.create(puzzle)
               -- Eat
               undoable_set(changes, cha, 'provoked', false)
               add_anim(anims, cha, 'eat')
+              undoable_set(changes, o, 'eaten', true)
+              add_anim(anims, o, 'eaten')
             else
               -- Provoke
               undoable_set(changes, cha, 'provoked', true)

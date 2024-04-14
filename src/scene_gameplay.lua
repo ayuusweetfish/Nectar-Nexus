@@ -60,6 +60,7 @@ return function ()
     ['move'] = 60,
     ['turn'] = 90,
     ['spawn_from_weeds'] = 120,
+    ['eaten'] = 120,
     ['use'] = 50,
     ['pollen_visit'] =  90, -- 110
     ['pollen_match'] = 150, -- 180
@@ -302,6 +303,10 @@ return function ()
       local y0 = board_offs_y + cell_w * (r0 + 0.5)
 
       local alpha = find_anim(o, 'spawn_from_weeds') and clamp_01((since_anim - 60) / 60) or 1
+
+      local eaten_progress = find_anim(o, 'eaten') and clamp_01((since_anim - 60) / 60) or
+        (o.eaten and 1 or 0)
+      alpha = alpha * (1 - eaten_progress)
 
       local carrying_group = nil
       local carrying_rate = 0
