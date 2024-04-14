@@ -53,16 +53,61 @@ return function ()
   local board_anims
   local since_anim = 0
 
+  local trigger_wait = 0  -- Animation length
+  local trigger_buffer = {}
+
+  local anim_dur = {
+    ['move'] = 60,
+    ['turn'] = 90,
+    ['spawn_from_weeds'] = 120,
+    ['use'] = 50,
+    ['pollen_visit'] =  90, -- 110
+    ['pollen_match'] = 150, -- 180
+  }
+
+  local trigger_imm = function (r, c)
+    if r ~= nil and c == nil then
+      board_anims = board.trigger_bloom(r)
+    else
+      board_anims = board.trigger(r, c)
+    end
+
+    -- Update animation durations
+    trigger_wait = 0
+    if board_anims ~= nil then
+      for _, anims in pairs(board_anims) do
+        for name, _ in pairs(anims) do
+          trigger_wait = math.max(trigger_wait, anim_dur[name] or 0)
+        end
+      end
+    end
+
+    btn_undo.enabled = board.can_undo()
+    since_anim = 0
+  end
+  local flush_trigger_buffer = function ()
+    if since_anim >= trigger_wait and #trigger_buffer > 0 then
+      trigger_imm(unpack(trigger_buffer[1]))
+      table.remove(trigger_buffer, 1)
+    end
+  end
+  local trigger = function (r, c)
+    trigger_buffer[#trigger_buffer + 1] = {r, c}
+    flush_trigger_buffer()
+  end
+
   btn_undo_fn = function ()
     board.undo()
     btn_undo.enabled = board.can_undo()
     board_anims = nil
+    trigger_buffer = {}
   end
 
   s.press = function (x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
     pt_bloom = (pt_r ~= nil and board.find_one(pt_r, pt_c, 'bloom') ~= nil)
+    return true
   end
 
   s.hover = function (x, y)
@@ -70,16 +115,7 @@ return function ()
 
   s.move = function (x, y)
     for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
-  end
-
-  local trigger = function (r, c)
-    if r ~= nil and c == nil then
-      board_anims = board.trigger_bloom(r)
-    else
-      board_anims = board.trigger(r, c)
-    end
-    btn_undo.enabled = board.can_undo()
-    since_anim = 0
+    return true
   end
 
   s.release = function (x, y)
@@ -89,6 +125,7 @@ return function ()
       trigger(r1, c1)
     end
     pt_r, pt_c, pt_bloom = nil, nil, false
+    return true
   end
 
   -- 1 ~ 9: trigger blossom
@@ -112,6 +149,7 @@ return function ()
   s.update = function ()
     for i = 1, #buttons do buttons[i].update() end
     since_anim = since_anim + 1
+    flush_trigger_buffer()
   end
 
   local find_anim = function (o, name)
