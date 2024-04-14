@@ -1,3 +1,18 @@
+local white_tex_1x1_data = love.image.newImageData(1, 1, 'rgba8')
+white_tex_1x1_data:setPixel(0, 0, 1, 1, 1, 1)
+local white_tex_1x1 = love.graphics.newImage(white_tex_1x1_data)
+local shader_light = love.graphics.newShader([[
+vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
+  float alpha;
+  alpha = clamp(1 - 2 * length(vec2(texture_coords.x - 0.5, (texture_coords.y - 0.5) * 1.1)), 0.0, 1.0);
+  alpha = (sin((alpha - 0.5) * 3.14159265359) + 1) / 2;
+  return vec4(color.rgb, alpha);
+}
+]])
+local rect = function (x1, y1, x2, y2)
+  love.graphics.draw(white_tex_1x1, x1, y1, 0, x2 - x1, y2 - y1, 0, 0)
+end
+
 return function ()
   local s = {}
   s.x = 0
@@ -44,21 +59,30 @@ return function ()
     end
   end
 
+  -- Opacity mapping function
+  local k = 3.5
+  local max_val = ((k^k) / (k+1)^(k+1))
+  local opacity_mapping = function (x)
+    return math.sqrt(x * (1 - x)^k / max_val)
+  end
+
   s.draw = function ()
     local x, y = s.x, s.y
     local r, g, b = unpack(s.tint)
+    love.graphics.setColor(r, g, b)
+    love.graphics.setShader(shader_light)
+    rect(x - 30, y - 30, x + 30, y + 30)
+    love.graphics.setShader(nil)
     for i = 1, #ps do
       local p = ps[i]
       local t = p.age + math.sin(p.age * p.lfo1_f + p.lfo1_a) * p.lfo1_a
       local x1 = p.x_offs + p.x_rg * t + math.sin(p.age * p.lfo2_f + p.lfo2_a) * p.lfo2_a
       local y1 = p.y_offs - p.v * t
       local y_rate = -y1 / p.y_lim
-      -- Opacity, do not confuse with Beta function/distribution and the like
-      local k = 3.5
-      local alpha = math.sqrt(y_rate * (1 - y_rate)^k / ((k^k) / (k+1)^(k+1)))
+      local alpha = opacity_mapping(y_rate)
       local radius = math.sqrt(alpha) + y_rate * 0.75
       love.graphics.setColor(r, g, b, alpha)
-      love.graphics.circle('fill', x + x1, y + y1, 1.5 * radius)
+      love.graphics.circle('fill', x + x1, y + y1, 1.2 * radius)
     end
   end
 

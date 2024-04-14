@@ -319,6 +319,10 @@ return function (puzzle_index)
           cell_w * highlight_radius * 0.4)
       end
     end)
+
+    -- Particle systems
+    for i = 1, #psys do psys[i].draw() end
+
     board.each('butterfly', function (o)
       local r0, c0 = o.r, o.c
       local anim_progress = clamp_01((since_anim -
@@ -382,9 +386,6 @@ return function (puzzle_index)
         x0 + cell_w * 0.4 * math.cos(dir_angle * (math.pi / 2)),
         y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
     end)
-
-    -- Particle systems
-    for i = 1, #psys do psys[i].draw() end
 
     -- Pointer
     if pt_bloom then
