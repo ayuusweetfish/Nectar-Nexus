@@ -27,6 +27,8 @@ return function (puzzle_index)
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
 
   local button = require 'button'
+  local buttons = {}
+
   local btn_undo, btn_undo_fn
   btn_undo = button(
     draw.enclose(love.graphics.newText(font(36), 'Undo'), 120, 60),
@@ -36,7 +38,19 @@ return function (puzzle_index)
   btn_undo.y = H * 0.1
   btn_undo.enabled = false
   btn_undo.response_when_disabled = true
-  local buttons = { btn_undo }
+  buttons[#buttons + 1] = btn_undo
+
+  local btn_next = button(
+    draw.enclose(love.graphics.newText(font(36), 'Next'), 120, 60),
+    function ()
+      local index = puzzle_index % #puzzles + 1
+      replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+    end
+  )
+  btn_next.x = W * 0.8
+  btn_next.y = H * 0.9
+  btn_next.enabled = false
+  buttons[#buttons + 1] = btn_next
 
   local cell_w = math.min(100, H * 0.92 / board.nrows)
   local board_offs_x = (W - cell_w * board.ncols) / 2
@@ -145,6 +159,8 @@ return function (puzzle_index)
     psys_by_obj[o] = p
   end)
 
+  local since_clear = -1
+
   s.press = function (x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
@@ -204,6 +220,17 @@ return function (puzzle_index)
     since_anim = since_anim + 1 + #trigger_buffer
     flush_trigger_buffer()
     for i = 1, #psys do psys[i].update() end
+
+    if since_clear == -1 and board.cleared then
+      since_clear = 0
+    elseif not board.cleared then
+      since_clear = -1
+      btn_next.enabled = false
+    end
+    if since_clear >= 0 then
+      since_clear = since_clear + 1
+      btn_next.enabled = (since_clear >= 240)
+    end
   end
 
   local find_anim = function (o, name)
@@ -451,7 +478,15 @@ return function (puzzle_index)
 
     -- Buttons
     for i = 1, #buttons do
-      love.graphics.setColor(1, 1, 1, buttons[i].enabled and 1 or 0.3)
+      local alpha = buttons[i].enabled and 1 or 0.3
+      if buttons[i] == btn_next then
+        if since_clear == -1 then
+          alpha = 0
+        else
+          alpha = ease_quad_in_out(math.max(0, math.min(1, (since_clear - 240) / 60)))
+        end
+      end
+      love.graphics.setColor(1, 1, 1, alpha)
       buttons[i].draw()
     end
   end

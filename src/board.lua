@@ -5,6 +5,8 @@ local Board = {
 function Board.create(puzzle)
   local b = {}
 
+  b.cleared = false
+
   b.objs = {
     obstacle = {},
     reflect_obstacle = {},
@@ -222,6 +224,20 @@ function Board.create(puzzle)
                   add_anim(anims, o.carrying, 'pollen_match')
                   undoable_set(changes, o, 'carrying', nil)
                   add_anim(anims, o, 'carry_pollen', {release_group = target.group})
+                  -- Check whether cleared
+                  if not b.cleared then
+                    local cleared = true
+                    local t = b.objs['pollen']
+                    for i = 1, #t do
+                      if not t[i].matched then
+                        cleared = false
+                        break
+                      end
+                    end
+                    if cleared then
+                      undoable_set(changes, b, 'cleared', true)
+                    end
+                  end
                 end
               else
                 visited_pollen[target] = true
