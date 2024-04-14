@@ -11,6 +11,7 @@ function Board.create(puzzle)
     bloom = {},
     weeds = {},
     pollen = {},
+    chameleon = {},
     butterfly = {},
   }
 
@@ -27,6 +28,8 @@ function Board.create(puzzle)
     elseif name == 'pollen' then
       o.visited = false
       o.matched = false
+    elseif name == 'chameleon' then
+      o.provoked = false
     elseif name == 'butterfly' then
       o.carrying = nil
     end

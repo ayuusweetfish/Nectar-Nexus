@@ -20,7 +20,7 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local board = Board.create(puzzles[3])
+  local board = Board.create(puzzles[5])
 
   local button = require 'button'
   local btn_undo, btn_undo_fn
@@ -100,13 +100,20 @@ return function ()
     board.undo()
     btn_undo.enabled = board.can_undo()
     board_anims = nil
+    trigger_wait = 0
     trigger_buffer = {}
   end
 
   s.press = function (x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
-    pt_bloom = (pt_r ~= nil and board.find_one(pt_r, pt_c, 'bloom') ~= nil)
+    pt_bloom = false
+    if pt_r ~= nil then
+      local o = board.find_one(pt_r, pt_c, 'bloom')
+      if o ~= nil and not o.used then
+        pt_bloom = true
+      end
+    end
     return true
   end
 
@@ -148,7 +155,7 @@ return function ()
 
   s.update = function ()
     for i = 1, #buttons do buttons[i].update() end
-    since_anim = since_anim + 1
+    since_anim = since_anim + 1 + #trigger_buffer
     flush_trigger_buffer()
   end
 
@@ -198,6 +205,16 @@ return function ()
         board_offs_x + cell_w * o.c,
         board_offs_y + cell_w * o.r,
         cell_w, cell_w)
+    end)
+    board.each('chameleon', function (o)
+      local r1 = o.r + (o.range_y or 0)
+      local c1 = o.c + (o.range_x or 0)
+      love.graphics.setColor(1, 0.8, 0.8, 0.4)
+      love.graphics.rectangle('fill',
+        board_offs_x + cell_w * math.min(o.c, c1),
+        board_offs_y + cell_w * math.min(o.r, r1),
+        cell_w * (math.abs(o.c - c1) + 1),
+        cell_w * (math.abs(o.r - r1) + 1))
     end)
     board.each('bloom', function (o)
       local used_rate = (o.used and 1 or 0)
