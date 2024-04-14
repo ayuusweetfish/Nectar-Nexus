@@ -29,30 +29,41 @@ return function (options)
 
   local y_max = (options and options.y_max) or 70
   local x_spread = (options and options.x_spread) or 20
+  local scale = (options and options.scale) or 1
+
+  local map_asin = function (x) return 0.5 + math.asin(2 * x - 1) / math.pi end
+  local new_particle = function ()
+    return {
+      x_rg = (map_asin(map_asin(math.random())) - 0.5) * 0.04,
+      x_offs = (math.random() - 0.5) * x_spread,
+      v = (1 + math.random() * 0.1) * 0.06,
+      y_lim = (1 + math.random()^2 * 0.4) * y_max,
+      y_offs = (math.random() - 0.5) * 10,
+      lfo1_f = (1 + math.random() * 0.3) * 0.012,
+      lfo1_a = math.random() * 15,
+      lfo1_ph = math.random() * math.pi * 2,
+      lfo2_f = (1 + math.random() * 0.3) * 0.006,
+      lfo2_a = math.random()^3 * 8,
+      lfo2_ph = math.random() * math.pi * 2,
+      lfo3_f = (1 + math.random() * 0.5) * 0.008,
+      lfo3_a = (1 + math.random() * 0.3) * 35,
+      lfo4_f = (1 + math.random() * 0.5) * 0.005,
+      lfo4_a = (1 + math.random() * 0.3) * 25,
+      age = 0,
+    }
+  end
+
+  for i = 1, 40 do
+    local p = new_particle()
+    p.age = math.random() * (p.y_lim / p.v)
+    ps[#ps + 1] = p
+  end
 
   s.update = function ()
-    local map_asin = function (x) return 0.5 + math.asin(2 * x - 1) / math.pi end
     until_next_spawn = until_next_spawn - 1
     if #ps < 40 and until_next_spawn < 0 then
       -- Spawn a new particle
-      ps[#ps + 1] = {
-        x_rg = (map_asin(map_asin(math.random())) - 0.5) * 0.04,
-        x_offs = (math.random() - 0.5) * x_spread,
-        v = (1 + math.random() * 0.1) * 0.06,
-        y_lim = (1 + math.random()^2 * 0.4) * y_max,
-        y_offs = (math.random() - 0.5) * 10,
-        lfo1_f = (1 + math.random() * 0.3) * 0.012,
-        lfo1_a = math.random() * 15,
-        lfo1_ph = math.random() * math.pi * 2,
-        lfo2_f = (1 + math.random() * 0.3) * 0.006,
-        lfo2_a = math.random()^3 * 8,
-        lfo2_ph = math.random() * math.pi * 2,
-        lfo3_f = (1 + math.random() * 0.5) * 0.008,
-        lfo3_a = (1 + math.random() * 0.3) * 35,
-        lfo4_f = (1 + math.random() * 0.5) * 0.005,
-        lfo4_a = (1 + math.random() * 0.3) * 25,
-        age = 0,
-      }
+      ps[#ps + 1] = new_particle()
       until_next_spawn = math.floor(math.random() * 60)
     end
     local i = 1
@@ -131,8 +142,15 @@ return function (options)
         radius = radius * (1 - wave_out)
       end
 
-      love.graphics.setColor(r, g, b, alpha)
-      love.graphics.circle('fill', x1, y1, 1.2 * radius)
+      if scale ~= 1 then
+        x1 = x + (x1 - x) * scale
+        y1 = y + (y1 - y) * scale
+      end
+
+      if alpha > 0 and radius > 0 then
+        love.graphics.setColor(r, g, b, alpha)
+        love.graphics.circle('fill', x1, y1, 1.2 * radius * scale, 12)
+      end
     end
   end
 

@@ -55,6 +55,7 @@ return function (puzzle_index)
   local cell_w = math.min(100, H * 0.92 / board.nrows)
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
+  local cell_scale = cell_w / 100
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -141,22 +142,25 @@ return function (puzzle_index)
 
   local psys = {}
   local psys_by_obj = {}
+  local obj_by_psys = {}
   board.each('pollen', function (o)
-    local p = particles()
+    local p = particles({ scale = cell_scale })
     p.x = board_offs_x + cell_w * (o.c + 0.5)
     p.y = board_offs_y + cell_w * (o.r + 0.5)
     local r, g, b = unpack(group_colours[o.group])
     p.tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
     psys[#psys + 1] = p
     psys_by_obj[o] = p
+    obj_by_psys[p] = o
   end)
   board.each('bloom', function (o)
-    local p = particles({ y_max = 40, x_spread = 40 })
+    local p = particles({ y_max = 40, x_spread = 40, scale = cell_scale })
     p.x = board_offs_x + cell_w * (o.c + 0.5)
     p.y = board_offs_y + cell_w * (o.r + 0.5)
     p.tint = {1, 0.6, 0.5}
     psys[#psys + 1] = p
     psys_by_obj[o] = p
+    obj_by_psys[p] = o
   end)
 
   local since_clear = -1
@@ -406,6 +410,15 @@ return function (puzzle_index)
       psys_by_obj[o].wave_out = wave_out
     end)
 
+    -- Particle systems (under butterflies)
+    for i = 1, #psys do
+      local p = psys[i]
+      local o = obj_by_psys[p]
+      if o.name == 'bloom' or (o.name == 'pollen' and not o.visited) then
+        p.draw()
+      end
+    end
+
     board.each('butterfly', function (o)
       local x0, y0 = unpack(butterfly_animated_pos[o])
 
@@ -460,8 +473,14 @@ return function (puzzle_index)
         y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
     end)
 
-    -- Particle systems
-    for i = 1, #psys do psys[i].draw() end
+    -- Particle systems (above butterflies)
+    for i = 1, #psys do
+      local p = psys[i]
+      local o = obj_by_psys[p]
+      if o.name == 'pollen' and o.visited then
+        p.draw()
+      end
+    end
 
     -- Pointer
     if pt_bloom then
