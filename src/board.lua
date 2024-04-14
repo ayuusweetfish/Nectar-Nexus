@@ -220,6 +220,13 @@ function Board.create(puzzle)
   end
   b.trigger = trigger
 
+  b.trigger_bloom = function (index)
+    local o = b.objs['bloom'][index]
+    if o ~= nil then
+      return trigger(o.r, o.c)
+    end
+  end
+
   b.undo = function ()
     if #undo == 0 then return end
     local changes = undo[#undo]

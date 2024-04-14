@@ -77,6 +77,16 @@ function love.mousereleased(x, y, button, istouch, presses)
   curScene.release((x - offsX) / globalScale, (y - offsY) / globalScale)
   mouseScene = nil
 end
+function love.keypressed(key)
+  if key == 'lshift' then
+    if not isMobile and not isWeb then
+      love.window.setFullscreen(not love.window.getFullscreen())
+      updateLogicalDimensions()
+    end
+  elseif curScene.key ~= nil then
+    curScene.key(key)
+  end
+end
 
 local T = 0
 local timeStep = 1 / 240
@@ -133,13 +143,4 @@ function love.draw()
     curScene.draw()
   end
   love.graphics.pop()
-end
-
-function love.keypressed(key)
-  if key == 'lshift' then
-    if not isMobile and not isWeb then
-      love.window.setFullscreen(not love.window.getFullscreen())
-      updateLogicalDimensions()
-    end
-  end
 end

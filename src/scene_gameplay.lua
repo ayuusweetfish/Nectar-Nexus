@@ -72,15 +72,41 @@ return function ()
     for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
   end
 
+  local trigger = function (r, c)
+    if r ~= nil and c == nil then
+      board_anims = board.trigger_bloom(r)
+    else
+      board_anims = board.trigger(r, c)
+    end
+    btn_undo.enabled = board.can_undo()
+    since_anim = 0
+  end
+
   s.release = function (x, y)
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
     local r1, c1 = pt_to_cell(x, y)
     if r1 == pt_r and c1 == pt_c then
-      board_anims = board.trigger(r1, c1)
-      btn_undo.enabled = board.can_undo()
-      since_anim = 0
+      trigger(r1, c1)
     end
     pt_r, pt_c, pt_bloom = nil, nil, false
+  end
+
+  -- 1 ~ 9: trigger blossom
+  -- 0/Enter/Tab/Space/N: move on without triggering blossom
+  -- Backspace/Z/P: undo
+  s.key = function (key)
+    if key == 'backspace' or key == 'z' or key == 'p' then
+      btn_undo_fn()
+    elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
+      trigger(nil, nil)
+    elseif #key == 1 and key >= '0' and key <= '9' then
+      local index = string.byte(key, 1) - 48
+      if index == 0 then
+        trigger(nil, nil)
+      else
+        trigger(index)
+      end
+    end
   end
 
   s.update = function ()
