@@ -20,7 +20,7 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local board = Board.create(puzzles[5])
+  local board = Board.create(puzzles[6])
 
   local button = require 'button'
   local btn_undo, btn_undo_fn
@@ -34,7 +34,7 @@ return function ()
   btn_undo.response_when_disabled = true
   local buttons = { btn_undo }
 
-  local cell_w = 100
+  local cell_w = math.min(100, H * 0.92 / board.nrows)
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
 

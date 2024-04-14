@@ -227,18 +227,24 @@ function Board.create(puzzle)
           end
           -- Chameleons?
           local cha = find_one_ranged(r1, c1, 'chameleon')
-          if cha ~= nil and not updated_chameleons[cha] then
-            updated_chameleons[cha] = true
-            if cha.provoked then
-              -- Eat
-              undoable_set(changes, cha, 'provoked', false)
-              add_anim(anims, cha, 'eat')
+          if cha ~= nil then
+            if not updated_chameleons[cha] then
+              updated_chameleons[cha] = true
+              -- Change state
+              if cha.provoked then
+                -- Eat
+                undoable_set(changes, cha, 'provoked', false)
+                add_anim(anims, cha, 'eat')
+              else
+                -- Provoke
+                undoable_set(changes, cha, 'provoked', true)
+                add_anim(anims, cha, 'provoke')
+              end
+            end
+            if not cha.provoked then
+              -- Changed back to 'not provoked', so eat
               undoable_set(changes, o, 'eaten', true)
               add_anim(anims, o, 'eaten')
-            else
-              -- Provoke
-              undoable_set(changes, cha, 'provoked', true)
-              add_anim(anims, cha, 'provoke')
             end
           end
         end
