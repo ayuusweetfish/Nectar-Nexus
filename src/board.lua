@@ -207,21 +207,16 @@ function Board.create(puzzle)
       undo[#undo + 1] = changes
       return anims
     end
-    local t = b.objs['bloom']
-    for i = 1, #t do
-      local o = t[i]
-      if o.r == r and o.c == c then
-        if not o.used then
-          local changes, anims = move_insects(r, c)
-          undoable_set(changes, o, 'used', true)
-          undo[#undo + 1] = changes
-          add_anim(anims, o, 'use')
-          return anims
-        end
-        break
-      end
+    local o = find_one(r, c, 'bloom')
+    if o and not o.used then
+      local changes, anims = move_insects(r, c)
+      undoable_set(changes, o, 'used', true)
+      undo[#undo + 1] = changes
+      add_anim(anims, o, 'use')
+      return anims
+    else
+      return trigger(nil, nil)
     end
-    return trigger(nil, nil)
   end
   b.trigger = trigger
 

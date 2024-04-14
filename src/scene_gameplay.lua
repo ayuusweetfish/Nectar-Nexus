@@ -48,6 +48,7 @@ return function ()
   end
 
   local pt_r, pt_c
+  local pt_bloom
 
   local board_anims
   local since_anim = 0
@@ -61,6 +62,7 @@ return function ()
   s.press = function (x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
+    pt_bloom = (pt_r ~= nil and board.find_one(pt_r, pt_c, 'bloom') ~= nil)
   end
 
   s.hover = function (x, y)
@@ -78,7 +80,7 @@ return function ()
       btn_undo.enabled = board.can_undo()
       since_anim = 0
     end
-    pt_r, pt_c = nil, nil
+    pt_r, pt_c, pt_bloom = nil, nil, false
   end
 
   s.update = function ()
@@ -245,7 +247,7 @@ return function ()
     end)
 
     -- Pointer
-    if pt_r ~= nil then
+    if pt_bloom then
       love.graphics.setColor(1, 1, 0.3, 0.2)
       love.graphics.rectangle('fill',
         board_offs_x + cell_w * pt_c,
