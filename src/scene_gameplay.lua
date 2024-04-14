@@ -20,7 +20,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 9
+  puzzle_index = puzzle_index or #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))

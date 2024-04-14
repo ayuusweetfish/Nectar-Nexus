@@ -177,4 +177,32 @@ return {
       {'butterfly', 1, 4, dir = 1},
     },
   },
+  [10] = {
+    size = {7, 8},
+    objs = {
+      {'weeds', 3, 2},
+      {'weeds', 3, 5},
+      {'bloom', 5, 3},
+      {'bloom', 6, 4},
+      {'bloom', 3, 3},
+      {'pollen', 0, 3, group = 1},
+      {'pollen', 0, 4, group = 1},
+      {'pollen', 2, 3, group = 2},
+      {'pollen', 2, 4, group = 2},
+      {'pollen', 4, 3, group = 3},
+      {'pollen', 4, 4, group = 3},
+      {'butterfly', 2, 0, dir = 1},
+    --[[
+      {'weeds', 3, 3},
+      {'weeds', 3, 6},
+      {'bloom', 5, 4},
+      {'bloom', 6, 5},
+      {'bloom', 1, 6},
+      {'bloom', 3, 9},
+      {'pollen', 1, 5, group = 1},
+      {'pollen', 2, 5, group = 1},
+      {'butterfly', 2, 1, dir = 1},
+    ]]
+    },
+  },
 }
