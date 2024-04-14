@@ -57,11 +57,20 @@ return function ()
   local trigger_buffer = {}
 
   local anim_dur = {
+    -- Butterfly
     ['move'] = 60,
     ['turn'] = 90,
     ['spawn_from_weeds'] = 120,
     ['eaten'] = 120,
+
+    -- Chameleon
+    ['eat'] = 110,
+    ['provoke'] = 110,
+
+    -- Blossom
     ['use'] = 50,
+
+    -- Pollen
     ['pollen_visit'] =  90, -- 110
     ['pollen_match'] = 150, -- 180
   }
