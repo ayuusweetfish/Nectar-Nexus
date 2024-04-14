@@ -5,6 +5,10 @@ return function (options)
 
   local x_min = (options and options.x_min) or -1e20
   local x_max = (options and options.x_max) or 1e20
+  local screen_x_min = (options and options.screen_x_min) or -1e20
+  local screen_x_max = (options and options.screen_x_max) or 1e20
+  local screen_y_min = (options and options.screen_y_min) or -1e20
+  local screen_y_max = (options and options.screen_y_max) or 1e20
 
   local held = false
   local hx  -- Held start position
@@ -18,12 +22,17 @@ return function (options)
   local DECEL = 0.2
 
   s.press = function (x, y)
+    if x < screen_x_min or x > screen_x_max or
+       y < screen_y_min or y > screen_y_max then
+      return false
+    end
     held = true
     hx = x
     hxo = s.dx - x
     captured = false
     history, history_ptr = {}, HISTORY_WINDOW
     intertia_v = 0
+    return true
   end
 
   -- Return values
@@ -64,9 +73,11 @@ return function (options)
       intertia_v = delta / time
     end
 
+    local prev_held = held
     held = false
     captured = false
     history, history_ptr = nil, nil
+    return prev_held
   end
 
   s.update = function ()
