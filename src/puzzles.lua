@@ -109,12 +109,12 @@ return {
     },
   },
   [7] = {
-    size = {6, 10},
+    size = {6, 11},
     objs = {
-      {'obstacle', 0, 0}, {'obstacle', 0, 7}, {'obstacle', 0, 8}, {'obstacle', 0, 9},
-      {'obstacle', 1, 0}, {'obstacle', 1, 7}, {'obstacle', 1, 8}, {'obstacle', 1, 9},
-      {'obstacle', 2, 0}, {'obstacle', 2, 7}, {'obstacle', 2, 8}, {'obstacle', 2, 9},
-      {'obstacle', 3, 0},
+      {'obstacle', 0, 0}, {'obstacle', 0, 7}, {'obstacle', 0, 8}, {'obstacle', 0, 9}, {'obstacle', 0, 10},
+      {'obstacle', 1, 0}, {'obstacle', 1, 7}, {'obstacle', 1, 8}, {'obstacle', 1, 9}, {'obstacle', 1, 10},
+      {'obstacle', 2, 0}, {'obstacle', 2, 7}, {'obstacle', 2, 8}, {'obstacle', 2, 9}, {'obstacle', 2, 10},
+      {'obstacle', 3, 0}, {'obstacle', 3, 10},
       {'obstacle', 4, 0},
       {'obstacle', 5, 0}, {'obstacle', 5, 1},
       {'weeds', 2, 4},

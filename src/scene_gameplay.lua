@@ -147,9 +147,9 @@ return function ()
 
   -- 1 ~ 9: trigger blossom
   -- 0/Enter/Tab/Space/N: move on without triggering blossom
-  -- Backspace/Z/P: undo
+  -- Backspace/Z/P/U/R: undo
   s.key = function (key)
-    if key == 'backspace' or key == 'z' or key == 'p' then
+    if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
       trigger(nil, nil)
