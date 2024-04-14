@@ -20,7 +20,7 @@ return function ()
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local board = Board.create(puzzles[7])
+  local board = Board.create(puzzles[8])
 
   local button = require 'button'
   local btn_undo, btn_undo_fn
