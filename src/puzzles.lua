@@ -205,4 +205,21 @@ return {
     ]]
     },
   },
+  [11] = {
+    size = {6, 10},
+    objs = {
+      {'obstacle', 0, 5}, {'obstacle', 0, 6}, {'obstacle', 0, 7}, {'obstacle', 0, 8}, {'obstacle', 0, 9},
+      {'obstacle', 1, 5}, {'obstacle', 1, 6}, {'obstacle', 1, 7}, {'obstacle', 1, 8}, {'obstacle', 1, 9},
+      {'weeds', 3, 4},
+      {'bloom', 1, 1},
+      {'bloom', 5, 1},
+      {'bloom', 4, 8},
+      {'chameleon', 2, 5, range_y = 3},
+      {'pollen', 3, 6, group = 1},
+      {'pollen', 2, 4, group = 1},
+      {'pollen', 4, 6, group = 2},
+      {'pollen', 4, 7, group = 2},
+      {'butterfly', 3, 2, dir = 1},
+    },
+  },
 }
