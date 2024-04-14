@@ -33,6 +33,11 @@ return function (drawable, fn)
     return true
   end
 
+  s.cancel_pt = function ()
+    inside = false
+    held = false
+  end
+
   s.release = function (x, y)
     if not held then return false end
     if s.enabled and inside then fn() end

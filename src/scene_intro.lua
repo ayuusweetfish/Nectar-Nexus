@@ -12,11 +12,16 @@ return function ()
     draw.enclose(love.graphics.newText(font(36), 'Start'), 120, 60),
     function () replaceScene(sceneIntro(), transitions['fade'](0.1, 0.1, 0.1)) end
   )
-  btnStart.x = W * 0.5
-  btnStart.y = H * 0.65
+  btnStart.x0 = W * 0.5
+  btnStart.y0 = H * 0.65
+  btnStart.x = btnStart.x0
+  btnStart.y = btnStart.y0
   local buttons = { btnStart }
 
+  local scroll = require('scroll')()
+
   s.press = function (x, y)
+    scroll.press(x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
   end
 
@@ -24,22 +29,36 @@ return function ()
   end
 
   s.move = function (x, y)
+    local r = scroll.move(x, y)
+    if r == 2 then
+      for i = 1, #buttons do if buttons[i].cancel_pt(x, y) then return true end end
+    end
+    if r then return true end
     for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
   end
 
   s.release = function (x, y)
+    scroll.release(x, y)
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
   end
 
   s.update = function ()
-    for i = 1, #buttons do buttons[i].update() end
+    scroll.update()
+    local sdx = scroll.dx
+    for i = 1, #buttons do
+      local b = buttons[i]
+      b.x = b.x0 + sdx
+      b.update()
+    end
   end
 
   s.draw = function ()
+    local sdx = scroll.dx
+
     love.graphics.clear(1, 1, 0.99)
     love.graphics.setColor(1, 1, 1)
-    draw.img('intro_bg', W / 2, H / 2, W, H)
-    draw.shadow(0.95, 0.95, 0.95, 1, t1, W / 2, H * 0.35)
+    draw.img('intro_bg', W / 2 + sdx, H / 2, W, H)
+    draw.shadow(0.95, 0.95, 0.95, 1, t1, W / 2 + sdx, H * 0.35)
 
     love.graphics.setColor(1, 1, 1)
     for i = 1, #buttons do buttons[i].draw() end
