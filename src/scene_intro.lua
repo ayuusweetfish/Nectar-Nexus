@@ -1,5 +1,6 @@
 local draw = require 'draw_utils'
 local button = require 'button'
+local scroll = require 'scroll'
 
 return function ()
   local s = {}
@@ -18,10 +19,13 @@ return function ()
   btnStart.y = btnStart.y0
   local buttons = { btnStart }
 
-  local scroll = require('scroll')()
+  local scroll_main = scroll({
+    x_min = -W / 2,
+    x_max = 0,
+  })
 
   s.press = function (x, y)
-    scroll.press(x, y)
+    scroll_main.press(x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
   end
 
@@ -29,7 +33,7 @@ return function ()
   end
 
   s.move = function (x, y)
-    local r = scroll.move(x, y)
+    local r = scroll_main.move(x, y)
     if r == 2 then
       for i = 1, #buttons do if buttons[i].cancel_pt(x, y) then return true end end
     end
@@ -38,13 +42,13 @@ return function ()
   end
 
   s.release = function (x, y)
-    scroll.release(x, y)
+    scroll_main.release(x, y)
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
   end
 
   s.update = function ()
-    scroll.update()
-    local sdx = scroll.dx
+    scroll_main.update()
+    local sdx = scroll_main.dx
     for i = 1, #buttons do
       local b = buttons[i]
       b.x = b.x0 + sdx
@@ -53,7 +57,7 @@ return function ()
   end
 
   s.draw = function ()
-    local sdx = scroll.dx
+    local sdx = scroll_main.dx
 
     love.graphics.clear(1, 1, 0.99)
     love.graphics.setColor(1, 1, 1)
