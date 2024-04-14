@@ -34,11 +34,24 @@ return function (puzzle_index)
     draw.enclose(love.graphics.newText(font(36), 'Undo'), 120, 60),
     function () btn_undo_fn() end
   )
-  btn_undo.x = W * 0.2
-  btn_undo.y = H * 0.1
+  btn_undo.x = W * 0.15
+  btn_undo.y = H * 0.18
   btn_undo.enabled = false
   btn_undo.response_when_disabled = true
   buttons[#buttons + 1] = btn_undo
+
+  local btn_back = button(
+    draw.enclose(love.graphics.newText(font(36), 'Return'), 120, 60),
+    function ()
+      local other_scene = _G['intro_scene_instance']
+      if other_scene then
+        replaceScene(other_scene)
+      end
+    end
+  )
+  btn_back.x = W * 0.15
+  btn_back.y = H * 0.08
+  buttons[#buttons + 1] = btn_back
 
   local btn_next = button(
     draw.enclose(love.graphics.newText(font(36), 'Next'), 120, 60),

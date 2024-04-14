@@ -54,9 +54,10 @@ local scene_intro = function ()
         -- Back (from overlay to scene)
         since_enter_vase = -1
         since_exit_vase = 0
-      end, function ()
+      end, function (i)
         -- Confirm
-        replaceScene(sceneGameplay(1))
+        _G['intro_scene_instance'] = s
+        replaceScene(sceneGameplay(i))
       end)
     end, scale)
     btn.x0 = W * (0.95 + i / 3)
@@ -176,15 +177,23 @@ create_overlay = function (fn_back, fn_confirm)
 
   local imgs = {
     draw.get('4aacb3873e809fbee671038f50392e1'),
+    draw.get('4aacb3873e809fbee671038f50392e1'),
+    draw.get('4aacb3873e809fbee671038f50392e1'),
+    draw.get('4aacb3873e809fbee671038f50392e1'),
   }
 
+  local screen_x_min = W * 0.18
+  local screen_x_max = W * 0.82
+  local screen_y_min = H * 0.5 - W * 0.18
+  local screen_y_max = H * 0.5 + W * 0.18
   local scroll_carousel = scroll({
-    x_min = -W * 0.5,
+    x_min = -(screen_x_max - screen_x_min) * 3,
     x_max = 0,
-    screen_x_min = W * 0.18,
-    screen_x_max = W * 0.82,
-    screen_y_min = H * 0.5 - W * 0.18,
-    screen_y_max = H * 0.5 + W * 0.18,
+    screen_x_min = screen_x_min,
+    screen_x_max = screen_x_max,
+    screen_y_min = screen_y_min,
+    screen_y_max = screen_y_max,
+    carousel = true,
   })
   local scroll_pressed = false
 
@@ -212,7 +221,8 @@ create_overlay = function (fn_back, fn_confirm)
     if scroll_carousel.release(x, y) then
       if scroll_pressed then
         -- Pressed on scroll area and not cancelled, confirm
-        fn_confirm()
+        local i = scroll_carousel.carousel_page_index()
+        fn_confirm(i)
       end
       return true
     end
@@ -238,7 +248,17 @@ create_overlay = function (fn_back, fn_confirm)
 
     local sdx = scroll_carousel.dx
     love.graphics.setColor(1, 1, 1, ease_quad_in_out(rate))
-    draw(imgs[1], W / 2 + sdx, H / 2, W * 0.64, W * 0.36)
+    love.graphics.setScissor(
+      screen_x_min, screen_y_min,
+      screen_x_max - screen_x_min,
+      screen_y_max - screen_y_min
+    )
+    for i = 1, 4 do
+      local x = (screen_x_max - screen_x_min) * (i - 1)
+      draw(imgs[i], W / 2 + sdx + x, H / 2,
+        screen_x_max - screen_x_min, screen_y_max - screen_y_min)
+    end
+    love.graphics.setScissor()
   end
 
   s.destroy = function ()
