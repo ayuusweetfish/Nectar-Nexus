@@ -1,6 +1,7 @@
 local draw = require 'draw_utils'
 local Board = require 'board'
 local puzzles = require 'puzzles'
+local particles = require 'particles'
 
 local ease_quad_in_out = function (x)
   if x < 0.5 then return x * x * 2
@@ -117,6 +118,25 @@ return function (puzzle_index)
     trigger_buffer = {}
   end
 
+  local group_colours = {
+    {0.8, 0.5, 1},
+    {0.5, 0.9, 0.5},
+    {0.4, 0.8, 1},
+    {1, 0.8, 0.5},
+  }
+
+  local psys = {}
+  board.each('pollen', function (o)
+    local p = particles()
+    p.x = board_offs_x + cell_w * (o.c + 0.5)
+    p.y = board_offs_y + cell_w * (o.r + 0.5)
+    local r, g, b = unpack(group_colours[o.group])
+    p.tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
+    psys[#psys + 1] = p
+  end)
+  board.each('bloom', function (o)
+  end)
+
   s.press = function (x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
@@ -175,6 +195,7 @@ return function (puzzle_index)
     for i = 1, #buttons do buttons[i].update() end
     since_anim = since_anim + 1 + #trigger_buffer
     flush_trigger_buffer()
+    for i = 1, #psys do psys[i].update() end
   end
 
   local find_anim = function (o, name)
@@ -265,12 +286,6 @@ return function (puzzle_index)
         board_offs_y + cell_w * (o.r + 0.5),
         cell_w * (0.15 + 0.25 * used_rate))
     end)
-    local group_colours = {
-      {0.8, 0.5, 1},
-      {0.5, 0.9, 0.5},
-      {0.4, 0.8, 1},
-      {1, 0.8, 0.5},
-    }
     board.each('pollen', function (o)
       local tint = group_colours[o.group]
 
@@ -367,6 +382,9 @@ return function (puzzle_index)
         x0 + cell_w * 0.4 * math.cos(dir_angle * (math.pi / 2)),
         y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
     end)
+
+    -- Particle systems
+    for i = 1, #psys do psys[i].draw() end
 
     -- Pointer
     if pt_bloom then
