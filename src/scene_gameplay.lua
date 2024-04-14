@@ -207,14 +207,33 @@ return function ()
         cell_w, cell_w)
     end)
     board.each('chameleon', function (o)
-      local r1 = o.r + (o.range_y or 0)
-      local c1 = o.c + (o.range_x or 0)
-      love.graphics.setColor(1, 0.8, 0.8, 0.4)
+      local anim_progress = clamp_01((since_anim - 50) / 60)
+      -- When `eat` is active, `provoke` does not matter (progress set to -1)
+      -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
+      local provoke_progress = (o.provoked and 1 or 0)
+      local eat_progress = 0
+      if anim_progress < 1 then
+        local a_provoke = find_anim(o, 'provoke')
+        local a_eat = find_anim(o, 'eat')
+        local a_idle = find_anim(o, 'return_idle')
+        if a_provoke then
+          provoke_progress = ease_quad_in_out(anim_progress)
+        elseif a_eat then
+          provoke_progress = -1
+          eat_progress = ease_quad_in_out(anim_progress)
+        elseif a_idle then
+          provoke_progress = 1 - ease_quad_in_out(anim_progress)
+        end
+      end
+      local alpha = 0.3
+      if provoke_progress == -1 then alpha = alpha + 0.5 * (1 - eat_progress)
+      else alpha = alpha + 0.5 * provoke_progress end
+      love.graphics.setColor(1, 0.8, 0.8, alpha)
       love.graphics.rectangle('fill',
-        board_offs_x + cell_w * math.min(o.c, c1),
-        board_offs_y + cell_w * math.min(o.r, r1),
-        cell_w * (math.abs(o.c - c1) + 1),
-        cell_w * (math.abs(o.r - r1) + 1))
+        board_offs_x + cell_w * o.c,
+        board_offs_y + cell_w * o.r,
+        cell_w * ((o.range_x or 0) + 1),
+        cell_w * ((o.range_y or 0) + 1))
     end)
     board.each('bloom', function (o)
       local used_rate = (o.used and 1 or 0)

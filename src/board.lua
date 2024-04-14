@@ -21,6 +21,14 @@ function Board.create(puzzle)
     for k, v in pairs(args) do
       if type(k) == 'string' then o[k] = v end
     end
+    if o.range_y ~= nil and o.range_y < 0 then
+      o.r = o.r + o.range_y
+      o.range_y = -o.range_y
+    end
+    if o.range_x ~= nil and o.range_x < 0 then
+      o.c = o.c + o.range_x
+      o.range_x = -o.range_x
+    end
     if name == 'bloom' then
       o.used = false
     elseif name == 'weeds' then
@@ -66,6 +74,20 @@ function Board.create(puzzle)
   end
   b.find_one = find_one
 
+  local find_one_ranged = function (r, c, name)
+    local t = b.objs[name]
+    for i = 1, #t do
+      local o = t[i]
+      local or1 = o.r + (o.range_y or 0)
+      local oc1 = o.c + (o.range_x or 0)
+      if r >= o.r and r <= or1 and c >= o.c and c <= oc1 then
+        return o
+      end
+    end
+    return nil
+  end
+  b.find_one = find_one
+
   local find = function (r, c, name)
     local objs = {}
     local t = b.objs[name]
@@ -103,6 +125,8 @@ function Board.create(puzzle)
     local changes = {}
     local anims = {}
     local spawned = {}
+
+    local updated_chameleons = {}
 
     each('butterfly', function (o)
       local ro, co = o.r, o.c
@@ -188,12 +212,36 @@ function Board.create(puzzle)
               end
             end
           end
+          -- Chameleons?
+          local cha = find_one_ranged(r1, c1, 'chameleon')
+          if cha ~= nil and not updated_chameleons[cha] then
+            updated_chameleons[cha] = true
+            if cha.provoked then
+              -- Eat
+              undoable_set(changes, cha, 'provoked', false)
+              add_anim(anims, cha, 'eat')
+            else
+              -- Provoke
+              undoable_set(changes, cha, 'provoked', true)
+              add_anim(anims, cha, 'provoke')
+            end
+          end
         end
       end
       if o.dir ~= best_dir then
         add_anim(anims, o, 'turn', {from_dir = o.dir})
       end
       undoable_set(changes, o, 'dir', best_dir)
+    end)
+
+    -- Chameleons
+    each('chameleon', function (o)
+      if not updated_chameleons[o] then
+        if o.provoked then
+          undoable_set(changes, o, 'provoked', false)
+          add_anim(anims, o, 'return_idle')
+        end
+      end
     end)
 
     return changes, anims
