@@ -1,4 +1,4 @@
-return function (drawable, fn)
+return function (drawable, fn, drawable_scale)
   local s = {}
   local W, H = W, H
 
@@ -8,6 +8,10 @@ return function (drawable, fn)
   s.enabled = true
 
   local w, h = drawable:getDimensions()
+  drawable_scale = drawable_scale or 1
+  w = w * drawable_scale
+  h = h * drawable_scale
+
   local scale = 1
 
   local held = false
@@ -59,9 +63,9 @@ return function (drawable, fn)
     local sc = scale * s.s
     local x, y, sc = s.x - w/2 * sc, s.y - h/2 * sc, sc
     if drawable.draw then
-      drawable:draw(x, y, sc)
+      drawable:draw(x, y, sc * drawable_scale)
     else
-      love.graphics.draw(drawable, x, y, 0, sc)
+      love.graphics.draw(drawable, x, y, 0, sc * drawable_scale)
     end
   end
 

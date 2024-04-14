@@ -14,13 +14,22 @@ return function ()
     function () replaceScene(sceneIntro(), transitions['fade'](0.1, 0.1, 0.1)) end
   )
   btnStart.x0 = W * 0.5
-  btnStart.y0 = H * 0.65
-  btnStart.x = btnStart.x0
-  btnStart.y = btnStart.y0
+  btnStart.y = H * 0.65
   local buttons = { btnStart }
 
+  for i = 1, 6 do
+    local img = draw.get('4f37d624f5c0d64a8bdbb799a67a1eef04403909')
+    local w, h = img:getDimensions()
+    local scale = H * 0.44 / h
+    local btn = button(img, function ()
+    end, scale)
+    btn.x0 = W * (0.95 + i / 3)
+    btn.y = H * 0.5
+    buttons[#buttons + 1] = btn
+  end
+
   local scroll_main = scroll({
-    x_min = -W / 2,
+    x_min = -W * 2.3,
     x_max = 0,
   })
 
@@ -55,6 +64,7 @@ return function ()
       b.update()
     end
   end
+  s.update()
 
   s.draw = function ()
     local sdx = scroll_main.dx
