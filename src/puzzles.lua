@@ -153,4 +153,16 @@ return {
       {'butterfly', 4, 5, dir = 1},
     },
   },
+  [9] = {
+    size = {7, 10},
+    objs = {
+      {'weeds', 2, 5},
+      {'bloom', 4, 4},
+      {'bloom', 4, 7},
+      {'chameleon', 2, 2, range_x = 2},
+      {'chameleon', 4, 5, range_y = -1},
+      {'pollen', 3, 6, group = 1},
+      {'butterfly', 1, 2, dir = 1},
+    },
+  },
 }

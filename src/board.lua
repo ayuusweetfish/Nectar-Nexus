@@ -138,6 +138,7 @@ function Board.create(puzzle)
     local spawned = {}
 
     local updated_chameleons = {}
+    local visited_pollen = {}
 
     each('butterfly', function (o)
       if o.eaten then return end
@@ -205,9 +206,12 @@ function Board.create(puzzle)
             undoable_set(changes, o, 'c', c1)
             -- Meet any flowers?
             local target = find_one(r1, c1, 'pollen')
-            if target ~= nil and not target.visited then
+            -- `visited_pollen` is kept so that
+            -- multiple simultaneous visiting butterflies collect the pollen
+            if target ~= nil and (not target.visited or visited_pollen[target]) then
               if o.carrying ~= nil then
                 if o.carrying.group == target.group then
+                  visited_pollen[target] = true
                   undoable_set(changes, target, 'visited', true)
                   undoable_set(changes, target, 'matched', true)
                   undoable_set(changes, o.carrying, 'matched', true)
@@ -218,6 +222,7 @@ function Board.create(puzzle)
                   add_anim(anims, o, 'carry_pollen', {release_group = target.group})
                 end
               else
+                visited_pollen[target] = true
                 undoable_set(changes, target, 'visited', true)
                 undoable_set(changes, o, 'carrying', target)
                 add_anim(anims, target, 'pollen_visit')
