@@ -149,6 +149,7 @@ return function ()
       {0.8, 0.5, 1},
       {0.5, 0.9, 0.5},
       {0.4, 0.8, 1},
+      {1, 0.8, 0.5},
     }
     board.each('pollen', function (o)
       local tint = group_colours[o.group]

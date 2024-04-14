@@ -44,6 +44,8 @@ return {
       {'pollen', 2, 1, group = 2},
       {'pollen', 2, 5, group = 3},
       {'pollen', 2, 6, group = 3},
+      {'pollen', 3, 5, group = 4},
+      {'pollen', 3, 6, group = 4},
       {'butterfly', 1, 2, dir = 1},
       -- {'butterfly', 2, 2, dir = 1},
     },
