@@ -15,12 +15,15 @@ local clamp_01 = function (x)
   else return x end
 end
 
-return function ()
+return function (puzzle_index)
   local s = {}
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  local board = Board.create(puzzles[9])
+  puzzle_index = puzzle_index or 9
+  local board = Board.create(puzzles[puzzle_index])
+
+  local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
 
   local button = require 'button'
   local btn_undo, btn_undo_fn
@@ -160,6 +163,11 @@ return function ()
       else
         trigger(index)
       end
+    end
+
+    if key == 'left' or key == 'right' then
+      local index = (puzzle_index + (key == 'left' and #puzzles - 2 or 0)) % #puzzles + 1
+      replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
     end
   end
 
@@ -368,6 +376,10 @@ return function ()
         board_offs_y + cell_w * pt_r,
         cell_w, cell_w)
     end
+
+    -- Text
+    love.graphics.setColor(1, 1, 1)
+    draw.shadow(0.95, 0.95, 0.95, 1, text_puzzle_name, W * 0.1, H * 0.9)
 
     -- Buttons
     for i = 1, #buttons do
