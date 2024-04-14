@@ -2,9 +2,10 @@ local white_tex_1x1_data = love.image.newImageData(1, 1, 'rgba8')
 white_tex_1x1_data:setPixel(0, 0, 1, 1, 1, 1)
 local white_tex_1x1 = love.graphics.newImage(white_tex_1x1_data)
 local shader_light = love.graphics.newShader([[
+uniform float fade;
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
   float alpha;
-  alpha = clamp(1 - 2 * length(vec2(texture_coords.x - 0.5, (texture_coords.y - 0.5) * 1.1)), 0.0, 1.0);
+  alpha = clamp(1 - 2 * length(vec2(texture_coords.x - 0.5, (texture_coords.y - 0.5) * 1.1)) - fade, 0.0, 1.0);
   alpha = (sin((alpha - 0.5) * 3.14159265359) + 1) / 2;
   return vec4(color.rgb, alpha);
 }
@@ -42,6 +43,10 @@ return function ()
         lfo2_f = (1 + math.random() * 0.3) * 0.006,
         lfo2_a = math.random()^3 * 8,
         lfo2_ph = math.random() * math.pi * 2,
+        lfo3_f = (1 + math.random() * 0.5) * 0.008,
+        lfo3_a = (1 + math.random() * 0.3) * 35,
+        lfo4_f = (1 + math.random() * 0.5) * 0.005,
+        lfo4_a = (1 + math.random() * 0.3) * 25,
         age = 0,
       }
       until_next_spawn = math.floor(math.random() * 60)
@@ -69,9 +74,22 @@ return function ()
   s.draw = function ()
     local x, y = s.x, s.y
     local r, g, b = unpack(s.tint)
+
+    local follow_rate = 0
+    local follow_x, follow_y = x, y
+    if s.follow ~= nil then
+      follow_x, follow_y = unpack(s.follow)
+      follow_rate = s.follow_rate
+    end
+
+
+    local wave_out = s.wave_out
+
     love.graphics.setColor(r, g, b)
     love.graphics.setShader(shader_light)
+    shader_light:send('fade', follow_rate)
     rect(x - 30, y - 30, x + 30, y + 30)
+
     love.graphics.setShader(nil)
     for i = 1, #ps do
       local p = ps[i]
@@ -81,8 +99,32 @@ return function ()
       local y_rate = -y1 / p.y_lim
       local alpha = opacity_mapping(y_rate)
       local radius = math.sqrt(alpha) + y_rate * 0.75
+      x1, y1 = x + x1, y + y1
+
+      -- Following
+      if s.follow ~= nil then
+        local x2, y2 = follow_x, follow_y
+        x2 = x2 + math.sin(p.age * p.lfo3_f + p.lfo1_a) * p.lfo3_a
+        y2 = y2 + math.sin(p.age * p.lfo4_f + p.lfo2_a) * p.lfo4_a
+        x1 = x1 + (x2 - x1) * follow_rate
+        y1 = y1 + (y2 - y1) * follow_rate
+        if i % 2 == 0 then
+          radius = radius * (1 - follow_rate)
+        end
+      end
+
+      -- Waving out
+      if wave_out then
+        local x3, y3 = follow_x, follow_y
+        x3 = x3 + math.sin(p.age * p.lfo3_f * 3 + p.lfo1_a) * p.lfo3_a * 6 * (1 - wave_out)
+        y3 = y3 + math.sin(p.age * p.lfo4_f * 3 + p.lfo2_a) * p.lfo4_a * 6 * (1 - wave_out)
+        x1 = x1 + (x3 - x1) * wave_out
+        y1 = y1 + (y3 - y1) * wave_out
+        radius = radius * (1 - wave_out)
+      end
+
       love.graphics.setColor(r, g, b, alpha)
-      love.graphics.circle('fill', x + x1, y + y1, 1.2 * radius)
+      love.graphics.circle('fill', x1, y1, 1.2 * radius)
     end
   end
 

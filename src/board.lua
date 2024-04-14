@@ -36,6 +36,7 @@ function Board.create(puzzle)
     elseif name == 'pollen' then
       o.visited = false
       o.matched = false
+      o.carrier = nil
     elseif name == 'chameleon' then
       o.provoked = false
     elseif name == 'butterfly' then
@@ -213,6 +214,7 @@ function Board.create(puzzle)
                 if o.carrying.group == target.group then
                   visited_pollen[target] = true
                   undoable_set(changes, target, 'visited', true)
+                  undoable_set(changes, target, 'carrier', o)
                   undoable_set(changes, target, 'matched', true)
                   undoable_set(changes, o.carrying, 'matched', true)
                   add_anim(anims, target, 'pollen_visit')
@@ -224,6 +226,7 @@ function Board.create(puzzle)
               else
                 visited_pollen[target] = true
                 undoable_set(changes, target, 'visited', true)
+                undoable_set(changes, target, 'carrier', o)
                 undoable_set(changes, o, 'carrying', target)
                 add_anim(anims, target, 'pollen_visit')
                 add_anim(anims, o, 'carry_pollen')  -- release_group = nil: taking on

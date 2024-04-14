@@ -76,7 +76,7 @@ return function (puzzle_index)
 
     -- Pollen
     ['pollen_visit'] =  90, -- 110
-    ['pollen_match'] = 150, -- 180
+    ['pollen_match'] = 240, -- 300
   }
 
   local trigger_imm = function (r, c)
@@ -126,6 +126,7 @@ return function (puzzle_index)
   }
 
   local psys = {}
+  local psys_by_obj = {}
   board.each('pollen', function (o)
     local p = particles()
     p.x = board_offs_x + cell_w * (o.c + 0.5)
@@ -133,6 +134,7 @@ return function (puzzle_index)
     local r, g, b = unpack(group_colours[o.group])
     p.tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
     psys[#psys + 1] = p
+    psys_by_obj[o] = p
   end)
   board.each('bloom', function (o)
   end)
@@ -286,6 +288,26 @@ return function (puzzle_index)
         board_offs_y + cell_w * (o.r + 0.5),
         cell_w * (0.15 + 0.25 * used_rate))
     end)
+
+    -- Animated positions
+    local butterfly_animated_pos = {}
+    board.each('butterfly', function (o)
+      local r0, c0 = o.r, o.c
+      local anim_progress = clamp_01((since_anim -
+        (find_anim(o, 'turn') and 30 or (find_anim(o, 'spawn_from_weeds') and 60 or 0))) / 60)
+      if anim_progress < 1 then
+        local a = find_anim(o, 'move')
+        if a ~= nil then
+          anim_progress = ease_exp_out(anim_progress)
+          r0 = a.from_r + (r0 - a.from_r) * anim_progress
+          c0 = a.from_c + (c0 - a.from_c) * anim_progress
+        end
+      end
+      local x0 = board_offs_x + cell_w * (c0 + 0.5)
+      local y0 = board_offs_y + cell_w * (r0 + 0.5)
+      butterfly_animated_pos[o] = {x0, y0}
+    end)
+
     board.each('pollen', function (o)
       local tint = group_colours[o.group]
 
@@ -318,25 +340,34 @@ return function (puzzle_index)
           board_offs_y + cell_w * (o.r + 0.5),
           cell_w * highlight_radius * 0.4)
       end
-    end)
 
-    -- Particle systems
-    for i = 1, #psys do psys[i].draw() end
-
-    board.each('butterfly', function (o)
-      local r0, c0 = o.r, o.c
-      local anim_progress = clamp_01((since_anim -
-        (find_anim(o, 'turn') and 30 or (find_anim(o, 'spawn_from_weeds') and 60 or 0))) / 60)
-      if anim_progress < 1 then
-        local a = find_anim(o, 'move')
-        if a ~= nil then
-          anim_progress = ease_exp_out(anim_progress)
-          r0 = a.from_r + (r0 - a.from_r) * anim_progress
-          c0 = a.from_c + (c0 - a.from_c) * anim_progress
+      -- Particles following a butterfly?
+      local follow, follow_rate = nil, 0
+      if o.carrier then
+        follow = butterfly_animated_pos[o.carrier]
+        follow_rate = 1
+        if find_anim(o, 'pollen_visit') ~= nil then
+          follow = {
+            board_offs_x + cell_w * (o.carrier.c + 0.5),
+            board_offs_y + cell_w * (o.carrier.r + 0.5),
+          }
+          follow_rate = ease_exp_out(anim_progress)
         end
       end
-      local x0 = board_offs_x + cell_w * (c0 + 0.5)
-      local y0 = board_offs_y + cell_w * (r0 + 0.5)
+      psys_by_obj[o].follow = follow
+      psys_by_obj[o].follow_rate = follow_rate
+
+      -- Particles waving and fading out due to matching?
+      local wave_out = (o.matched and 1 or 0)
+      local anim_progress = clamp_01((since_anim - 60) / 240)
+      if anim_progress < 1 and find_anim(o, 'pollen_match') then
+        wave_out = ease_quad_in_out(anim_progress)
+      end
+      psys_by_obj[o].wave_out = wave_out
+    end)
+
+    board.each('butterfly', function (o)
+      local x0, y0 = unpack(butterfly_animated_pos[o])
 
       local alpha = find_anim(o, 'spawn_from_weeds') and clamp_01((since_anim - 60) / 60) or 1
 
@@ -344,6 +375,7 @@ return function (puzzle_index)
         (o.eaten and 1 or 0)
       alpha = alpha * (1 - eaten_progress)
 
+    --[[
       local carrying_group = nil
       local carrying_rate = 0
       local a
@@ -366,6 +398,7 @@ return function (puzzle_index)
         love.graphics.setColor(tint[1], tint[2], tint[3], alpha)
         love.graphics.circle('fill', x0, y0, cell_w * (0.2 + carrying_rate * 0.05))
       end
+    ]]
 
       love.graphics.setColor(1, 1, 0.3, alpha)
       love.graphics.circle('fill', x0, y0, cell_w * 0.2)
@@ -386,6 +419,9 @@ return function (puzzle_index)
         x0 + cell_w * 0.4 * math.cos(dir_angle * (math.pi / 2)),
         y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
     end)
+
+    -- Particle systems
+    for i = 1, #psys do psys[i].draw() end
 
     -- Pointer
     if pt_bloom then
