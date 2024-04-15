@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 5 -- #puzzles
+  puzzle_index = puzzle_index or puzzles.test or #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -68,10 +68,12 @@ return function (puzzle_index)
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 
-  local cell_w = math.min(100, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
+  local global_scale = 1 / 1.5
+  local cell_w_orig = 100 * global_scale
+  local cell_w = math.min(cell_w_orig, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
-  local cell_scale = cell_w / 100
+  local cell_scale = cell_w / cell_w_orig
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -341,6 +343,40 @@ return function (puzzle_index)
   rebound_offs['1.3'] = {0, -0.03}
   register_still_sprite_set('rebound', rebound_offs)
 
+  -- Pollen
+  local pollen_offs = {}
+  if palette_num == 1 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0.15, 0}
+    pollen_offs['2.2'] = {0, 0}
+    pollen_offs['3.1'] = {0.2, -0.15}
+    pollen_offs['3.2'] = {0.15, 0.2}
+    pollen_offs['4.1'] = {-0.15, -0.15}
+    pollen_offs['4.2'] = {0, 0}
+  elseif palette_num == 2 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0.3, 0}
+    pollen_offs['2.2'] = {0.12, 0.12}
+    pollen_offs['3.1'] = {0.45, 0.4}
+    pollen_offs['3.2'] = {0, 0.05}
+    pollen_offs['4.1'] = {0.02, 0}
+    pollen_offs['4.2'] = {0, -0.2}
+    pollen_offs['5.1'] = {0, -0.5}
+    pollen_offs['5.2'] = {0, -0.6}
+  elseif palette_num == 3 then
+    pollen_offs['1.1'] = {0, -0.1}
+    pollen_offs['1.2'] = {-0.12, 0}
+    pollen_offs['2.1'] = {0.2, -0.05}
+    pollen_offs['2.2'] = {0, 0.15}
+    pollen_offs['3.1'] = {-0.24, 0}
+    pollen_offs['3.2'] = {-0.55, 0.6}
+    pollen_offs['4.1'] = {0.43, -0.2}
+    pollen_offs['4.2'] = {0, -0.3}
+  end
+  register_still_sprite_set('pollen', pollen_offs)
+
   local aseq = {}
   -- Butterfly
   for _, n in ipairs({
@@ -415,13 +451,17 @@ return function (puzzle_index)
       for c = 0, board.ncols - 1 do
         local o = board.find_one(r, c, 'obstacle')
         if not o or not o.empty_background then
-          local index = r * 16 + c
-          love.graphics.draw(
-            glaze_tile_tex, glaze_tile_quads[index],
-            board_offs_x + cell_w * c,
-            board_offs_y + cell_w * r,
-            0, cell_scale
-          )
+          local r1 = r + puzzles[puzzle_index].tile[1] - 1
+          local c1 = c + puzzles[puzzle_index].tile[2] - 1
+          if r1 >= 0 and r1 < 8 and c1 >= 0 and c1 < 16 then
+            local index = r1 * 16 + c1
+            love.graphics.draw(
+              glaze_tile_tex, glaze_tile_quads[index],
+              board_offs_x + cell_w * c,
+              board_offs_y + cell_w * r,
+              0, cell_scale * global_scale
+            )
+          end
         end
       end
     end
@@ -450,8 +490,8 @@ return function (puzzle_index)
           w, h = item.scale * cell_w, item.scale * cell_w
         elseif item.rel_scale_x ~= nil then
           local img = draw.get(item.name)
-          w = item.rel_scale_x * img:getWidth()
-          h = item.rel_scale_y * img:getHeight()
+          w = item.rel_scale_x * img:getWidth() * global_scale
+          h = item.rel_scale_y * img:getHeight() * global_scale
         end
         draw.img(item.name,
           board_offs_x + cell_w * (item.c + item.dx),
@@ -575,6 +615,7 @@ return function (puzzle_index)
       if anim_progress < 1 and find_anim(o, 'pollen_match') then
         shadow_radius = 1 - ease_quad_in_out(anim_progress)
       end
+    --[[
       love.graphics.setColor(tint[1], tint[2], tint[3], 0.2)
       love.graphics.circle('fill',
         board_offs_x + cell_w * (o.c + 0.5),
@@ -586,12 +627,14 @@ return function (puzzle_index)
         board_offs_x + cell_w * (o.c + 0.5),
         board_offs_y + cell_w * (o.r + 0.5),
         cell_w * 0.4)
+    ]]
 
       local highlight_radius = (o.visited and 0 or 1)
       local anim_progress = clamp_01((since_anim - 50) / 60)
       if anim_progress < 1 and find_anim(o, 'pollen_visit') ~= nil then
         highlight_radius = 1 - ease_quad_in_out(anim_progress)
       end
+    --[[
       if highlight_radius > 0 then
         love.graphics.setColor(tint[1], tint[2], tint[3], 1)
         love.graphics.circle('fill',
@@ -599,6 +642,14 @@ return function (puzzle_index)
           board_offs_y + cell_w * (o.r + 0.5),
           cell_w * highlight_radius * 0.4)
       end
+    ]]
+
+      local id = o.image
+      local rel_scale_x, rel_scale_y = 1, 1
+      obj_img(still.pollen[id], o.r, o.c,
+        0.5 + still_offs.pollen[id][1],
+        0.5 + still_offs.pollen[id][2],
+        nil, rel_scale_x, rel_scale_y)
 
       -- Particles following a butterfly?
       local follow, follow_rate = nil, 0
@@ -642,6 +693,28 @@ return function (puzzle_index)
     end)
 
     obj_img_draw()
+
+    board.each('chameleon', function (o)
+      local anim_progress = clamp_01((since_anim - 50) / 60)
+      -- When `eat` is active, `provoke` does not matter (progress set to -1)
+      -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
+      local provoke_progress = (o.provoked and 1 or 0)
+      local eat_progress = 0
+      if anim_progress < 1 then
+        local a_provoke = find_anim(o, 'provoke')
+        local a_eat = find_anim(o, 'eat')
+        local a_idle = find_anim(o, 'return_idle')
+        if a_provoke then
+          provoke_progress = ease_quad_in_out(anim_progress)
+        elseif a_eat then
+          provoke_progress = -1
+          eat_progress = ease_quad_in_out(anim_progress)
+        elseif a_idle then
+          provoke_progress = 1 - ease_quad_in_out(anim_progress)
+        end
+      end
+      -- TODO
+    end)
 
     -- Particle systems (under butterflies)
     for i = 1, #psys do
