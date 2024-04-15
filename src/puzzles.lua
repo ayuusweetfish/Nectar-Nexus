@@ -1,4 +1,5 @@
 return {
+  ------ Vase 1: Fundamentals ------
   -- Game objective
   {
     size = {3, 8},
@@ -75,6 +76,7 @@ return {
     },
   },
 
+  ------ Vase 2: Flocks/locksteps, intricate moves ------
   -- 180-degree turn, carrying rules, backwards-fuzzy recap
   {
     size = {4, 9},
@@ -136,20 +138,41 @@ return {
     },
   },
 
+  ------ Vase 3: Weeds ------
+  -- Introduction to weeds and its details
+  -- (pollen is carried over; revisiting does not spawn more butterflies)
   {
-    size = {5, 5},
+    size = {5, 7},
     objs = {
-      {'reflect_obstacle', 4, 0},
-      {'bloom', 2, 1},
-      {'bloom', 1, 3},
-      {'pollen', 0, 2, group = 1},
-      {'pollen', 1, 2, group = 1},
+      {'bloom', 2, 0},
+      {'weeds', 2, 4},
+      {'pollen', 0, 1, group = 1},
+      {'pollen', 0, 3, group = 1},
+      {'pollen', 2, 1, group = 2},
       {'pollen', 2, 3, group = 2},
-      {'pollen', 2, 4, group = 2},
-      {'butterfly', 3, 4, dir = 3},
-      {'butterfly', 4, 4, dir = 3},
+      {'pollen', 4, 1, group = 3},
+      {'pollen', 4, 3, group = 3},
+      {'butterfly', 2, 2, dir = 1},
     },
   },
+  -- Mild difficulty
+  {
+    size = {5, 7},
+    objs = {
+      {'bloom', 1, 4},
+      {'bloom', 0, 5},
+      {'bloom', 1, 5},
+      {'weeds', 2, 3},
+      {'pollen', 0, 3, group = 1},
+      {'pollen', 1, 3, group = 1},
+      {'pollen', 2, 1, group = 2},
+      {'pollen', 2, 2, group = 2},
+      {'pollen', 2, 4, group = 3},
+      {'pollen', 2, 5, group = 3},
+      {'butterfly', 3, 3, dir = 2},
+    },
+  },
+  -- Puzzles, in increasing order of difficulty
   {
     size = {4, 7},
     objs = {
@@ -186,6 +209,96 @@ return {
     },
   },
   {
+    size = {4, 8},
+    objs = {
+      {'weeds', 1, 4},
+      {'bloom', 1, 3},
+      {'bloom', 0, 7},
+      {'bloom', 2, 7},
+      {'pollen', 1, 1, group = 1},
+      {'pollen', 1, 5, group = 1},
+      {'pollen', 0, 1, group = 2},
+      {'pollen', 0, 5, group = 2},
+      {'pollen', 2, 1, group = 3},
+      {'pollen', 2, 5, group = 3},
+      {'butterfly', 1, 2, dir = 1},
+    },
+  },
+  {
+    size = {7, 8},
+    objs = {
+      {'weeds', 3, 2},
+      {'weeds', 3, 5},
+      {'bloom', 5, 3},
+      {'bloom', 6, 4},
+      {'bloom', 3, 3},
+      {'pollen', 0, 3, group = 1},
+      {'pollen', 0, 4, group = 1},
+      {'pollen', 2, 3, group = 2},
+      {'pollen', 2, 4, group = 2},
+      {'pollen', 4, 3, group = 3},
+      {'pollen', 4, 4, group = 3},
+      {'butterfly', 2, 0, dir = 1},
+    },
+  },
+
+  ------ Vase 4: Rebounces ------
+  -- Introduction to the rebouncing obstacle
+  {
+    size = {4, 6},
+    objs = {
+      {'reflect_obstacle', 0, 0},
+      {'bloom', 2, 1},
+      {'pollen', 2, 4, group = 1},
+      {'pollen', 3, 4, group = 1},
+      {'butterfly', 0, 4, dir = 3},
+    },
+  },
+  -- Mild difficulty
+  {
+    size = {5, 5},
+    objs = {
+      {'reflect_obstacle', 4, 0},
+      {'bloom', 2, 1},
+      {'bloom', 1, 3},
+      {'pollen', 0, 2, group = 1},
+      {'pollen', 1, 2, group = 1},
+      {'pollen', 2, 3, group = 2},
+      {'pollen', 2, 4, group = 2},
+      {'butterfly', 3, 4, dir = 3},
+      {'butterfly', 4, 4, dir = 3},
+    },
+  },
+  -- Rebounce and weeds, decent difficulty
+  {
+    size = {5, 9},
+    objs = {
+    },
+  },
+  -- Decent difficulty
+  {
+    size = {5, 9},
+    objs = {
+      {'reflect_obstacle', 1, 0},
+      {'reflect_obstacle', 2, 0},
+      {'reflect_obstacle', 1, 8},
+      {'reflect_obstacle', 2, 8},
+      {'weeds', 2, 3},
+      {'bloom', 3, 7},
+      {'bloom', 4, 7},
+      {'pollen', 1, 1, group = 1},
+      {'pollen', 1, 7, group = 1},
+      {'pollen', 2, 1, group = 2},
+      {'pollen', 2, 7, group = 2},
+      {'pollen', 2, 5, group = 3},
+      {'pollen', 3, 6, group = 3},
+      {'butterfly', 1, 4, dir = 1},
+    },
+  },
+
+  ------ Vase 5: Chameleons ------
+  -- TODO 1/4
+  {
     size = {6, 8},
     objs = {
       {'obstacle', 0, 0}, {'obstacle', 0, 1}, {'obstacle', 0, 6}, {'obstacle', 0, 7},
@@ -204,6 +317,9 @@ return {
       {'butterfly', 0, 3, dir = 2},
     },
   },
+
+  ------ Vase 6: Everything everywhere all at once ------
+  -- TODO 5/6
   {
     size = {8, 10},
     objs = {
@@ -296,23 +412,6 @@ return {
       {'pollen', 5, 1, group = 2},
       {'pollen', 5, 2, group = 2},
       {'butterfly', 1, 4, dir = 1},
-    },
-  },
-  {
-    size = {7, 8},
-    objs = {
-      {'weeds', 3, 2},
-      {'weeds', 3, 5},
-      {'bloom', 5, 3},
-      {'bloom', 6, 4},
-      {'bloom', 3, 3},
-      {'pollen', 0, 3, group = 1},
-      {'pollen', 0, 4, group = 1},
-      {'pollen', 2, 3, group = 2},
-      {'pollen', 2, 4, group = 2},
-      {'pollen', 4, 3, group = 3},
-      {'pollen', 4, 4, group = 3},
-      {'butterfly', 2, 0, dir = 1},
     },
   },
   {
