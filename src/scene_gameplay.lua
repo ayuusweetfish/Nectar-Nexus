@@ -10,6 +10,9 @@ end
 local ease_exp_out = function (x)
   return 1 - (1 - x) * math.exp(-3 * x)
 end
+local ease_exp_in = function (x)
+  return x * math.exp(-3 * (1 - x))
+end
 local clamp_01 = function (x)
   if x < 0 then return 0
   elseif x > 1 then return 1
@@ -21,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 10 -- #puzzles
+  puzzle_index = puzzle_index or 11 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -261,6 +264,7 @@ return function (puzzle_index)
   end
 
   local aseq = {}
+  -- Butterfly
   for _, n in ipairs({
     'idle-side', 'idle-front', 'idle-back'
   }) do
@@ -278,6 +282,16 @@ return function (puzzle_index)
     for i = 1, 6 do
       aseq[full_name][i] = string.format('butterflies/%s/%02d', n, i)
     end
+  end
+  -- Weeds
+  local palette_num = 1
+  aseq['weeds-idle'] = {}
+  for i = 1, 6 do
+    aseq['weeds-idle'][i] = string.format('weeds/p%d-idle/%02d', palette_num, i)
+  end
+  aseq['weeds-trigger'] = {}
+  for i = 1, 10 do
+    aseq['weeds-trigger'][i] = string.format('weeds/p%d-trigger/%02d', palette_num, i)
   end
 
   local aseq_loop = function (seq_name, frame_rate)
@@ -327,13 +341,7 @@ return function (puzzle_index)
         board_offs_y + cell_w * o.r,
         cell_w, cell_w)
     end)
-    board.each('weeds', function (o)
-      love.graphics.setColor(0.7, 1, 0.8, 0.5)
-      love.graphics.rectangle('fill',
-        board_offs_x + cell_w * o.c,
-        board_offs_y + cell_w * o.r,
-        cell_w, cell_w)
-    end)
+
     board.each('chameleon', function (o)
       local anim_progress = clamp_01((since_anim - 50) / 60)
       -- When `eat` is active, `provoke` does not matter (progress set to -1)
@@ -460,6 +468,33 @@ return function (puzzle_index)
       psys_by_obj[o].wave_out = wave_out
     end)
 
+--[[
+    board.each('weeds', function (o)
+      love.graphics.setColor(0.7, 1, 0.8, 0.5)
+      love.graphics.rectangle('fill',
+        board_offs_x + cell_w * o.c,
+        board_offs_y + cell_w * o.r,
+        cell_w, cell_w)
+    end)
+]]
+    love.graphics.setColor(1, 1, 1)
+    board.each('weeds', function (o)
+      local aseq_frame = aseq_loop('weeds-idle', 24)
+      local anim_progress = clamp_01(since_anim / 60)
+      if anim_progress < 1 then
+        local a = find_anim(o, 'weeds_trigger')
+        if a ~= nil then
+          aseq_frame = aseq_proceed('weeds-trigger', anim_progress)
+        end
+      end
+      local s = 2.7
+      draw.img(
+        aseq_frame,
+        board_offs_x + cell_w * (o.c + 0.59),
+        board_offs_y + cell_w * (o.r + 0.55),
+        cell_w * s, cell_w * s)
+    end)
+
     -- Particle systems (under butterflies)
     for i = 1, #psys do
       local p = psys[i]
@@ -565,6 +600,9 @@ return function (puzzle_index)
         end
       end
 
+      local alpha = find_anim(o, 'spawn_from_weeds') and clamp_01((since_anim - 60) / 60) or 1
+
+      love.graphics.setColor(1, 1, 1, alpha)
       draw.img(
         aseq_frame,
         x0, y0, cell_w * (flip and -2 or 2), cell_w * 2)

@@ -197,6 +197,7 @@ function Board.create(puzzle)
             undoable_add(changes, b2)
             add_anim(anims, b1, 'spawn_from_weeds')
             add_anim(anims, b2, 'spawn_from_weeds')
+            add_anim(anims, weeds, 'weeds_trigger')
             r1 = r1 + moves[best_dir][1]
             c1 = c1 + moves[best_dir][2]
           end
