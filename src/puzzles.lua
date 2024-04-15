@@ -1,13 +1,16 @@
 return {
-  test = 5,
+  test = 11,  -- ** 修改【起始关卡编号】 ** --
+
+  -- ** 搜索文本 [编号] （带方括号）跳转到关卡 ** --
+  -- ** 例如，搜索 [1] 可以找到第 1 个谜题 ** --
 
   ------ Vase 1: Fundamentals ------
   -- Game objective
   [1] = {
-    tile = {1, 1},
+    tile = {1, 1},  -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
     size = {3, 8},
     objs = {
-      {'pollen', 1, 3, group = 1, image = '1.1'},
+      {'pollen', 1, 3, group = 1, image = '1.1'}, -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 1, 7, group = 1, image = '1.2'},
       {'butterfly', 1, 0, dir = 1},
     },
@@ -60,8 +63,8 @@ return {
       {'obstacle', 1, 3, image = '1.2'},
       {'bloom', 3, 2},
       {'bloom', 1, 8},
-      {'pollen', 1, 1, group = 1, image = '1.1'},
-      {'pollen', 1, 5, group = 1, image = '1.2'},
+      {'pollen', 1, 1, group = 1, image = '2.2'},
+      {'pollen', 1, 5, group = 1, image = '2.1'},
       {'butterfly', 0, 1, dir = 2},
     },
   },
@@ -76,10 +79,10 @@ return {
       {'bloom', 0, 3},
       {'bloom', 0, 0},
       {'bloom', 2, 5},
-      {'pollen', 1, 4, group = 1, image = '1.1'},
-      {'pollen', 1, 3, group = 1, image = '1.2'},
-      {'pollen', 2, 3, group = 2, image = '1.1'},
-      {'pollen', 2, 4, group = 2, image = '1.2'},
+      {'pollen', 1, 4, group = 1, image = '3.1'},
+      {'pollen', 1, 3, group = 1, image = '3.2'},
+      {'pollen', 2, 3, group = 2, image = '4.1'},
+      {'pollen', 2, 4, group = 2, image = '4.2'},
       {'butterfly', 1, 6, dir = 2},
     },
   },
@@ -93,10 +96,10 @@ return {
       {'bloom', 0, 4},
       {'bloom', 1, 0},
       {'bloom', 3, 2},
-      {'pollen', 1, 3, group = 1, image = '1.1'},
-      {'pollen', 1, 8, group = 1, image = '1.2'},
-      {'pollen', 1, 6, group = 2, image = '1.1'},
-      {'pollen', 3, 4, group = 2, image = '1.2'},
+      {'pollen', 1, 3, group = 1, image = '2.1'},
+      {'pollen', 1, 8, group = 1, image = '2.2'},
+      {'pollen', 1, 6, group = 2, image = '3.1'},
+      {'pollen', 3, 4, group = 2, image = '3.2'},
       {'butterfly', 1, 2, dir = 1},
     },
   },
@@ -107,10 +110,10 @@ return {
     objs = {
       {'bloom', 0, 3},
       {'bloom', 1, 9},
-      {'pollen', 1, 5, group = 1, image = '1.1'},
-      {'pollen', 1, 8, group = 1, image = '1.2'},
-      {'pollen', 1, 6, group = 2, image = '1.1'},
-      {'pollen', 1, 7, group = 2, image = '1.2'},
+      {'pollen', 1, 5, group = 1, image = '4.1'},
+      {'pollen', 1, 8, group = 1, image = '4.2'},
+      {'pollen', 1, 6, group = 2, image = '5.1'},
+      {'pollen', 1, 7, group = 2, image = '5.2'},
       {'butterfly', 1, 0, dir = 1},
       {'butterfly', 2, 0, dir = 1},
     },
@@ -161,10 +164,10 @@ return {
       {'weeds', 2, 4},
       {'pollen', 0, 1, group = 1, image = '1.1'},
       {'pollen', 0, 3, group = 1, image = '1.2'},
-      {'pollen', 2, 1, group = 2, image = '1.1'},
-      {'pollen', 2, 3, group = 2, image = '1.2'},
-      {'pollen', 4, 1, group = 3, image = '1.1'},
-      {'pollen', 4, 3, group = 3, image = '1.2'},
+      {'pollen', 2, 1, group = 2, image = '2.1'},
+      {'pollen', 2, 3, group = 2, image = '2.2'},
+      {'pollen', 4, 1, group = 3, image = '3.1'},
+      {'pollen', 4, 3, group = 3, image = '3.2'},
       {'butterfly', 2, 2, dir = 1},
     },
   },
@@ -194,8 +197,8 @@ return {
       {'bloom', 2, 3},
       {'bloom', 1, 4},
       {'weeds', 1, 3},
-      {'pollen', 1, 0, group = 2, image = '1.1'},
-      {'pollen', 1, 1, group = 3, image = '1.2'},
+      {'pollen', 1, 0, group = 2, image = '4.1'},
+      {'pollen', 1, 1, group = 3, image = '4.2'},
       {'pollen', 1, 5, group = 2, image = '1.1'},
       {'pollen', 1, 6, group = 3, image = '1.2'},
       {'pollen', 3, 5, group = 4, image = '1.1'},

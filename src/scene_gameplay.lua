@@ -348,32 +348,32 @@ return function (puzzle_index)
   if palette_num == 1 then
     pollen_offs['1.1'] = {0, 0}
     pollen_offs['1.2'] = {0, 0}
-    pollen_offs['2.1'] = {0, 0}
+    pollen_offs['2.1'] = {0.15, 0}
     pollen_offs['2.2'] = {0, 0}
-    pollen_offs['3.1'] = {0, 0}
-    pollen_offs['3.2'] = {0, 0}
-    pollen_offs['4.1'] = {0, 0}
+    pollen_offs['3.1'] = {0.2, -0.15}
+    pollen_offs['3.2'] = {0.15, 0.2}
+    pollen_offs['4.1'] = {-0.15, -0.15}
     pollen_offs['4.2'] = {0, 0}
   elseif palette_num == 2 then
     pollen_offs['1.1'] = {0, 0}
     pollen_offs['1.2'] = {0, 0}
-    pollen_offs['2.1'] = {0, 0}
-    pollen_offs['2.2'] = {0, 0}
-    pollen_offs['3.1'] = {0, 0}
-    pollen_offs['3.2'] = {0, 0}
-    pollen_offs['4.1'] = {0, 0}
-    pollen_offs['4.2'] = {0, 0}
-    pollen_offs['5.1'] = {0, 0}
-    pollen_offs['5.2'] = {0, 0}
+    pollen_offs['2.1'] = {0.3, 0}
+    pollen_offs['2.2'] = {0.12, 0.12}
+    pollen_offs['3.1'] = {0.45, 0.4}
+    pollen_offs['3.2'] = {0, 0.05}
+    pollen_offs['4.1'] = {0.02, 0}
+    pollen_offs['4.2'] = {0, -0.2}
+    pollen_offs['5.1'] = {0, -0.5}
+    pollen_offs['5.2'] = {0, -0.6}
   elseif palette_num == 3 then
-    pollen_offs['1.1'] = {0, 0}
-    pollen_offs['1.2'] = {0, 0}
-    pollen_offs['2.1'] = {0, 0}
-    pollen_offs['2.2'] = {0, 0}
-    pollen_offs['3.1'] = {0, 0}
-    pollen_offs['3.2'] = {0, 0}
-    pollen_offs['4.1'] = {0, 0}
-    pollen_offs['4.2'] = {0, 0}
+    pollen_offs['1.1'] = {0, -0.1}
+    pollen_offs['1.2'] = {-0.12, 0}
+    pollen_offs['2.1'] = {0.2, -0.05}
+    pollen_offs['2.2'] = {0, 0.15}
+    pollen_offs['3.1'] = {-0.24, 0}
+    pollen_offs['3.2'] = {-0.55, 0.6}
+    pollen_offs['4.1'] = {0.43, -0.2}
+    pollen_offs['4.2'] = {0, -0.3}
   end
   register_still_sprite_set('pollen', pollen_offs)
 
