@@ -343,6 +343,40 @@ return function (puzzle_index)
   rebound_offs['1.3'] = {0, -0.03}
   register_still_sprite_set('rebound', rebound_offs)
 
+  -- Pollen
+  local pollen_offs = {}
+  if palette_num == 1 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0, 0}
+    pollen_offs['2.2'] = {0, 0}
+    pollen_offs['3.1'] = {0, 0}
+    pollen_offs['3.2'] = {0, 0}
+    pollen_offs['4.1'] = {0, 0}
+    pollen_offs['4.2'] = {0, 0}
+  elseif palette_num == 2 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0, 0}
+    pollen_offs['2.2'] = {0, 0}
+    pollen_offs['3.1'] = {0, 0}
+    pollen_offs['3.2'] = {0, 0}
+    pollen_offs['4.1'] = {0, 0}
+    pollen_offs['4.2'] = {0, 0}
+    pollen_offs['5.1'] = {0, 0}
+    pollen_offs['5.2'] = {0, 0}
+  elseif palette_num == 3 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0, 0}
+    pollen_offs['2.2'] = {0, 0}
+    pollen_offs['3.1'] = {0, 0}
+    pollen_offs['3.2'] = {0, 0}
+    pollen_offs['4.1'] = {0, 0}
+    pollen_offs['4.2'] = {0, 0}
+  end
+  register_still_sprite_set('pollen', pollen_offs)
+
   local aseq = {}
   -- Butterfly
   for _, n in ipairs({
@@ -581,6 +615,7 @@ return function (puzzle_index)
       if anim_progress < 1 and find_anim(o, 'pollen_match') then
         shadow_radius = 1 - ease_quad_in_out(anim_progress)
       end
+    --[[
       love.graphics.setColor(tint[1], tint[2], tint[3], 0.2)
       love.graphics.circle('fill',
         board_offs_x + cell_w * (o.c + 0.5),
@@ -592,12 +627,14 @@ return function (puzzle_index)
         board_offs_x + cell_w * (o.c + 0.5),
         board_offs_y + cell_w * (o.r + 0.5),
         cell_w * 0.4)
+    ]]
 
       local highlight_radius = (o.visited and 0 or 1)
       local anim_progress = clamp_01((since_anim - 50) / 60)
       if anim_progress < 1 and find_anim(o, 'pollen_visit') ~= nil then
         highlight_radius = 1 - ease_quad_in_out(anim_progress)
       end
+    --[[
       if highlight_radius > 0 then
         love.graphics.setColor(tint[1], tint[2], tint[3], 1)
         love.graphics.circle('fill',
@@ -605,6 +642,14 @@ return function (puzzle_index)
           board_offs_y + cell_w * (o.r + 0.5),
           cell_w * highlight_radius * 0.4)
       end
+    ]]
+
+      local id = o.image
+      local rel_scale_x, rel_scale_y = 1, 1
+      obj_img(still.pollen[id], o.r, o.c,
+        0.5 + still_offs.pollen[id][1],
+        0.5 + still_offs.pollen[id][2],
+        nil, rel_scale_x, rel_scale_y)
 
       -- Particles following a butterfly?
       local follow, follow_rate = nil, 0

@@ -152,10 +152,10 @@ if false; then
   done
 fi
 
-if false; then
+if true; then
   # Still
-  rm -rf still
-  mkdir still
+  #rm -rf still
+  #mkdir still
   p=0
   for n in 蓝 粉 红; do
     p=$((p + 1))
@@ -184,6 +184,12 @@ if false; then
       bn=`basename $i`
       id=${bn:12}
       cp $i $dir-rebound-$id
+    done
+
+    for i in $from/*传粉花*; do
+      bn=`basename $i`
+      id=${bn:11}
+      cp $i $dir-pollen-$id
     done
   done
 fi
