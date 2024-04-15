@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 26 -- #puzzles
+  puzzle_index = puzzle_index or 10 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -303,9 +303,21 @@ return function (puzzle_index)
 
   -- Obstacles
   local obst_offs = {}
-  if palette_num == 3 then
-    obst_offs['1'] = {0, -0.1}
-    obst_offs['2.1'] = {-0.1, -0.2}
+  if palette_num == 1 then
+    obst_offs['1.1'] = {0, 0}
+    obst_offs['1.2'] = {0, 0}
+    obst_offs['2'] = {0.5, -0.1}
+    obst_offs['3'] = {0, 0}
+  elseif palette_num == 2 then
+    obst_offs['1'] = {0, 0}
+    obst_offs['2'] = {0.08, -0.05}
+    obst_offs['3.1'] = {0, 0}
+    obst_offs['3.2'] = {0, 0}
+    obst_offs['3.3'] = {0, 0}
+  elseif palette_num == 3 then
+    obst_offs['1'] = {0.05, -0.05}
+    obst_offs['2.1'] = {-0.05, -0.2}
+    obst_offs['2.2'] = {0, -0.2}
   end
   local obst_name = {}
   for k, v in pairs(obst_offs) do
