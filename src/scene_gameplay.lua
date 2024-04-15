@@ -426,6 +426,13 @@ return function (puzzle_index)
     return list[math.floor(rate * (#list - 1)) + 1]
   end
 
+  local pop_scale_effect = function (anim_progress)
+    local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
+    local rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
+    local rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+    return rel_scale_x, rel_scale_y
+  end
+
   s.draw = function ()
     love.graphics.clear(unpack(bg_tint))
 
@@ -508,9 +515,7 @@ return function (puzzle_index)
         local rel_scale_x, rel_scale_y = 1, 1
         local anim_progress = clamp_01(since_anim / 120)
         if anim_progress < 1 and find_anim(o, 'hit') then
-          local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
-          rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
-          rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+          rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
         end
         obj_img(still.obst[id], o.r, o.c,
           0.5 + still_offs.obst[id][1],
@@ -524,9 +529,7 @@ return function (puzzle_index)
       local rel_scale_x, rel_scale_y = 1, 1
       local anim_progress = clamp_01(since_anim / 120)
       if anim_progress < 1 and find_anim(o, 'hit') then
-        local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
-        rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
-        rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+        rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
       end
       obj_img(still.rebound[id], o.r, o.c,
         0.5 + still_offs.rebound[id][1],
@@ -646,6 +649,10 @@ return function (puzzle_index)
 
       local id = o.image
       local rel_scale_x, rel_scale_y = 1, 1
+      local anim_progress = clamp_01((since_anim - 30) / 120)
+      if anim_progress < 1 and find_anim(o, 'pollen_visit') then
+        rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
+      end
       obj_img(still.pollen[id], o.r, o.c,
         0.5 + still_offs.pollen[id][1],
         0.5 + still_offs.pollen[id][2],
