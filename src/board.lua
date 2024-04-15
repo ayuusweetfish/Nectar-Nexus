@@ -175,7 +175,8 @@ function Board.create(puzzle)
         local c1 = o.c + moves[best_dir][2]
         if r1 >= 0 and r1 < b.nrows and c1 >= 0 and c1 < b.ncols then
           -- Reflect?
-          if find_one(r1, c1, 'reflect_obstacle') then
+          local rebound = find_one(r1, c1, 'reflect_obstacle')
+          if rebound ~= nil then
             best_dir = (best_dir + 1) % 4 + 1
             local r2 = o.r + moves[best_dir][1]
             local c2 = o.c + moves[best_dir][2]
@@ -183,6 +184,7 @@ function Board.create(puzzle)
                 and not find_one(r2, c2, 'obstacle')
                 and not find_one(r2, c2, 'reflect_obstacle') then
               r1, c1 = r2, c2
+              add_anim(anims, rebound, 'hit')
             end
           end
           -- Weeds?
@@ -202,7 +204,10 @@ function Board.create(puzzle)
             c1 = c1 + moves[best_dir][2]
           end
           -- Move if not blocked
-          if not find_one(r1, c1, 'obstacle') then
+          local obst = find_one(r1, c1, 'obstacle')
+          if obst ~= nil then
+            add_anim(anims, obst, 'hit')
+          else
             -- Animation
             add_anim(anims, o, 'move', {from_r = o.r, from_c = o.c})
             -- Apply changes

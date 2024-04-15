@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 28 -- #puzzles
+  puzzle_index = puzzle_index or 5 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -420,13 +420,15 @@ return function (puzzle_index)
 
     -- Objects
     local object_images = {}
-    local obj_img = function (name, r, c, dx, dy, scale)
+    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y)
       object_images[#object_images + 1] = {
         r = r, c = c,
         name = name,
         dx = dx or 0,
         dy = dy or 0,
         scale = scale,
+        rel_scale_x = rel_scale_x,
+        rel_scale_y = rel_scale_y,
       }
     end
     local obj_img_draw = function ()
@@ -435,11 +437,18 @@ return function (puzzle_index)
       end)
       for i = 1, #object_images do
         local item = object_images[i]
+        local w, h = nil, nil
+        if item.scale ~= nil then
+          w, h = item.scale * cell_w, item.scale * cell_w
+        elseif item.rel_scale_x ~= nil then
+          local img = draw.get(item.name)
+          w = item.rel_scale_x * img:getWidth()
+          h = item.rel_scale_y * img:getHeight()
+        end
         draw.img(item.name,
           board_offs_x + cell_w * (item.c + item.dx),
           board_offs_y + cell_w * (item.r + item.dy),
-          (item.scale and item.scale * cell_w or nil),
-          (item.scale and item.scale * cell_w or nil)
+          w, h
         )
       end
     end
@@ -448,17 +457,33 @@ return function (puzzle_index)
     board.each('obstacle', function (o)
       if not o.empty_background then
         local id = o.image
+        local rel_scale_x, rel_scale_y = 1, 1
+        local anim_progress = clamp_01(since_anim / 120)
+        if anim_progress < 1 and find_anim(o, 'hit') then
+          local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
+          rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
+          rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+        end
         obj_img(still.obst[id], o.r, o.c,
           0.5 + still_offs.obst[id][1],
-          0.5 + still_offs.obst[id][2])
+          0.5 + still_offs.obst[id][2],
+          nil, rel_scale_x, rel_scale_y)
       end
     end)
 
     board.each('reflect_obstacle', function (o)
       local id = o.image
+      local rel_scale_x, rel_scale_y = 1, 1
+      local anim_progress = clamp_01(since_anim / 120)
+      if anim_progress < 1 and find_anim(o, 'hit') then
+        local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
+        rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
+        rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+      end
       obj_img(still.rebound[id], o.r, o.c,
         0.5 + still_offs.rebound[id][1],
-        0.5 + still_offs.rebound[id][2])
+        0.5 + still_offs.rebound[id][2],
+        nil, rel_scale_x, rel_scale_y)
     end)
 
     board.each('chameleon', function (o)
