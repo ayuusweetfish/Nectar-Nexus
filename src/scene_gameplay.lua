@@ -404,24 +404,38 @@ return function (puzzle_index)
     end
 
     -- Objects
---[[
-    board.each('obstacle', function (o)
-      if not o.empty_background then
-        love.graphics.setColor(0.7, 0.7, 0.7, 0.5)
-        love.graphics.rectangle('fill',
-          board_offs_x + cell_w * o.c,
-          board_offs_y + cell_w * o.r,
-          cell_w, cell_w)
+    local object_images = {}
+    local obj_img = function (name, r, c, dx, dy, scale)
+      object_images[#object_images + 1] = {
+        r = r, c = c,
+        name = name,
+        dx = dx or 0,
+        dy = dy or 0,
+        scale = scale,
+      }
+    end
+    local obj_img_draw = function ()
+      table.sort(object_images, function (a, b)
+        return a.r < b.r or (a.r == b.r and a.c < b.c)
+      end)
+      for i = 1, #object_images do
+        local item = object_images[i]
+        draw.img(item.name,
+          board_offs_x + cell_w * (item.c + item.dx),
+          board_offs_y + cell_w * (item.r + item.dy),
+          (item.scale and item.scale * cell_w or nil),
+          (item.scale and item.scale * cell_w or nil)
+        )
       end
-    end)
-]]
+    end
+
     love.graphics.setColor(1, 1, 1)
     board.each('obstacle', function (o)
       if not o.empty_background then
         local id = o.image or '1'
-        draw.img(obst_name[id],
-          board_offs_x + cell_w * (o.c + 0.5 + obst_offs[id][1]),
-          board_offs_y + cell_w * (o.r + 0.5 + obst_offs[id][2]))
+        obj_img(obst_name[id], o.r, o.c,
+          0.5 + obst_offs[id][1],
+          0.5 + obst_offs[id][2])
       end
     end)
 
@@ -463,27 +477,6 @@ return function (puzzle_index)
         cell_w * ((o.range_y or 0) + 1))
     end)
 
---[[
-    board.each('bloom', function (o)
-      local used_rate = (o.used and 1 or 0)
-      local anim_progress = clamp_01(since_anim / 50)
-      if anim_progress < 1 and find_anim(o, 'use') then
-        used_rate = ease_exp_out(anim_progress)
-      end
-      love.graphics.setColor(1, 0.4, 0.5, 1 - 0.8 * used_rate)
-      love.graphics.circle('fill',
-        board_offs_x + cell_w * (o.c + 0.5),
-        board_offs_y + cell_w * (o.r + 0.5),
-        cell_w * (0.15 + 0.25 * used_rate))
-
-      local used_rate = (o.used and 1 or 0)
-      local anim_progress = clamp_01(since_anim / 90)
-      if anim_progress < 1 and find_anim(o, 'use') then
-        used_rate = ease_exp_out(anim_progress)
-      end
-      psys_by_obj[o].ordinary_fade = used_rate
-    end)
-]]
     board.each('bloom', function (o)
       local used_rate = (o.used and 1 or 0)
       local anim_progress = clamp_01(since_anim / 50)
@@ -583,15 +576,6 @@ return function (puzzle_index)
       psys_by_obj[o].wave_out = wave_out
     end)
 
---[[
-    board.each('weeds', function (o)
-      love.graphics.setColor(0.7, 1, 0.8, 0.5)
-      love.graphics.rectangle('fill',
-        board_offs_x + cell_w * o.c,
-        board_offs_y + cell_w * o.r,
-        cell_w, cell_w)
-    end)
-]]
     love.graphics.setColor(1, 1, 1)
     board.each('weeds', function (o)
       local aseq_frame = aseq_loop('weeds-idle', 24)
@@ -602,13 +586,13 @@ return function (puzzle_index)
           aseq_frame = aseq_proceed('weeds-trigger', anim_progress)
         end
       end
-      local s = 2.7
-      draw.img(
+      obj_img(
         aseq_frame,
-        board_offs_x + cell_w * (o.c + 0.59),
-        board_offs_y + cell_w * (o.r + 0.55),
-        cell_w * s, cell_w * s)
+        o.r, o.c,
+        0.59, 0.55, 2.7)
     end)
+
+    obj_img_draw()
 
     -- Particle systems (under butterflies)
     for i = 1, #psys do
@@ -618,37 +602,6 @@ return function (puzzle_index)
         p.draw()
       end
     end
-
---[[
-    board.each('butterfly', function (o)
-      local x0, y0 = unpack(butterfly_animated_pos[o])
-
-      local alpha = find_anim(o, 'spawn_from_weeds') and clamp_01((since_anim - 60) / 60) or 1
-
-      local eaten_progress = find_anim(o, 'eaten') and clamp_01((since_anim - 60) / 60) or
-        (o.eaten and 1 or 0)
-      alpha = alpha * (1 - eaten_progress)
-
-      love.graphics.setColor(1, 1, 0.3, alpha)
-      love.graphics.circle('fill', x0, y0, cell_w * 0.2)
-
-      local dir_angle = (o.dir - 1)
-      local anim_progress = clamp_01(since_anim / 60)
-      if anim_progress < 1 then
-        local a = find_anim(o, 'turn')
-        if a ~= nil then
-          local from_angle = (a.from_dir - 1)
-          local diff = (dir_angle - from_angle + 4) % 4
-          if diff == 3 then diff = -1 end
-          dir_angle = from_angle + diff * ease_exp_out(anim_progress)
-        end
-      end
-      love.graphics.setLineWidth(4.0)
-      love.graphics.line(x0, y0,
-        x0 + cell_w * 0.4 * math.cos(dir_angle * (math.pi / 2)),
-        y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
-    end)
-]]
 
     board.each('butterfly', function (o)
       local x0, y0 = unpack(butterfly_animated_pos[o])
