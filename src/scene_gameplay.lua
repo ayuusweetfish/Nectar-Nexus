@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 11 -- #puzzles
+  puzzle_index = puzzle_index or 21 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -290,14 +290,14 @@ return function (puzzle_index)
   local glaze_tile_name = string.format('still/p%d-tiles', palette_num)
   local glaze_tile_tex = draw.get(glaze_tile_name)
   local glaze_tile_quads = {}
-  for r = 1, 8 do
-    for c = 1, 16 do
-      local index = (r - 1) * 16 + c
+  for r = 0, 7 do
+    for c = 0, 15 do
+      local index = r * 16 + c
       glaze_tile_quads[index] =
-        love.graphics.newQuad((c - 1) * 100, (r - 1) * 100, 100, 100, 1600, 800)
+        love.graphics.newQuad(c * 100, r * 100, 100, 100, 1600, 800)
     end
   end
-  local glaze_tile_opacity_in_game = {0.7, 0.9, 0.6}
+  local glaze_tile_opacity_in_game = {0.7, 0.8, 0.6}
   glaze_tile_opacity_in_game = glaze_tile_opacity_in_game[palette_num]
 
   local aseq = {}
@@ -347,7 +347,7 @@ return function (puzzle_index)
     love.graphics.clear(unpack(bg_tint))
 
     -- Grid lines
-    love.graphics.setColor(0.95, 0.95, 0.95, 0.3)
+    love.graphics.setColor(0.95, 0.95, 0.95, 0.06)
     love.graphics.setLineWidth(2.0)
     for r = 0, board.nrows do
       local y = board_offs_y + cell_w * r
@@ -364,24 +364,30 @@ return function (puzzle_index)
 
     -- Tiles
     love.graphics.setColor(1, 1, 1, glaze_tile_opacity_in_game)
-    for r = 1, board.nrows do
-      for c = 1, board.ncols do
-        local index = (r - 1) * 16 + c
-        love.graphics.draw(
-          glaze_tile_tex, glaze_tile_quads[index],
-          board_offs_x + cell_w * (c - 1),
-          board_offs_y + cell_w * (r - 1)
-        )
+    for r = 0, board.nrows - 1 do
+      for c = 0, board.ncols - 1 do
+        local o = board.find_one(r, c, 'obstacle')
+        if not o or not o.empty_background then
+          local index = r * 16 + c
+          love.graphics.draw(
+            glaze_tile_tex, glaze_tile_quads[index],
+            board_offs_x + cell_w * c,
+            board_offs_y + cell_w * r,
+            0, cell_scale
+          )
+        end
       end
     end
 
     -- Objects
     board.each('obstacle', function (o)
-      love.graphics.setColor(0.7, 0.7, 0.7, 0.3)
-      love.graphics.rectangle('fill',
-        board_offs_x + cell_w * o.c,
-        board_offs_y + cell_w * o.r,
-        cell_w, cell_w)
+      if not o.empty_background then
+        love.graphics.setColor(0.7, 0.7, 0.7, 0.5)
+        love.graphics.rectangle('fill',
+          board_offs_x + cell_w * o.c,
+          board_offs_y + cell_w * o.r,
+          cell_w, cell_w)
+      end
     end)
     board.each('reflect_obstacle', function (o)
       love.graphics.setColor(1, 0.8, 0.7, 0.5)
