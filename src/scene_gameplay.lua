@@ -747,6 +747,11 @@ return function (puzzle_index)
     board.each('chameleon', function (o)
       local eat_progress, provoke_progress, eat_distance = unpack(chameleon_anim_progress[o])
       local aseq_frames = {}  -- {name, alpha, x, y (offset when left-extending)}
+      -- Inspect
+      if puzzles.chameleon_inspect ~= 0 then
+        local f1 = aseq_proceed('chameleon-body', 0)
+        aseq_frames[#aseq_frames + 1] = {f1, alpha, 3.6, 2.53}
+      end
       local hide_eyes_by_eat_progress
       if provoke_progress == -1 then
         local alpha = math.sqrt(clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
