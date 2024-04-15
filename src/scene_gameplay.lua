@@ -7,6 +7,9 @@ local ease_quad_in_out = function (x)
   if x < 0.5 then return x * x * 2
   else return 1 - (1 - x) * (1 - x) * 2 end
 end
+local ease_quad_out = function (x)
+  return 1 - (1 - x) * (1 - x)
+end
 local ease_exp_out = function (x)
   return 1 - (1 - x) * math.exp(-3 * x)
 end
@@ -728,12 +731,18 @@ return function (puzzle_index)
 
     love.graphics.setColor(1, 1, 1)
     board.each('weeds', function (o)
-      local aseq_frame = aseq_loop('weeds-idle', 24)
-      local anim_progress = clamp_01(since_anim / 60)
-      if anim_progress < 1 then
-        local a = find_anim(o, 'weeds_trigger')
-        if a ~= nil then
-          aseq_frame = aseq_proceed('weeds-trigger', anim_progress)
+      local aseq_frame
+      if o.triggered then
+        aseq_frame = aseq_proceed('weeds-idle', 0)
+      else
+        aseq_frame = aseq_loop('weeds-idle', 24)
+      end
+      local anim_progress = clamp_01(since_anim / 120)
+      if anim_progress < 1 and find_anim(o, 'weeds_trigger') then
+        if anim_progress < 0.5 then
+          aseq_frame = aseq_proceed('weeds-trigger', anim_progress * 2)
+        else
+          aseq_frame = aseq_proceed('weeds-idle', ease_quad_out((anim_progress - 0.5) * 2))
         end
       end
       obj_img(
