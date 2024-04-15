@@ -263,6 +263,43 @@ return function (puzzle_index)
     return board_anims[o][name]
   end
 
+  ------ Visuals!! ------
+
+  local palette_num = 1
+  if puzzle_index >= 1 and puzzle_index <= 6 then
+    palette_num = 1
+  elseif puzzle_index >= 7 and puzzle_index <= 10 then
+    palette_num = 2
+  elseif puzzle_index >= 11 and puzzle_index <= 14 then
+    palette_num = 3
+  elseif puzzle_index >= 15 and puzzle_index <= 20 then
+    palette_num = 1
+  elseif puzzle_index >= 21 and puzzle_index <= 24 then
+    palette_num = 2
+  elseif puzzle_index >= 25 and puzzle_index <= 30 then
+    palette_num = 3
+  end
+
+  local bg_tint = {
+    {0.02, 0.41, 0.38},
+    {0.73, 0.61, 0.66},
+    {0.10, 0.00, 0.00},
+  }
+  bg_tint = bg_tint[palette_num]
+
+  local glaze_tile_name = string.format('still/p%d-tiles', palette_num)
+  local glaze_tile_tex = draw.get(glaze_tile_name)
+  local glaze_tile_quads = {}
+  for r = 1, 8 do
+    for c = 1, 16 do
+      local index = (r - 1) * 16 + c
+      glaze_tile_quads[index] =
+        love.graphics.newQuad((c - 1) * 100, (r - 1) * 100, 100, 100, 1600, 800)
+    end
+  end
+  local glaze_tile_opacity_in_game = {0.7, 0.9, 0.6}
+  glaze_tile_opacity_in_game = glaze_tile_opacity_in_game[palette_num]
+
   local aseq = {}
   -- Butterfly
   for _, n in ipairs({
@@ -284,7 +321,6 @@ return function (puzzle_index)
     end
   end
   -- Weeds
-  local palette_num = 1
   aseq['weeds-idle'] = {}
   for i = 1, 6 do
     aseq['weeds-idle'][i] = string.format('weeds/p%d-idle/%02d', palette_num, i)
@@ -308,7 +344,7 @@ return function (puzzle_index)
 --[[
     love.graphics.clear(0, 0.01, 0.03)
 ]]
-    love.graphics.clear(0.16, 0.17, 0.32)
+    love.graphics.clear(unpack(bg_tint))
 
     -- Grid lines
     love.graphics.setColor(0.95, 0.95, 0.95, 0.3)
@@ -324,6 +360,19 @@ return function (puzzle_index)
       local y0 = board_offs_y
       local y1 = board_offs_y + cell_w * board.nrows
       love.graphics.line(x, y0, x, y1)
+    end
+
+    -- Tiles
+    love.graphics.setColor(1, 1, 1, glaze_tile_opacity_in_game)
+    for r = 1, board.nrows do
+      for c = 1, board.ncols do
+        local index = (r - 1) * 16 + c
+        love.graphics.draw(
+          glaze_tile_tex, glaze_tile_quads[index],
+          board_offs_x + cell_w * (c - 1),
+          board_offs_y + cell_w * (r - 1)
+        )
+      end
     end
 
     -- Objects

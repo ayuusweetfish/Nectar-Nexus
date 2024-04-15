@@ -35,7 +35,7 @@ if false; then
   )
 fi
 
-if true; then
+if false; then
   # Weeds
   rm -rf weeds
   mkdir weeds
@@ -65,4 +65,28 @@ if true; then
     mv 红-待机 p3-idle
     mv 红-触发 p3-trigger
   )
+fi
+
+if true; then
+  # Still
+  rm -rf still
+  mkdir still
+  p=0
+  for n in 蓝 粉 红; do
+    p=$((p + 1))
+    dir=$ORIG_WD/still/p$p
+    from=../img/${n}静态元件
+    echo $n $from $dir
+    # mkdir -p $dir
+
+    # Tiles
+    # convert $from/*瓷砖.png -trim +repage -resize 1600x800\! -quality 100 $dir-tiles.jpg
+    crop=+0+0
+    if [ "$p" == "2" ]; then
+      crop=1586x+4+3
+    elif [ "$p" == "3" ]; then
+      crop=1588x+3+0
+    fi
+    convert $from/*瓷砖.png -crop $crop +repage -resize 1600x800\! -quality 100 $dir-tiles.jpg
+  done
 fi
