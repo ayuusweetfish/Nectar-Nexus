@@ -475,7 +475,7 @@ return function (puzzle_index)
 
     -- Objects
     local object_images = {}
-    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y, layer)
+    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y, rotation, layer)
       object_images[#object_images + 1] = {
         r = r, c = c,
         name = name,
@@ -484,6 +484,7 @@ return function (puzzle_index)
         scale = scale,
         rel_scale_x = rel_scale_x,
         rel_scale_y = rel_scale_y,
+        rotation = rotation or 0,
         layer = layer or 0,
       }
     end
@@ -502,10 +503,19 @@ return function (puzzle_index)
           w = item.rel_scale_x * img:getWidth() * global_scale
           h = item.rel_scale_y * img:getHeight() * global_scale
         end
+        local r = item.rotation
+        local dx = item.dx - 0.5
+        local dy = item.dy - 0.5
+        if r ~= 0 then
+          dx, dy =
+            dx * math.cos(r) - dy * math.sin(r),
+            dx * math.sin(r) + dy * math.cos(r)
+        end
         draw.img(item.name,
-          board_offs_x + cell_w * (item.c + item.dx),
-          board_offs_y + cell_w * (item.r + item.dy),
-          w, h
+          board_offs_x + cell_w * (item.c + 0.5 + dx),
+          board_offs_y + cell_w * (item.r + 0.5 + dy),
+          w, h,
+          0.5, 0.5, r
         )
       end
     end
@@ -519,10 +529,11 @@ return function (puzzle_index)
         if anim_progress < 1 and find_anim(o, 'hit') then
           rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
         end
+        local rotation = (o.rotation or 0) * math.pi / 2
         obj_img(still.obst[id], o.r, o.c,
           0.5 + still_offs.obst[id][1],
           0.5 + still_offs.obst[id][2],
-          nil, rel_scale_x, rel_scale_y)
+          nil, rel_scale_x, rel_scale_y, rotation)
       end
     end)
 
@@ -533,10 +544,11 @@ return function (puzzle_index)
       if anim_progress < 1 and find_anim(o, 'hit') then
         rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
       end
+      local rotation = (o.rotation or 0) * math.pi / 2
       obj_img(still.rebound[id], o.r, o.c,
         0.5 + still_offs.rebound[id][1],
         0.5 + still_offs.rebound[id][2],
-        nil, rel_scale_x, rel_scale_y)
+        nil, rel_scale_x, rel_scale_y, rotation)
     end)
 
     -- Key: chameleon object; value: animation progress {eat, provoke}
@@ -587,7 +599,7 @@ return function (puzzle_index)
       else
         aseq_frame = aseq_proceed('bloom-visited', used_rate)
       end
-      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2, nil, nil, 1)
+      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2, nil, nil, 0, 1)
 
 --[[
       local used_rate = (o.used and 1 or 0)
@@ -649,10 +661,11 @@ return function (puzzle_index)
       if anim_progress < 1 and find_anim(o, 'pollen_visit') then
         rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
       end
+      local rotation = (o.rotation or 0) * math.pi / 2
       obj_img(still.pollen[id], o.r, o.c,
         0.5 + still_offs.pollen[id][1],
         0.5 + still_offs.pollen[id][2],
-        nil, rel_scale_x, rel_scale_y)
+        nil, rel_scale_x, rel_scale_y, rotation)
 
       -- Particles following a butterfly?
       local follow, follow_rate = nil, 0

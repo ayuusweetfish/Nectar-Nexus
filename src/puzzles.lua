@@ -1,5 +1,5 @@
 return {
-  test = 21,  -- ** 修改【起始关卡编号】 ** --
+  test = 11,  -- ** 修改【起始关卡编号】 ** --
 
   -- ** 搜索文本可以直接跳转到关卡 ** --
   -- ** 例如，搜索“谜题1” ** --
@@ -297,8 +297,8 @@ return {
     tile = {1, 1},   -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
     size = {5, 9},
     objs = {
-      {'reflect_obstacle', 1, 0, image = '1.3'},
-      {'reflect_obstacle', 2, 0, image = '1.3'},
+      {'reflect_obstacle', 1, 0, image = '1.3', rotation = -1},
+      {'reflect_obstacle', 2, 0, image = '1.3', rotation = -1},
       {'reflect_obstacle', 1, 8, image = '1.1'},
       {'reflect_obstacle', 2, 8, image = '1.1'},
       {'weeds', 2, 3},
