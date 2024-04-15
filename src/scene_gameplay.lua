@@ -768,6 +768,8 @@ return function (puzzle_index)
       end
       -- Recover original range x/y
       local r, c, rx, ry = o.r, o.c, o.range_x, o.range_y
+      local rotation = 0
+      local flip_x = false
       if o.range_x_flipped then
         c = c + o.range_x
         rx = -rx
@@ -776,15 +778,28 @@ return function (puzzle_index)
         r = r + o.range_y
         ry = -ry
       end
+      if ry ~= nil then
+        rotation = (ry < 0 and math.pi / 2 or -math.pi / 2)
+      else
+        flip_x = (rx > 0)
+      end
       -- Offset images
       for i = 1, #aseq_frames do
         local f, alpha, offs_x, offs_y = unpack(aseq_frames[i])
+        offs_x, offs_y =
+          offs_x * math.cos(rotation) - offs_y * math.sin(rotation),
+          offs_x * math.sin(rotation) + offs_y * math.cos(rotation)
+        if flip_x then offs_x = -offs_x end
         love.graphics.setColor(1, 1, 1, alpha)
+        print(r, c, rx, ry, offs_x, offs_y)
         draw.img(
           f,
           board_offs_x + cell_w * (c + 0.5 + offs_x),
           board_offs_y + cell_w * (r + 0.5 + offs_y),
-          draw.get(f):getWidth() * cell_scale * global_scale
+          draw.get(f):getWidth() * cell_scale * global_scale * (flip_x and -1 or 1),
+          draw.get(f):getHeight() * cell_scale * global_scale,
+          0.5, 0.5,
+          rotation
         )
       end
     end)
