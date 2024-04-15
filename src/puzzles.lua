@@ -273,12 +273,6 @@ return {
   {
     size = {5, 9},
     objs = {
-    },
-  },
-  -- Decent difficulty
-  {
-    size = {5, 9},
-    objs = {
       {'reflect_obstacle', 1, 0},
       {'reflect_obstacle', 2, 0},
       {'reflect_obstacle', 1, 8},
@@ -293,6 +287,24 @@ return {
       {'pollen', 2, 5, group = 3},
       {'pollen', 3, 6, group = 3},
       {'butterfly', 1, 4, dir = 1},
+    },
+  },
+  {
+    size = {6, 9},
+    objs = {
+      {'reflect_obstacle', 4, 3},
+      {'bloom', 4, 1},
+      {'bloom', 4, 2},
+      {'bloom', 4, 5},
+      {'bloom', 4, 6},
+      {'weeds', 3, 4},
+      {'pollen', 0, 3, group = 1},
+      {'pollen', 1, 3, group = 1},
+      {'pollen', 3, 3, group = 2},
+      {'pollen', 2, 4, group = 2},
+      {'pollen', 3, 5, group = 3},
+      {'pollen', 5, 5, group = 3},
+      {'butterfly', 2, 6, dir = 3},
     },
   },
 
