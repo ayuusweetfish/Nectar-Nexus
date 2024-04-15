@@ -139,7 +139,7 @@ return {
   },
 
   ------ Vase 3: Weeds ------
-  -- Introduction to weeds and its details
+  -- Introduction to weeds and its nuances
   -- (pollen is carried over; revisiting does not spawn more butterflies)
   {
     size = {5, 7},
@@ -310,6 +310,7 @@ return {
 
   ------ Vase 5: Chameleons ------
   -- TODO 1/4
+  -- Introduction to the chameleon
   {
     size = {6, 8},
     objs = {
@@ -327,6 +328,66 @@ return {
       {'pollen', 3, 4, group = 2},
       {'chameleon', 2, 5, range_x = -3},
       {'butterfly', 0, 3, dir = 2},
+    },
+  },
+  -- Introduction to the nuances of multiple successive entries
+  {
+    size = {6, 9},
+    objs = {
+      {'obstacle', 0, 0}, {'obstacle', 0, 1}, {'obstacle', 0, 2}, {'obstacle', 0, 3}, {'obstacle', 0, 4}, {'obstacle', 0, 5},
+      {'obstacle', 4, 0}, {'obstacle', 4, 1}, {'obstacle', 4, 2}, {'obstacle', 4, 3}, {'obstacle', 4, 4}, {'obstacle', 4, 5},
+      {'obstacle', 5, 0}, {'obstacle', 5, 1}, {'obstacle', 5, 2}, {'obstacle', 5, 3}, {'obstacle', 5, 4}, {'obstacle', 5, 5},
+      {'weeds', 2, 2},
+      {'bloom', 2, 5},
+      {'pollen', 2, 7, group = 1},
+      {'pollen', 2, 8, group = 1},
+      {'pollen', 1, 5, group = 2},
+      {'pollen', 1, 6, group = 2},
+      {'pollen', 3, 5, group = 3},
+      {'pollen', 3, 6, group = 3},
+      {'chameleon', 3, 4, range_y = -2},
+      {'butterfly', 2, 1, dir = 1},
+    },
+  },
+  -- Mild difficulty
+  {
+    size = {6, 10},
+    objs = {
+      {'obstacle', 3, 8}, {'obstacle', 3, 9},
+      {'obstacle', 4, 8}, {'obstacle', 4, 9},
+      {'obstacle', 5, 8}, {'obstacle', 5, 9},
+      {'bloom', 2, 5},
+      {'bloom', 5, 5},
+      {'bloom', 4, 3},
+      {'pollen', 5, 0, group = 1},
+      {'pollen', 5, 3, group = 1},
+      {'pollen', 5, 1, group = 2},
+      {'pollen', 5, 2, group = 2},
+      {'chameleon', 3, 7, range_x = -4},
+      {'butterfly', 0, 2, dir = 1},
+      {'butterfly', 1, 2, dir = 1},
+    },
+  },
+  -- Decent difficulty, with rebouncing
+  {
+    size = {5, 10},
+    objs = {
+      {'obstacle', 2, 6}, {'obstacle', 2, 7}, {'obstacle', 2, 8}, {'obstacle', 2, 9},
+      {'obstacle', 3, 6}, {'obstacle', 3, 7}, {'obstacle', 3, 8}, {'obstacle', 3, 9},
+      {'obstacle', 4, 6}, {'obstacle', 4, 7}, {'obstacle', 4, 8}, {'obstacle', 4, 9},
+      {'reflect_obstacle', 1, 9},
+      {'bloom', 0, 3},
+      {'bloom', 4, 3},
+      {'bloom', 1, 6},
+      {'bloom', 1, 7},
+      {'pollen', 1, 2, group = 1},
+      {'pollen', 1, 8, group = 1},
+      {'pollen', 3, 2, group = 2},
+      {'pollen', 3, 4, group = 2},
+      {'pollen', 1, 5, group = 3},
+      {'pollen', 3, 5, group = 3},
+      {'chameleon', 2, 5, range_x = -3},
+      {'butterfly', 2, 1, dir = 1},
     },
   },
 
