@@ -131,9 +131,15 @@ function Board.create(puzzle)
     end
   end
 
-  local add_anim = function (anims, target, name, args)
+  local add_anim = function (anims, target, name, args, replace_fn)
     if anims[target] == nil then anims[target] = {} end
-    anims[target][name] = args or {}
+    local a = args or {}
+    local existing = anims[target][name]
+    if existing == nil then
+      anims[target][name] = a
+    elseif replace_fn and replace_fn(a, existing) then
+      anims[target][name] = a
+    end
   end
 
   -- Returns undo list and animations
@@ -264,18 +270,30 @@ function Board.create(puzzle)
       -- These are checked even if no movement is taking place
       local cha = find_one_ranged(o.r, o.c, 'chameleon')
       if cha ~= nil then
+        local anim_eat = function ()
+          local orig_r, orig_c = cha.r, cha.c
+          if cha.range_x_flipped then orig_c = orig_c + cha.range_x end
+          if cha.range_y_flipped then orig_r = orig_r + cha.range_y end
+          local eat_distance = math.abs(o.r - orig_r) + math.abs(o.c - orig_c) + 1
+          add_anim(anims, cha, 'eat', {eat_distance = eat_distance}, function (a, b)
+            return a.eat_distance > b.eat_distance
+          end)
+        end
         if not updated_chameleons[cha] then
           updated_chameleons[cha] = true
           -- Change state
           if cha.provoked then
             -- Eat
             undoable_set(changes, cha, 'provoked', false)
-            add_anim(anims, cha, 'eat')
+            anim_eat()
           else
             -- Provoke
             undoable_set(changes, cha, 'provoked', true)
             add_anim(anims, cha, 'provoke')
           end
+        elseif not cha.provoked then
+          -- Eat also
+          anim_eat()
         end
         if not cha.provoked then
           -- Changed back to 'not provoked', so eat

@@ -98,10 +98,10 @@ return function (puzzle_index)
     ['move'] = 60,
     ['turn'] = 90,
     ['spawn_from_weeds'] = 120,
-    ['eaten'] = 120,
+    ['eaten'] = 150,
 
     -- Chameleon
-    ['eat'] = 110,
+    ['eat'] = 240,
     ['provoke'] = 110,
 
     -- Blossom
@@ -569,7 +569,7 @@ return function (puzzle_index)
         nil, rel_scale_x, rel_scale_y, rotation)
     end)
 
-    -- Key: chameleon object; value: animation progress {eat, provoke}
+    -- Key: chameleon object; value: animation progress {eat, provoke, eat_distance}
     -- When `eat` is active, `provoke` does not matter (progress set to -1)
     -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
     -- Saved for later use
@@ -579,6 +579,7 @@ return function (puzzle_index)
       local anim_progress = clamp_01((since_anim - 50) / 180)
       local provoke_progress = (o.provoked and 1 or 0)
       local eat_progress = 0
+      local eat_distance = nil
       if anim_progress < 1 then
         local a_provoke = find_anim(o, 'provoke')
         local a_eat = find_anim(o, 'eat')
@@ -588,11 +589,12 @@ return function (puzzle_index)
         elseif a_eat then
           provoke_progress = -1
           eat_progress = ease_quad_in_out(anim_progress)
+          eat_distance = a_eat.eat_distance
         elseif a_idle then
           provoke_progress = 1 - ease_quad_in_out(clamp_01(anim_progress * 3))
         end
       end
-      chameleon_anim_progress[o] = {eat_progress, provoke_progress}
+      chameleon_anim_progress[o] = {eat_progress, provoke_progress, eat_distance}
 
       local alpha = 0.3
       if provoke_progress == -1 then alpha = alpha + 0.5 * (1 - eat_progress)
@@ -651,7 +653,7 @@ return function (puzzle_index)
 
       local eaten_progress = 0
       if find_anim(o, 'eaten') then
-        eaten_progress = ease_quad_in_out(clamp_01((since_anim - 90) / 30))
+        eaten_progress = ease_quad_in_out(clamp_01((since_anim - 120) / 30))
       elseif o.eaten then
         eaten_progress = 1
       end
@@ -743,27 +745,28 @@ return function (puzzle_index)
     obj_img_draw()
 
     board.each('chameleon', function (o)
-      local eat_progress, provoke_progress = unpack(chameleon_anim_progress[o])
+      local eat_progress, provoke_progress, eat_distance = unpack(chameleon_anim_progress[o])
       local aseq_frames = {}  -- {name, alpha, x, y (offset when left-extending)}
-      local eat_progress_alpha = 1
+      local hide_eyes_by_eat_progress
       if provoke_progress == -1 then
         local alpha = math.sqrt(clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
-        eat_progress_alpha = math.sqrt(clamp_01((1 - eat_progress) / 0.25))
+        if eat_progress >= 0.25 then hide_eyes_by_eat_progress = true end
 
         local f1 = aseq_proceed('chameleon-body',
           clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
-        aseq_frames[#aseq_frames + 1] = {f1, alpha, 3.58, 2.53}
+        aseq_frames[#aseq_frames + 1] = {f1, alpha, 3.6, 2.53}
 
         local prog2 = clamp_01((eat_progress - 0.25) / (0.75 - 0.25))
         if prog2 > 0 and prog2 < 1 then
-          local f2 = aseq_proceed('chameleon-tongue-4', prog2)
+          local f2 = aseq_proceed('chameleon-tongue-' .. tostring(eat_distance), prog2)
           aseq_frames[#aseq_frames + 1] = {f2, alpha, -1.2, -0.1}
         end
       end
-      if provoke_progress > 0 or provoke_progress == -1 then
+      if not hide_eyes_by_eat_progress and
+          (provoke_progress > 0 or provoke_progress == -1) then
         if provoke_progress == -1 then provoke_progress = 1 end
         local f = aseq_proceed('chameleon-eye', provoke_progress)
-        local alpha = math.sqrt(math.min(provoke_progress / 0.3)) * eat_progress_alpha
+        local alpha = math.sqrt(math.min(provoke_progress / 0.3))
         aseq_frames[#aseq_frames + 1] = {f, alpha, -1.2, -0.1}
       end
       -- Recover original range x/y
@@ -791,7 +794,6 @@ return function (puzzle_index)
           offs_x * math.sin(rotation) + offs_y * math.cos(rotation)
         if flip_x then offs_x = -offs_x end
         love.graphics.setColor(1, 1, 1, alpha)
-        print(r, c, rx, ry, offs_x, offs_y)
         draw.img(
           f,
           board_offs_x + cell_w * (c + 0.5 + offs_x),
