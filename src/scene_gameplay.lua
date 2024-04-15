@@ -68,10 +68,12 @@ return function (puzzle_index)
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 
-  local cell_w = math.min(100, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
+  local global_scale = 1 / 1.5
+  local cell_w_orig = 100 * global_scale
+  local cell_w = math.min(cell_w_orig, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
-  local cell_scale = cell_w / 100
+  local cell_scale = cell_w / cell_w_orig
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -420,7 +422,7 @@ return function (puzzle_index)
             glaze_tile_tex, glaze_tile_quads[index],
             board_offs_x + cell_w * c,
             board_offs_y + cell_w * r,
-            0, cell_scale
+            0, cell_scale * global_scale
           )
         end
       end
@@ -450,8 +452,8 @@ return function (puzzle_index)
           w, h = item.scale * cell_w, item.scale * cell_w
         elseif item.rel_scale_x ~= nil then
           local img = draw.get(item.name)
-          w = item.rel_scale_x * img:getWidth()
-          h = item.rel_scale_y * img:getHeight()
+          w = item.rel_scale_x * img:getWidth() * global_scale
+          h = item.rel_scale_y * img:getHeight() * global_scale
         end
         draw.img(item.name,
           board_offs_x + cell_w * (item.c + item.dx),
@@ -642,6 +644,28 @@ return function (puzzle_index)
     end)
 
     obj_img_draw()
+
+    board.each('chameleon', function (o)
+      local anim_progress = clamp_01((since_anim - 50) / 60)
+      -- When `eat` is active, `provoke` does not matter (progress set to -1)
+      -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
+      local provoke_progress = (o.provoked and 1 or 0)
+      local eat_progress = 0
+      if anim_progress < 1 then
+        local a_provoke = find_anim(o, 'provoke')
+        local a_eat = find_anim(o, 'eat')
+        local a_idle = find_anim(o, 'return_idle')
+        if a_provoke then
+          provoke_progress = ease_quad_in_out(anim_progress)
+        elseif a_eat then
+          provoke_progress = -1
+          eat_progress = ease_quad_in_out(anim_progress)
+        elseif a_idle then
+          provoke_progress = 1 - ease_quad_in_out(anim_progress)
+        end
+      end
+      -- TODO
+    end)
 
     -- Particle systems (under butterflies)
     for i = 1, #psys do
