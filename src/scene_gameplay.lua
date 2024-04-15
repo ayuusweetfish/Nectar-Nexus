@@ -169,6 +169,7 @@ return function (puzzle_index)
     psys_by_obj[o] = p
     obj_by_psys[p] = o
   end)
+--[[
   board.each('bloom', function (o)
     local p = particles({ y_max = 40, x_spread = 40, scale = cell_scale })
     p.x = board_offs_x + cell_w * (o.c + 0.5)
@@ -178,6 +179,7 @@ return function (puzzle_index)
     psys_by_obj[o] = p
     obj_by_psys[p] = o
   end)
+]]
 
   local since_clear = -1
 
@@ -368,6 +370,15 @@ return function (puzzle_index)
   for i = 1, 10 do
     aseq['weeds-trigger'][i] = string.format('weeds/p%d-trigger/%02d', palette_num, i)
   end
+  -- Blossoms
+  aseq['bloom-idle'] = {}
+  for i = 1, 6 do
+    aseq['bloom-idle'][i] = string.format('bloom/idle/%02d', i)
+  end
+  aseq['bloom-visited'] = {}
+  for i = 1, 8 do
+    aseq['bloom-visited'][i] = string.format('bloom/visited/%02d', i)
+  end
 
   local aseq_loop = function (seq_name, frame_rate)
     local n = math.floor(T / 240 * frame_rate)
@@ -380,9 +391,6 @@ return function (puzzle_index)
   end
 
   s.draw = function ()
---[[
-    love.graphics.clear(0, 0.01, 0.03)
-]]
     love.graphics.clear(unpack(bg_tint))
 
     -- Grid lines
@@ -520,22 +528,24 @@ return function (puzzle_index)
       local used_rate = (o.used and 1 or 0)
       local anim_progress = clamp_01(since_anim / 50)
       if anim_progress < 1 and find_anim(o, 'use') then
-        used_rate = ease_exp_out(anim_progress)
+        used_rate = anim_progress
       end
+      local aseq_frame
+      if used_rate == 0 then
+        aseq_frame = aseq_loop('bloom-idle', 24)
+      else
+        aseq_frame = aseq_proceed('bloom-visited', used_rate)
+      end
+      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2)
 
-      -- TODO
-      love.graphics.setColor(1, 0.4, 0.5, 1 - 0.8 * used_rate)
-      love.graphics.circle('fill',
-        board_offs_x + cell_w * (o.c + 0.5),
-        board_offs_y + cell_w * (o.r + 0.5),
-        cell_w * (0.15 + 0.25 * used_rate))
-
+--[[
       local used_rate = (o.used and 1 or 0)
       local anim_progress = clamp_01(since_anim / 90)
       if anim_progress < 1 and find_anim(o, 'use') then
         used_rate = ease_exp_out(anim_progress)
       end
       psys_by_obj[o].ordinary_fade = used_rate
+]]
     end)
 
     -- Animated positions
