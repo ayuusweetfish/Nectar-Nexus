@@ -475,7 +475,7 @@ return function (puzzle_index)
 
     -- Objects
     local object_images = {}
-    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y)
+    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y, layer)
       object_images[#object_images + 1] = {
         r = r, c = c,
         name = name,
@@ -484,11 +484,13 @@ return function (puzzle_index)
         scale = scale,
         rel_scale_x = rel_scale_x,
         rel_scale_y = rel_scale_y,
+        layer = layer or 0,
       }
     end
     local obj_img_draw = function ()
       table.sort(object_images, function (a, b)
-        return a.r < b.r or (a.r == b.r and a.c < b.c)
+        return a.layer < b.layer or (a.layer == b.layer and
+          (a.r < b.r or (a.r == b.r and a.c < b.c)))
       end)
       for i = 1, #object_images do
         local item = object_images[i]
@@ -585,7 +587,7 @@ return function (puzzle_index)
       else
         aseq_frame = aseq_proceed('bloom-visited', used_rate)
       end
-      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2)
+      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2, nil, nil, 1)
 
 --[[
       local used_rate = (o.used and 1 or 0)
