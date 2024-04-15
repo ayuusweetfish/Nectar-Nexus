@@ -232,7 +232,11 @@ return function (puzzle_index)
     end
   end
 
+  local T = 0
+
   s.update = function ()
+    T = T + 1
+
     for i = 1, #buttons do buttons[i].update() end
     since_anim = since_anim + 1 + #trigger_buffer
     flush_trigger_buffer()
@@ -256,8 +260,27 @@ return function (puzzle_index)
     return board_anims[o][name]
   end
 
+  local aseq = {}
+  aseq.butterfly_idle_side = {}
+  aseq.butterfly_idle_front = {}
+  aseq.butterfly_idle_back = {}
+  for i = 1, 16 do
+    aseq.butterfly_idle_side[i] = string.format('butterflies/idle-side/%02d', i)
+    aseq.butterfly_idle_front[i] = string.format('butterflies/idle-front/%02d', i)
+    aseq.butterfly_idle_back[i] = string.format('butterflies/idle-back/%02d', i)
+  end
+
+  local aseq_get = function (seq_name, frame_rate)
+    local n = math.floor(T / 240 * frame_rate)
+    local list = aseq[seq_name]
+    return list[n % #list + 1]
+  end
+
   s.draw = function ()
+--[[
     love.graphics.clear(0, 0.01, 0.03)
+]]
+    love.graphics.clear(0.16, 0.17, 0.32)
 
     -- Grid lines
     love.graphics.setColor(0.95, 0.95, 0.95, 0.3)
@@ -432,6 +455,7 @@ return function (puzzle_index)
       end
     end
 
+--[[
     board.each('butterfly', function (o)
       local x0, y0 = unpack(butterfly_animated_pos[o])
 
@@ -440,31 +464,6 @@ return function (puzzle_index)
       local eaten_progress = find_anim(o, 'eaten') and clamp_01((since_anim - 60) / 60) or
         (o.eaten and 1 or 0)
       alpha = alpha * (1 - eaten_progress)
-
-    --[[
-      local carrying_group = nil
-      local carrying_rate = 0
-      local a
-      local anim_progress = clamp_01((since_anim - 60) / 60)
-      if anim_progress < 1 then
-        a = find_anim(o, 'carry_pollen')
-      end
-      if o.carrying ~= nil or a ~= nil then
-        if o.carrying ~= nil then
-          carrying_group = o.carrying.group
-          carrying_rate = 1
-          if a ~= nil then
-            carrying_rate = ease_exp_out(anim_progress)
-          end
-        else
-          carrying_group = a.release_group
-          carrying_rate = 1 - ease_exp_out(anim_progress)
-        end
-        local tint = group_colours[carrying_group]
-        love.graphics.setColor(tint[1], tint[2], tint[3], alpha)
-        love.graphics.circle('fill', x0, y0, cell_w * (0.2 + carrying_rate * 0.05))
-      end
-    ]]
 
       love.graphics.setColor(1, 1, 0.3, alpha)
       love.graphics.circle('fill', x0, y0, cell_w * 0.2)
@@ -484,6 +483,27 @@ return function (puzzle_index)
       love.graphics.line(x0, y0,
         x0 + cell_w * 0.4 * math.cos(dir_angle * (math.pi / 2)),
         y0 + cell_w * 0.4 * math.sin(dir_angle * (math.pi / 2)))
+    end)
+]]
+
+    board.each('butterfly', function (o)
+      local x0, y0 = unpack(butterfly_animated_pos[o])
+      love.graphics.setColor(1, 1, 1)
+
+      local idle_aseq
+      local idle_flip = false
+      if o.dir == 2 then
+        idle_aseq = 'butterfly_idle_front'
+      elseif o.dir == 4 then
+        idle_aseq = 'butterfly_idle_back'
+      else
+        idle_aseq = 'butterfly_idle_side'
+        idle_flip = (o.dir == 3)
+      end
+
+      draw.img(
+        aseq_get(idle_aseq, 24),
+        x0, y0, cell_w * (idle_flip and -2 or 2), cell_w * 2)
     end)
 
     -- Particle systems (above butterflies)

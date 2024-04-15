@@ -1,14 +1,23 @@
 local imgs = {}
 
-local files = love.filesystem.getDirectoryItems('img')
-for i = 1, #files do
-  local file = files[i]
-  if file:sub(-4) == '.png' or file:sub(-4) == '.jpg' then
-    local name = file:sub(1, #file - 4)
-    local img = love.graphics.newImage('img/' .. file)
-    imgs[name] = img
+local function load_imgs (path)
+  local files = love.filesystem.getDirectoryItems('img' .. path)
+  for i = 1, #files do
+    local basename = files[i]
+    if basename:sub(-4) == '.png' or basename:sub(-4) == '.jpg' then
+      local name = (path .. '/' .. basename:sub(1, #basename - 4)):sub(2)
+      local img = love.graphics.newImage('img' .. path .. '/' .. basename)
+      imgs[name] = img
+      print(name)
+    else
+      -- Folder?
+      if love.filesystem.getInfo('img' .. path .. '/' .. basename).type == 'directory' then
+        load_imgs(path .. '/' .. basename)
+      end
+    end
   end
 end
+load_imgs('')
 
 local draw = function (drawable, x, y, w, h, ax, ay, r)
   ax = ax or 0.5
