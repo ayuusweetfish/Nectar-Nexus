@@ -176,10 +176,10 @@ create_overlay = function (fn_back, fn_confirm)
   local since_exit = -1
 
   local imgs = {
-    draw.get('4aacb3873e809fbee671038f50392e1'),
-    draw.get('4aacb3873e809fbee671038f50392e1'),
-    draw.get('4aacb3873e809fbee671038f50392e1'),
-    draw.get('4aacb3873e809fbee671038f50392e1'),
+    draw.get('weeds/p3-idle/06'),
+    draw.get('weeds/p3-idle/06'),
+    draw.get('weeds/p3-idle/06'),
+    draw.get('weeds/p3-idle/06'),
   }
 
   local screen_x_min = W * 0.18
