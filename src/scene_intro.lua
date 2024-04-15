@@ -42,9 +42,9 @@ local scene_intro = function ()
   local buttons = { btnStart }
 
   for i = 1, 6 do
-    local img = draw.get('4f37d624f5c0d64a8bdbb799a67a1eef04403909')
+    local img = draw.get('intro/large_vase_' .. tostring((i - 1) % 3 + 1))
     local w, h = img:getDimensions()
-    local scale = H * 0.44 / h
+    local scale = H * 0.487 / h
     local btn
     btn = button(img, function ()
       since_enter_vase = 0
@@ -60,8 +60,8 @@ local scene_intro = function ()
         replaceScene(sceneGameplay(i))
       end)
     end, scale)
-    btn.x0 = W * (0.95 + i / 3)
-    btn.y = H * 0.5
+    btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
+    btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
     buttons[#buttons + 1] = btn
   end
 
@@ -125,17 +125,19 @@ local scene_intro = function ()
     if since_enter_vase ~= -1 or since_exit_vase ~= -1 then
       local vase_offs_x, vase_offs_y = vase_offs_x, vase_offs_y
       local vase_scale
-      local rate, offs_rate, scale_rate
+      local rate, offs_x_rate, offs_y_rate, scale_rate
       if since_exit_vase ~= -1 then
         rate = 1 - math.min(1, since_exit_vase / 240)
-        offs_rate = ease_tetra_in_out(rate)
+        offs_x_rate = ease_tetra_in_out(rate)
+        offs_y_rate = offs_x_rate
       else
         rate = math.min(1, since_enter_vase / 240)
-        offs_rate = ease_exp_out(rate)
+        offs_x_rate = ease_exp_out(rate)
+        offs_y_rate = ease_tetra_in_out(rate)
       end
       scale_rate = ease_tetra_in_out(rate)
-      vase_offs_x = vase_offs_x * offs_rate
-      vase_offs_y = vase_offs_y * offs_rate
+      vase_offs_x = vase_offs_x * offs_x_rate
+      vase_offs_y = vase_offs_y * offs_y_rate
       vase_scale = 1 + scale_rate * 1.75
       love.graphics.push()
       love.graphics.translate(W / 2, H / 2)
@@ -149,6 +151,29 @@ local scene_intro = function ()
     love.graphics.setColor(1, 1, 1)
     draw.img('intro_bg', W / 2 + sdx, H / 2, W, H)
     draw.shadow(0.95, 0.95, 0.95, 1, t1, W / 2 + sdx, H * 0.35)
+
+    love.graphics.setColor(1, 1, 1)
+    for i = 1, 3 do
+      draw.img('intro/background_vases', W * (0.5 + i) + sdx, H * 0.5, W, H)
+    end
+    for i = 1, 3 do
+      draw.img('intro/line', W * (0.64 + i) + sdx, H * 0.55, W)
+    end
+
+    local scale = H * 0.487 / draw.get('intro/large_vase_1'):getHeight()
+    local small_vases = {
+      {'intro/small_vase_1', 0.112, 0.296},
+      {'intro/small_vase_2', 0.376, 0.248},
+      {'intro/small_vase_3', 0.600, 0.226},
+      {'intro/small_vase_4', 0.940, 0.238},
+      {'intro/small_vase_5', 0.946, 0.790},
+      {'intro/small_vase_6', 0.112, 0.844},
+    }
+    for i = 1, #small_vases do
+      local n, x, y = unpack(small_vases[i])
+      draw.img(n, W * (1.13 + x) + sdx, H * y,
+        draw.get(n):getWidth() * scale)
+    end
 
     love.graphics.setColor(1, 1, 1)
     for i = 1, #buttons do buttons[i].draw() end
