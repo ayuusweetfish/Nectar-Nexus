@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 5 -- #puzzles
+  puzzle_index = puzzle_index or puzzles.test or #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -417,13 +417,17 @@ return function (puzzle_index)
       for c = 0, board.ncols - 1 do
         local o = board.find_one(r, c, 'obstacle')
         if not o or not o.empty_background then
-          local index = r * 16 + c
-          love.graphics.draw(
-            glaze_tile_tex, glaze_tile_quads[index],
-            board_offs_x + cell_w * c,
-            board_offs_y + cell_w * r,
-            0, cell_scale * global_scale
-          )
+          local r1 = r + puzzles[puzzle_index].tile[1] - 1
+          local c1 = c + puzzles[puzzle_index].tile[2] - 1
+          if r1 >= 0 and r1 < 8 and c1 >= 0 and c1 < 16 then
+            local index = r1 * 16 + c1
+            love.graphics.draw(
+              glaze_tile_tex, glaze_tile_quads[index],
+              board_offs_x + cell_w * c,
+              board_offs_y + cell_w * r,
+              0, cell_scale * global_scale
+            )
+          end
         end
       end
     end

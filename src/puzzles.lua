@@ -1,7 +1,10 @@
 return {
+  test = 5,
+
   ------ Vase 1: Fundamentals ------
   -- Game objective
-  {
+  [1] = {
+    tile = {1, 1},
     size = {3, 8},
     objs = {
       {'pollen', 1, 3, group = 1},
@@ -10,7 +13,8 @@ return {
     },
   },
   -- Blossom
-  {
+  [2] = {
+    tile = {1, 1},
     size = {3, 8},
     objs = {
       {'bloom', 1, 4},
@@ -21,7 +25,8 @@ return {
   },
   -- Fuzzy (i.e. non-orthogonal layout) turn,
   -- corner case (square), multiple pollen pairs
-  {
+  [3] = {
+    tile = {1, 1},
     size = {4, 9},
     objs = {
       {'bloom', 0, 8},
@@ -33,7 +38,8 @@ return {
     },
   },
   -- Mild difficulty, more fuzzy turn (backwards)
-  {
+  [4] = {
+    tile = {1, 1},
     size = {4, 8},
     objs = {
       {'bloom', 3, 6},
@@ -46,7 +52,8 @@ return {
     },
   },
   -- Mild difficulty (trickery!), obstacles
-  {
+  [5] = {
+    tile = {1, 1},
     size = {5, 9},
     objs = {
       {'obstacle', 1, 2, image = '1.1'},
@@ -59,7 +66,8 @@ return {
     },
   },
   -- Some difficulty
-  {
+  [6] = {
+    tile = {1, 1},
     size = {3, 7},
     objs = {
       {'obstacle', 0, 5, image = '2'},
@@ -78,7 +86,8 @@ return {
 
   ------ Vase 2: Flocks/locksteps, intricate moves ------
   -- 180-degree turn, carrying rules, backwards-fuzzy recap
-  {
+  [7] = {
+    tile = {1, 1},
     size = {4, 9},
     objs = {
       {'bloom', 0, 4},
@@ -92,7 +101,8 @@ return {
     },
   },
   -- Multiple butterflies
-  {
+  [8] = {
+    tile = {1, 1},
     size = {3, 10},
     objs = {
       {'bloom', 0, 3},
@@ -106,7 +116,8 @@ return {
     },
   },
   -- Some difficulty (heads-wrapping)
-  {
+  [9] = {
+    tile = {1, 1},
     size = {6, 8},
     objs = {
       {'bloom', 2, 2},
@@ -120,7 +131,8 @@ return {
     },
   },
   -- Decent difficulty
-  {
+  [10] = {
+    tile = {1, 1},
     size = {6, 10},
     objs = {
       {'obstacle', 5, 4, image = '2'},
@@ -141,7 +153,8 @@ return {
   ------ Vase 3: Weeds ------
   -- Introduction to weeds and its nuances
   -- (pollen is carried over; revisiting does not spawn more butterflies)
-  {
+  [11] = {
+    tile = {1, 1},
     size = {5, 7},
     objs = {
       {'bloom', 2, 0},
@@ -156,7 +169,8 @@ return {
     },
   },
   -- Mild difficulty
-  {
+  [12] = {
+    tile = {1, 1},
     size = {5, 7},
     objs = {
       {'bloom', 1, 4},
@@ -173,7 +187,8 @@ return {
     },
   },
   -- Puzzles, in increasing order of difficulty
-  {
+  [13] = {
+    tile = {1, 1},
     size = {4, 7},
     objs = {
       {'bloom', 2, 3},
@@ -188,7 +203,8 @@ return {
       {'butterfly', 0, 2, dir = 1},
     },
   },
-  {
+  [14] = {
+    tile = {1, 1},
     size = {4, 7},
     objs = {
       {'obstacle', 3, 0, image = '1'},
@@ -208,7 +224,8 @@ return {
       {'butterfly', 1, 2, dir = 1},
     },
   },
-  {
+  [15] = {
+    tile = {1, 1},
     size = {4, 8},
     objs = {
       {'weeds', 1, 4},
@@ -224,7 +241,8 @@ return {
       {'butterfly', 1, 2, dir = 1},
     },
   },
-  {
+  [16] = {
+    tile = {1, 1},
     size = {7, 8},
     objs = {
       {'weeds', 3, 2},
@@ -244,7 +262,8 @@ return {
 
   ------ Vase 4: Rebounces ------
   -- Introduction to the rebouncing obstacle
-  {
+  [17] = {
+    tile = {1, 1},
     size = {4, 6},
     objs = {
       {'reflect_obstacle', 0, 0, image = '1.3'},
@@ -255,7 +274,8 @@ return {
     },
   },
   -- Mild difficulty
-  {
+  [18] = {
+    tile = {1, 1},
     size = {5, 5},
     objs = {
       {'reflect_obstacle', 4, 0, image = '1.2'},
@@ -270,7 +290,8 @@ return {
     },
   },
   -- Rebounce and weeds, decent difficulty
-  {
+  [19] = {
+    tile = {1, 1},
     size = {5, 9},
     objs = {
       {'reflect_obstacle', 1, 0, image = '1.3'},
@@ -289,7 +310,8 @@ return {
       {'butterfly', 1, 4, dir = 1},
     },
   },
-  {
+  [20] = {
+    tile = {1, 1},
     size = {6, 9},
     objs = {
       {'reflect_obstacle', 4, 3, image = '1.1'},
@@ -310,7 +332,8 @@ return {
 
   ------ Vase 5: Chameleons ------
   -- Introduction to the chameleon
-  {
+  [21] = {
+    tile = {1, 1},
     size = {6, 8},
     objs = {
       {'obstacle', 0, 0, empty_background = true}, {'obstacle', 0, 1, empty_background = true}, {'obstacle', 0, 6, empty_background = true}, {'obstacle', 0, 7, empty_background = true},
@@ -330,7 +353,8 @@ return {
     },
   },
   -- Introduction to the nuances of multiple successive entries
-  {
+  [22] = {
+    tile = {1, 1},
     size = {6, 9},
     objs = {
       {'obstacle', 0, 0, empty_background = true}, {'obstacle', 0, 1, empty_background = true}, {'obstacle', 0, 2, empty_background = true}, {'obstacle', 0, 3, empty_background = true}, {'obstacle', 0, 4, empty_background = true}, {'obstacle', 0, 5, empty_background = true},
@@ -349,7 +373,8 @@ return {
     },
   },
   -- Mild difficulty
-  {
+  [23] = {
+    tile = {1, 1},
     size = {6, 10},
     objs = {
       {'obstacle', 3, 8, empty_background = true}, {'obstacle', 3, 9, empty_background = true},
@@ -368,7 +393,8 @@ return {
     },
   },
   -- Decent difficulty, with rebouncing
-  {
+  [24] = {
+    tile = {1, 1},
     size = {5, 10},
     objs = {
       {'obstacle', 2, 6, empty_background = true}, {'obstacle', 2, 7, empty_background = true}, {'obstacle', 2, 8, empty_background = true}, {'obstacle', 2, 9, empty_background = true},
@@ -392,7 +418,8 @@ return {
 
   ------ Vase 6: Everything everywhere all at once ------
   -- TODO 5/6
-  {
+  [25] = {
+    tile = {1, 1},
     size = {8, 10},
     objs = {
       {'obstacle', 0, 0, empty_background = true}, {'obstacle', 0, 1, empty_background = true}, {'obstacle', 0, 8, empty_background = true}, {'obstacle', 0, 9, empty_background = true},
@@ -417,7 +444,8 @@ return {
       {'butterfly', 0, 3, dir = 2},
     },
   },
-  {
+  [26] = {
+    tile = {1, 1},
     size = {8, 8},
     objs = {
       {'obstacle', 0, 0, empty_background = true}, {'obstacle', 0, 1, empty_background = true},
@@ -441,7 +469,8 @@ return {
       {'butterfly', 1, 4, dir = 1},
     },
   },
-  {
+  [27] = {
+    tile = {1, 1},
     size = {6, 11},
     objs = {
       {'obstacle', 0, 0, empty_background = true}, {'obstacle', 0, 7, empty_background = true}, {'obstacle', 0, 8, empty_background = true}, {'obstacle', 0, 9, empty_background = true}, {'obstacle', 0, 10, empty_background = true},
@@ -462,7 +491,8 @@ return {
       {'butterfly', 0, 5, dir = 2},
     },
   },
-  {
+  [28] = {
+    tile = {1, 1},
     size = {6, 8},
     objs = {
       {'obstacle', 0, 0, empty_background = true},
@@ -484,7 +514,8 @@ return {
       {'butterfly', 4, 4, dir = 1},
     },
   },
-  {
+  [29] = {
+    tile = {1, 1},
     size = {6, 10},
     objs = {
       {'obstacle', 0, 5, empty_background = true}, {'obstacle', 0, 6, empty_background = true}, {'obstacle', 0, 7, empty_background = true}, {'obstacle', 0, 8, empty_background = true}, {'obstacle', 0, 9, empty_background = true},
