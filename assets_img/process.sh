@@ -95,7 +95,7 @@ if false; then
   )
 fi
 
-if false; then
+if true; then
   # Chameleon
   rm -rf chameleon
   mkdir chameleon
@@ -119,10 +119,13 @@ if false; then
       if [ "$bn" == "眼睛" ]; then
         for j in {1..25}; do
           if [ -e *-$j.png ]; then
+            # For reference: only keep a small content region
             # convert *-$j.png -crop 100x100+775+506 +repage $dir/`printf "%02d" $j`.png
             # https://www.imagemagick.org/discourse-server/viewtopic.php?t=19682
-            echo convert *-$j.png -crop 1024x400+0+374 +repage ../../正片叠底.jpg -compose multiply -composite $dir/`printf "%02d" $j`.png
-            convert *-$j.png -crop 1024x400+0+374 +repage ../../正片叠底.jpg -compose multiply -composite $dir/`printf "%02d" $j`.png
+            convert \( *-$j.png -crop 1024x400+0+374 +repage \) ../../正片叠底.jpg -gravity east \
+              \( -clone 0 -alpha extract \) \( -clone 0 -clone 1 -compose multiply -composite \) \
+              -delete 0,1 +swap -alpha off -compose copy_opacity -composite \
+              $dir/`printf "%02d" $j`.png
           fi
         done
         bn_mapped=eye
@@ -152,20 +155,21 @@ if false; then
   done
 fi
 
-if true; then
+if false; then
   # Still
-  #rm -rf still
-  #mkdir still
+  rm -rf still
+  mkdir still
   p=0
   for n in 蓝 粉 红; do
     p=$((p + 1))
     dir=$ORIG_WD/still/p$p
     from=../img/${n}静态元件
     echo $n $from $dir
-    # mkdir -p $dir
+    mkdir -p $dir
 
     # Tiles
-    # convert $from/*瓷砖.png -trim +repage -resize 1600x800\! -quality 100 $dir-tiles.jpg
+    # The `-trim` operator does not work well for images with
+    # irregular boundaries and thin border strokes
     crop=+0+0
     if [ "$p" == "2" ]; then
       crop=1586x+4+3
