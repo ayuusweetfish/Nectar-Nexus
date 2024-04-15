@@ -1,5 +1,64 @@
 return {
-  [1] = {
+  -- Game objective
+  {
+    size = {3, 8},
+    objs = {
+      {'pollen', 1, 3, group = 1},
+      {'pollen', 1, 7, group = 1},
+      {'butterfly', 1, 0, dir = 1},
+    },
+  },
+  -- Blossom
+  {
+    size = {3, 8},
+    objs = {
+      {'bloom', 1, 4},
+      {'pollen', 1, 6, group = 1},
+      {'pollen', 1, 7, group = 1},
+      {'butterfly', 1, 1, dir = 4},
+    },
+  },
+  -- Fuzzy (i.e. non-orthogonal layout) turn,
+  -- corner case (square), multiple pollen pairs
+  {
+    size = {4, 9},
+    objs = {
+      {'bloom', 0, 8},
+      {'pollen', 2, 3, group = 1},
+      {'pollen', 2, 4, group = 1},
+      {'pollen', 2, 5, group = 2},
+      {'pollen', 1, 7, group = 2},
+      {'butterfly', 2, 1, dir = 1},
+    },
+  },
+  -- Mild difficulty, more fuzzy turn (backwards)
+  {
+    size = {4, 8},
+    objs = {
+      {'bloom', 3, 6},
+      {'bloom', 0, 6},
+      {'pollen', 1, 3, group = 1},
+      {'pollen', 1, 4, group = 1},
+      {'pollen', 2, 5, group = 2},
+      {'pollen', 2, 6, group = 2},
+      {'butterfly', 1, 1, dir = 1},
+    },
+  },
+  -- Mild difficulty (trickery!), obstacles
+  {
+    size = {5, 9},
+    objs = {
+      {'obstacle', 1, 2},
+      {'obstacle', 1, 3},
+      {'bloom', 3, 2},
+      {'bloom', 1, 8},
+      {'pollen', 1, 1, group = 1},
+      {'pollen', 1, 5, group = 1},
+      {'butterfly', 0, 1, dir = 2},
+    },
+  },
+  -- Some difficulty
+  {
     size = {3, 7},
     objs = {
       {'obstacle', 0, 5},
@@ -15,7 +74,69 @@ return {
       {'butterfly', 1, 6, dir = 2},
     },
   },
-  [2] = {
+
+  -- 180-degree turn, carrying rules, backwards-fuzzy recap
+  {
+    size = {4, 9},
+    objs = {
+      {'bloom', 0, 4},
+      {'bloom', 1, 0},
+      {'bloom', 3, 2},
+      {'pollen', 1, 3, group = 1},
+      {'pollen', 1, 8, group = 1},
+      {'pollen', 1, 6, group = 2},
+      {'pollen', 3, 4, group = 2},
+      {'butterfly', 1, 2, dir = 1},
+    },
+  },
+  -- Multiple butterflies
+  {
+    size = {3, 10},
+    objs = {
+      {'bloom', 0, 3},
+      {'bloom', 1, 9},
+      {'pollen', 1, 5, group = 1},
+      {'pollen', 1, 8, group = 1},
+      {'pollen', 1, 6, group = 2},
+      {'pollen', 1, 7, group = 2},
+      {'butterfly', 1, 0, dir = 1},
+      {'butterfly', 2, 0, dir = 1},
+    },
+  },
+  -- Some difficulty (heads-wrapping)
+  {
+    size = {6, 8},
+    objs = {
+      {'bloom', 2, 2},
+      {'bloom', 2, 3},
+      {'pollen', 2, 5, group = 1},
+      {'pollen', 2, 6, group = 1},
+      {'pollen', 3, 5, group = 2},
+      {'pollen', 3, 6, group = 2},
+      {'butterfly', 1, 0, dir = 1},
+      {'butterfly', 4, 4, dir = 4},
+    },
+  },
+  -- Decent difficulty
+  {
+    size = {6, 10},
+    objs = {
+      {'obstacle', 5, 4},
+      {'bloom', 4, 3},
+      {'bloom', 2, 6},
+      {'bloom', 1, 7},
+      {'pollen', 2, 5, group = 1},
+      {'pollen', 2, 7, group = 1},
+      {'pollen', 3, 3, group = 2},
+      {'pollen', 5, 3, group = 2},
+      {'pollen', 4, 1, group = 3},
+      {'pollen', 4, 5, group = 3},
+      {'butterfly', 1, 0, dir = 1},
+      {'butterfly', 2, 3, dir = 1},
+    },
+  },
+
+  {
     size = {5, 5},
     objs = {
       {'reflect_obstacle', 4, 0},
@@ -29,7 +150,7 @@ return {
       {'butterfly', 4, 4, dir = 3},
     },
   },
-  [3] = {
+  {
     size = {4, 7},
     objs = {
       {'bloom', 2, 3},
@@ -44,7 +165,7 @@ return {
       {'butterfly', 0, 2, dir = 1},
     },
   },
-  [4] = {
+  {
     size = {4, 7},
     objs = {
       {'obstacle', 3, 0},
@@ -64,7 +185,7 @@ return {
       {'butterfly', 1, 2, dir = 1},
     },
   },
-  [5] = {
+  {
     size = {6, 8},
     objs = {
       {'obstacle', 0, 0}, {'obstacle', 0, 1}, {'obstacle', 0, 6}, {'obstacle', 0, 7},
@@ -83,7 +204,7 @@ return {
       {'butterfly', 0, 3, dir = 2},
     },
   },
-  [6] = {
+  {
     size = {8, 10},
     objs = {
       {'obstacle', 0, 0}, {'obstacle', 0, 1}, {'obstacle', 0, 8}, {'obstacle', 0, 9},
@@ -108,7 +229,7 @@ return {
       {'butterfly', 0, 3, dir = 2},
     },
   },
-  [7] = {
+  {
     size = {6, 11},
     objs = {
       {'obstacle', 0, 0}, {'obstacle', 0, 7}, {'obstacle', 0, 8}, {'obstacle', 0, 9}, {'obstacle', 0, 10},
@@ -129,7 +250,7 @@ return {
       {'butterfly', 0, 5, dir = 2},
     },
   },
-  [8] = {
+  {
     size = {6, 9},
     objs = {
       {'obstacle', 0, 0}, {'obstacle', 0, 1},
@@ -153,7 +274,7 @@ return {
       {'butterfly', 4, 5, dir = 1},
     },
   },
-  [9] = {
+  {
     size = {8, 8},
     objs = {
       {'obstacle', 0, 0}, {'obstacle', 0, 1},
@@ -177,7 +298,7 @@ return {
       {'butterfly', 1, 4, dir = 1},
     },
   },
-  [10] = {
+  {
     size = {7, 8},
     objs = {
       {'weeds', 3, 2},
@@ -192,20 +313,9 @@ return {
       {'pollen', 4, 3, group = 3},
       {'pollen', 4, 4, group = 3},
       {'butterfly', 2, 0, dir = 1},
-    --[[
-      {'weeds', 3, 3},
-      {'weeds', 3, 6},
-      {'bloom', 5, 4},
-      {'bloom', 6, 5},
-      {'bloom', 1, 6},
-      {'bloom', 3, 9},
-      {'pollen', 1, 5, group = 1},
-      {'pollen', 2, 5, group = 1},
-      {'butterfly', 2, 1, dir = 1},
-    ]]
     },
   },
-  [11] = {
+  {
     size = {6, 10},
     objs = {
       {'obstacle', 0, 5}, {'obstacle', 0, 6}, {'obstacle', 0, 7}, {'obstacle', 0, 8}, {'obstacle', 0, 9},

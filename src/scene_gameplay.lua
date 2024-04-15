@@ -21,7 +21,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or #puzzles
+  puzzle_index = puzzle_index or 10 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -65,7 +65,7 @@ return function (puzzle_index)
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 
-  local cell_w = math.min(100, H * 0.92 / board.nrows)
+  local cell_w = math.min(100, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
   local cell_scale = cell_w / 100
