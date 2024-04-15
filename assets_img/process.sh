@@ -67,7 +67,7 @@ if false; then
   )
 fi
 
-if true; then
+if false; then
   # Bloom
   rm -rf bloom
   mkdir bloom
@@ -95,6 +95,66 @@ if true; then
   )
 fi
 
+if true; then
+  # Chameleon
+  rm -rf chameleon
+  mkdir chameleon
+  Xc=$((Xo + 550))
+  Yc=$((Yo + 150))
+  W=120
+  H=120
+  X=$((Xc - W/2))
+  Y=$((Yc - H/2))
+
+  p=0
+  for n in 蓝 粉 红; do
+    p=$((p + 1))
+    for i in ../img/变色龙原件/${n}变色龙/*; do (
+      bn=`basename $i`
+      dir=$ORIG_WD/chameleon/p${p}-${bn}
+      echo $i $dir
+      mkdir -p $dir
+      bn_mapped=$bn
+      cd $i
+      if [ "$bn" == "眼睛" ]; then
+        for j in {1..25}; do
+          if [ -e *-$j.png ]; then
+            # For reference: only keep a small content region
+            # convert *-$j.png -crop 100x100+775+506 +repage $dir/`printf "%02d" $j`.png
+            # https://www.imagemagick.org/discourse-server/viewtopic.php?t=19682
+            convert \( *-$j.png -crop 1024x400+0+374 +repage \) ../../正片叠底.jpg -gravity east \
+              \( -clone 0 -alpha extract \) \( -clone 0 -clone 1 -compose multiply -composite \) \
+              -delete 0,1 +swap -alpha off -compose copy_opacity -composite \
+              $dir/`printf "%02d" $j`.png
+          fi
+        done
+        bn_mapped=eye
+      elif [ "$bn" == "张嘴" ]; then
+        for j in {1..25}; do
+          if [ -e *-$j.png ]; then
+            convert *-$j.png -crop 640x920+1068+78 +repage $dir/`printf "%02d" $j`.png
+          fi
+        done
+        bn_mapped=body
+      else
+        for j in {1..25}; do
+          if [ -e *-$j.png ]; then
+            filename=`echo *-$j.png`
+            convert *-$j.png -crop 1024x400+0+374 +repage $dir/$filename
+          fi
+        done
+        bn_mapped=tongue
+      fi
+      if [ "$bn" != "$bn_mapped" ]; then
+        mkdir -p $ORIG_WD/chameleon/p${p}-${bn_mapped}
+        mv $dir/* $ORIG_WD/chameleon/p${p}-${bn_mapped}
+        rm -rf $dir
+        echo $i $ORIG_WD/chameleon/p${p}-${bn_mapped}
+      fi
+    ); done
+  done
+fi
+
 if false; then
   # Still
   rm -rf still
@@ -105,10 +165,11 @@ if false; then
     dir=$ORIG_WD/still/p$p
     from=../img/${n}静态元件
     echo $n $from $dir
-    # mkdir -p $dir
+    mkdir -p $dir
 
     # Tiles
-    # convert $from/*瓷砖.png -trim +repage -resize 1600x800\! -quality 100 $dir-tiles.jpg
+    # The `-trim` operator does not work well for images with
+    # irregular boundaries and thin border strokes
     crop=+0+0
     if [ "$p" == "2" ]; then
       crop=1586x+4+3
@@ -127,6 +188,12 @@ if false; then
       bn=`basename $i`
       id=${bn:12}
       cp $i $dir-rebound-$id
+    done
+
+    for i in $from/*传粉花*; do
+      bn=`basename $i`
+      id=${bn:11}
+      cp $i $dir-pollen-$id
     done
   done
 fi

@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 5 -- #puzzles
+  puzzle_index = puzzle_index or puzzles.test or #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -68,10 +68,12 @@ return function (puzzle_index)
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 
-  local cell_w = math.min(100, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
+  local global_scale = 1 / 1.5
+  local cell_w_orig = 100 * global_scale
+  local cell_w = math.min(cell_w_orig, H * 0.92 / board.nrows, W * 0.9 / board.ncols)
   local board_offs_x = (W - cell_w * board.ncols) / 2
   local board_offs_y = (H - cell_w * board.nrows) / 2
-  local cell_scale = cell_w / 100
+  local cell_scale = cell_w / cell_w_orig
 
   local pt_to_cell = function (x, y)
     local c = math.floor((x - board_offs_x) / cell_w)
@@ -341,6 +343,40 @@ return function (puzzle_index)
   rebound_offs['1.3'] = {0, -0.03}
   register_still_sprite_set('rebound', rebound_offs)
 
+  -- Pollen
+  local pollen_offs = {}
+  if palette_num == 1 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0.15, 0}
+    pollen_offs['2.2'] = {0, 0}
+    pollen_offs['3.1'] = {0.2, -0.15}
+    pollen_offs['3.2'] = {0.15, 0.2}
+    pollen_offs['4.1'] = {-0.15, -0.15}
+    pollen_offs['4.2'] = {0, 0}
+  elseif palette_num == 2 then
+    pollen_offs['1.1'] = {0, 0}
+    pollen_offs['1.2'] = {0, 0}
+    pollen_offs['2.1'] = {0.3, 0}
+    pollen_offs['2.2'] = {0.12, 0.12}
+    pollen_offs['3.1'] = {0.45, 0.4}
+    pollen_offs['3.2'] = {0, 0.05}
+    pollen_offs['4.1'] = {0.02, 0}
+    pollen_offs['4.2'] = {0, -0.2}
+    pollen_offs['5.1'] = {0, -0.5}
+    pollen_offs['5.2'] = {0, -0.6}
+  elseif palette_num == 3 then
+    pollen_offs['1.1'] = {0, -0.1}
+    pollen_offs['1.2'] = {-0.12, 0}
+    pollen_offs['2.1'] = {0.2, -0.05}
+    pollen_offs['2.2'] = {0, 0.15}
+    pollen_offs['3.1'] = {-0.24, 0}
+    pollen_offs['3.2'] = {-0.55, 0.6}
+    pollen_offs['4.1'] = {0.43, -0.2}
+    pollen_offs['4.2'] = {0, -0.3}
+  end
+  register_still_sprite_set('pollen', pollen_offs)
+
   local aseq = {}
   -- Butterfly
   for _, n in ipairs({
@@ -390,6 +426,13 @@ return function (puzzle_index)
     return list[math.floor(rate * (#list - 1)) + 1]
   end
 
+  local pop_scale_effect = function (anim_progress)
+    local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
+    local rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
+    local rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+    return rel_scale_x, rel_scale_y
+  end
+
   s.draw = function ()
     love.graphics.clear(unpack(bg_tint))
 
@@ -415,20 +458,24 @@ return function (puzzle_index)
       for c = 0, board.ncols - 1 do
         local o = board.find_one(r, c, 'obstacle')
         if not o or not o.empty_background then
-          local index = r * 16 + c
-          love.graphics.draw(
-            glaze_tile_tex, glaze_tile_quads[index],
-            board_offs_x + cell_w * c,
-            board_offs_y + cell_w * r,
-            0, cell_scale
-          )
+          local r1 = r + puzzles[puzzle_index].tile[1] - 1
+          local c1 = c + puzzles[puzzle_index].tile[2] - 1
+          if r1 >= 0 and r1 < 8 and c1 >= 0 and c1 < 16 then
+            local index = r1 * 16 + c1
+            love.graphics.draw(
+              glaze_tile_tex, glaze_tile_quads[index],
+              board_offs_x + cell_w * c,
+              board_offs_y + cell_w * r,
+              0, cell_scale * global_scale
+            )
+          end
         end
       end
     end
 
     -- Objects
     local object_images = {}
-    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y)
+    local obj_img = function (name, r, c, dx, dy, scale, rel_scale_x, rel_scale_y, rotation, layer)
       object_images[#object_images + 1] = {
         r = r, c = c,
         name = name,
@@ -437,11 +484,14 @@ return function (puzzle_index)
         scale = scale,
         rel_scale_x = rel_scale_x,
         rel_scale_y = rel_scale_y,
+        rotation = rotation or 0,
+        layer = layer or 0,
       }
     end
     local obj_img_draw = function ()
       table.sort(object_images, function (a, b)
-        return a.r < b.r or (a.r == b.r and a.c < b.c)
+        return a.layer < b.layer or (a.layer == b.layer and
+          (a.r < b.r or (a.r == b.r and a.c < b.c)))
       end)
       for i = 1, #object_images do
         local item = object_images[i]
@@ -450,13 +500,22 @@ return function (puzzle_index)
           w, h = item.scale * cell_w, item.scale * cell_w
         elseif item.rel_scale_x ~= nil then
           local img = draw.get(item.name)
-          w = item.rel_scale_x * img:getWidth()
-          h = item.rel_scale_y * img:getHeight()
+          w = item.rel_scale_x * img:getWidth() * global_scale
+          h = item.rel_scale_y * img:getHeight() * global_scale
+        end
+        local r = item.rotation
+        local dx = item.dx - 0.5
+        local dy = item.dy - 0.5
+        if r ~= 0 then
+          dx, dy =
+            dx * math.cos(r) - dy * math.sin(r),
+            dx * math.sin(r) + dy * math.cos(r)
         end
         draw.img(item.name,
-          board_offs_x + cell_w * (item.c + item.dx),
-          board_offs_y + cell_w * (item.r + item.dy),
-          w, h
+          board_offs_x + cell_w * (item.c + 0.5 + dx),
+          board_offs_y + cell_w * (item.r + 0.5 + dy),
+          w, h,
+          0.5, 0.5, r
         )
       end
     end
@@ -468,14 +527,13 @@ return function (puzzle_index)
         local rel_scale_x, rel_scale_y = 1, 1
         local anim_progress = clamp_01(since_anim / 120)
         if anim_progress < 1 and find_anim(o, 'hit') then
-          local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
-          rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
-          rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+          rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
         end
+        local rotation = (o.rotation or 0) * math.pi / 2
         obj_img(still.obst[id], o.r, o.c,
           0.5 + still_offs.obst[id][1],
           0.5 + still_offs.obst[id][2],
-          nil, rel_scale_x, rel_scale_y)
+          nil, rel_scale_x, rel_scale_y, rotation)
       end
     end)
 
@@ -484,20 +542,23 @@ return function (puzzle_index)
       local rel_scale_x, rel_scale_y = 1, 1
       local anim_progress = clamp_01(since_anim / 120)
       if anim_progress < 1 and find_anim(o, 'hit') then
-        local ease = math.sqrt(anim_progress) * (1 - ease_exp_out(anim_progress)) * 4
-        rel_scale_x = 1 + ease * math.sin(anim_progress * 12) * 0.15
-        rel_scale_y = 1 + ease * math.sin(anim_progress * 12 + 1.4) * 0.11
+        rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
       end
+      local rotation = (o.rotation or 0) * math.pi / 2
       obj_img(still.rebound[id], o.r, o.c,
         0.5 + still_offs.rebound[id][1],
         0.5 + still_offs.rebound[id][2],
-        nil, rel_scale_x, rel_scale_y)
+        nil, rel_scale_x, rel_scale_y, rotation)
     end)
+
+    -- Key: chameleon object; value: animation progress {eat, provoke}
+    -- When `eat` is active, `provoke` does not matter (progress set to -1)
+    -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
+    -- Saved for later use
+    local chameleon_anim_progress = {}
 
     board.each('chameleon', function (o)
       local anim_progress = clamp_01((since_anim - 50) / 60)
-      -- When `eat` is active, `provoke` does not matter (progress set to -1)
-      -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
       local provoke_progress = (o.provoked and 1 or 0)
       local eat_progress = 0
       if anim_progress < 1 then
@@ -513,6 +574,8 @@ return function (puzzle_index)
           provoke_progress = 1 - ease_quad_in_out(anim_progress)
         end
       end
+      chameleon_anim_progress[o] = {eat_progress, provoke_progress}
+
       local alpha = 0.3
       if provoke_progress == -1 then alpha = alpha + 0.5 * (1 - eat_progress)
       else alpha = alpha + 0.5 * provoke_progress end
@@ -536,7 +599,7 @@ return function (puzzle_index)
       else
         aseq_frame = aseq_proceed('bloom-visited', used_rate)
       end
-      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2)
+      obj_img(aseq_frame, o.r, o.c, 0.59, 0.5, 1.2, nil, nil, 0, 1)
 
 --[[
       local used_rate = (o.used and 1 or 0)
@@ -550,6 +613,8 @@ return function (puzzle_index)
 
     -- Animated positions
     local butterfly_animated_pos = {}
+    -- Eaten progresses
+    local butterfly_eaten_progress = {}
     board.each('butterfly', function (o)
       local r0, c0 = o.r, o.c
       local anim_progress = clamp_01((since_anim -
@@ -565,6 +630,14 @@ return function (puzzle_index)
       local x0 = board_offs_x + cell_w * (c0 + 0.5)
       local y0 = board_offs_y + cell_w * (r0 + 0.5)
       butterfly_animated_pos[o] = {x0, y0}
+
+      local eaten_progress = 0
+      if find_anim(o, 'eaten') then
+        eaten_progress = ease_quad_in_out(clamp_01((since_anim - 90) / 30))
+      elseif o.eaten then
+        eaten_progress = 1
+      end
+      butterfly_eaten_progress[o] = eaten_progress
     end)
 
     board.each('pollen', function (o)
@@ -575,33 +648,28 @@ return function (puzzle_index)
       if anim_progress < 1 and find_anim(o, 'pollen_match') then
         shadow_radius = 1 - ease_quad_in_out(anim_progress)
       end
-      love.graphics.setColor(tint[1], tint[2], tint[3], 0.2)
-      love.graphics.circle('fill',
-        board_offs_x + cell_w * (o.c + 0.5),
-        board_offs_y + cell_w * (o.r + 0.5),
-        cell_w * shadow_radius * 0.4)
-      love.graphics.setColor(tint[1], tint[2], tint[3], 0.2 * (1 - shadow_radius))
-      love.graphics.setLineWidth(2.0)
-      love.graphics.circle('line',
-        board_offs_x + cell_w * (o.c + 0.5),
-        board_offs_y + cell_w * (o.r + 0.5),
-        cell_w * 0.4)
 
       local highlight_radius = (o.visited and 0 or 1)
       local anim_progress = clamp_01((since_anim - 50) / 60)
       if anim_progress < 1 and find_anim(o, 'pollen_visit') ~= nil then
         highlight_radius = 1 - ease_quad_in_out(anim_progress)
       end
-      if highlight_radius > 0 then
-        love.graphics.setColor(tint[1], tint[2], tint[3], 1)
-        love.graphics.circle('fill',
-          board_offs_x + cell_w * (o.c + 0.5),
-          board_offs_y + cell_w * (o.r + 0.5),
-          cell_w * highlight_radius * 0.4)
+
+      local id = o.image
+      local rel_scale_x, rel_scale_y = 1, 1
+      local anim_progress = clamp_01((since_anim - 30) / 120)
+      if anim_progress < 1 and find_anim(o, 'pollen_visit') then
+        rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
       end
+      local rotation = (o.rotation or 0) * math.pi / 2
+      obj_img(still.pollen[id], o.r, o.c,
+        0.5 + still_offs.pollen[id][1],
+        0.5 + still_offs.pollen[id][2],
+        nil, rel_scale_x, rel_scale_y, rotation)
 
       -- Particles following a butterfly?
       local follow, follow_rate = nil, 0
+      local eaten_progress = 0
       if o.carrier then
         follow = butterfly_animated_pos[o.carrier]
         follow_rate = 1
@@ -612,9 +680,11 @@ return function (puzzle_index)
           }
           follow_rate = ease_exp_out(anim_progress)
         end
+        eaten_progress = butterfly_eaten_progress[o.carrier]
       end
       psys_by_obj[o].follow = follow
       psys_by_obj[o].follow_rate = follow_rate
+      psys_by_obj[o].ordinary_fade = eaten_progress
 
       -- Particles waving and fading out due to matching?
       local wave_out = (o.matched and 1 or 0)
@@ -642,6 +712,11 @@ return function (puzzle_index)
     end)
 
     obj_img_draw()
+
+    board.each('chameleon', function (o)
+      local eat_progress, provoke_progress = unpack(chameleon_anim_progress[o])
+      -- TODO
+    end)
 
     -- Particle systems (under butterflies)
     for i = 1, #psys do
@@ -718,6 +793,7 @@ return function (puzzle_index)
       end
 
       local alpha = find_anim(o, 'spawn_from_weeds') and clamp_01((since_anim - 60) / 60) or 1
+      alpha = alpha * (1 - butterfly_eaten_progress[o])
 
       love.graphics.setColor(1, 1, 1, alpha)
       draw.img(
