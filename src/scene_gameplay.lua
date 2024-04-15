@@ -474,7 +474,13 @@ return function (puzzle_index)
     end
 
     -- Tiles
-    love.graphics.setColor(1, 1, 1, glaze_tile_opacity_in_game)
+    local glaze_tile_opacity = glaze_tile_opacity_in_game
+    if since_clear >= 60 then
+      glaze_tile_opacity = glaze_tile_opacity_in_game +
+        (1 - glaze_tile_opacity_in_game) *
+          ease_quad_in_out(math.min(1, (since_clear - 60) / 120))
+    end
+    love.graphics.setColor(1, 1, 1, glaze_tile_opacity)
     for r = 0, board.nrows - 1 do
       for c = 0, board.ncols - 1 do
         local o = board.find_one(r, c, 'obstacle')
