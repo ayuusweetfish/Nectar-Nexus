@@ -247,7 +247,7 @@ return {
   {
     size = {4, 6},
     objs = {
-      {'reflect_obstacle', 0, 0},
+      {'reflect_obstacle', 0, 0, image = '1.3'},
       {'bloom', 2, 1},
       {'pollen', 2, 4, group = 1},
       {'pollen', 3, 4, group = 1},
@@ -258,7 +258,7 @@ return {
   {
     size = {5, 5},
     objs = {
-      {'reflect_obstacle', 4, 0},
+      {'reflect_obstacle', 4, 0, image = '1.2'},
       {'bloom', 2, 1},
       {'bloom', 1, 3},
       {'pollen', 0, 2, group = 1},
@@ -273,10 +273,10 @@ return {
   {
     size = {5, 9},
     objs = {
-      {'reflect_obstacle', 1, 0},
-      {'reflect_obstacle', 2, 0},
-      {'reflect_obstacle', 1, 8},
-      {'reflect_obstacle', 2, 8},
+      {'reflect_obstacle', 1, 0, image = '1.3'},
+      {'reflect_obstacle', 2, 0, image = '1.3'},
+      {'reflect_obstacle', 1, 8, image = '1.1'},
+      {'reflect_obstacle', 2, 8, image = '1.1'},
       {'weeds', 2, 3},
       {'bloom', 3, 7},
       {'bloom', 4, 7},
@@ -292,7 +292,7 @@ return {
   {
     size = {6, 9},
     objs = {
-      {'reflect_obstacle', 4, 3},
+      {'reflect_obstacle', 4, 3, image = '1.1'},
       {'bloom', 4, 1},
       {'bloom', 4, 2},
       {'bloom', 4, 5},
@@ -374,7 +374,7 @@ return {
       {'obstacle', 2, 6, empty_background = true}, {'obstacle', 2, 7, empty_background = true}, {'obstacle', 2, 8, empty_background = true}, {'obstacle', 2, 9, empty_background = true},
       {'obstacle', 3, 6, empty_background = true}, {'obstacle', 3, 7, empty_background = true}, {'obstacle', 3, 8, empty_background = true}, {'obstacle', 3, 9, empty_background = true},
       {'obstacle', 4, 6, empty_background = true}, {'obstacle', 4, 7, empty_background = true}, {'obstacle', 4, 8, empty_background = true}, {'obstacle', 4, 9, empty_background = true},
-      {'reflect_obstacle', 1, 9},
+      {'reflect_obstacle', 1, 9, image = '1.1'},
       {'bloom', 0, 3},
       {'bloom', 4, 3},
       {'bloom', 1, 6},
@@ -469,8 +469,8 @@ return {
       {'obstacle', 5, 5, image = '2.1'},
       {'obstacle', 6, 5, image = '1'}, {'obstacle', 6, 7, empty_background = true},
       {'obstacle', 7, 5, empty_background = true}, {'obstacle', 7, 6, empty_background = true}, {'obstacle', 7, 7, empty_background = true},
-      {'reflect_obstacle', 7, 4},
-      {'reflect_obstacle', 6, 6},
+      {'reflect_obstacle', 7, 4, image = '1.2'},
+      {'reflect_obstacle', 6, 6, image = '1.1'},
       {'weeds', 2, 5},
       {'bloom', 3, 3},
       {'bloom', 4, 4},

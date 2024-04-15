@@ -94,5 +94,11 @@ if true; then
       id=${bn:11}
       cp $i $dir-obst-$id
     done
+
+    for i in $from/*碰撞折返*; do
+      bn=`basename $i`
+      id=${bn:12}
+      cp $i $dir-rebound-$id
+    done
   done
 fi

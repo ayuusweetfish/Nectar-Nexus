@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 10 -- #puzzles
+  puzzle_index = puzzle_index or 28 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -270,9 +270,9 @@ return function (puzzle_index)
     palette_num = 1
   elseif puzzle_index >= 7 and puzzle_index <= 10 then
     palette_num = 2
-  elseif puzzle_index >= 11 and puzzle_index <= 14 then
+  elseif puzzle_index >= 11 and puzzle_index <= 16 then
     palette_num = 3
-  elseif puzzle_index >= 15 and puzzle_index <= 20 then
+  elseif puzzle_index >= 17 and puzzle_index <= 20 then
     palette_num = 1
   elseif puzzle_index >= 21 and puzzle_index <= 24 then
     palette_num = 2
@@ -301,6 +301,17 @@ return function (puzzle_index)
   local glaze_tile_opacity_in_game = {0.7, 0.8, 0.6}
   glaze_tile_opacity_in_game = glaze_tile_opacity_in_game[palette_num]
 
+  local still = {}
+  local still_offs = {}
+  local register_still_sprite_set = function (set_name, offs)
+    local t = {}
+    still[set_name] = t
+    for k, v in pairs(offs) do
+      t[k] = string.format('still/p%d-%s-%s', palette_num, set_name, k)
+    end
+    still_offs[set_name] = offs
+  end
+
   -- Obstacles
   local obst_offs = {}
   if palette_num == 1 then
@@ -319,10 +330,14 @@ return function (puzzle_index)
     obst_offs['2.1'] = {-0.05, -0.2}
     obst_offs['2.2'] = {0, -0.2}
   end
-  local obst_name = {}
-  for k, v in pairs(obst_offs) do
-    obst_name[k] = string.format('still/p%d-obst-%s', palette_num, k)
-  end
+  register_still_sprite_set('obst', obst_offs)
+
+  -- Rebound obstacles
+  local rebound_offs = {}
+  rebound_offs['1.1'] = {0.03, 0}
+  rebound_offs['1.2'] = {0.1, 0.03}
+  rebound_offs['1.3'] = {0, -0.03}
+  register_still_sprite_set('rebound', rebound_offs)
 
   local aseq = {}
   -- Butterfly
@@ -432,19 +447,18 @@ return function (puzzle_index)
     love.graphics.setColor(1, 1, 1)
     board.each('obstacle', function (o)
       if not o.empty_background then
-        local id = o.image or '1'
-        obj_img(obst_name[id], o.r, o.c,
-          0.5 + obst_offs[id][1],
-          0.5 + obst_offs[id][2])
+        local id = o.image
+        obj_img(still.obst[id], o.r, o.c,
+          0.5 + still_offs.obst[id][1],
+          0.5 + still_offs.obst[id][2])
       end
     end)
 
     board.each('reflect_obstacle', function (o)
-      love.graphics.setColor(1, 0.8, 0.7, 0.5)
-      love.graphics.rectangle('fill',
-        board_offs_x + cell_w * o.c,
-        board_offs_y + cell_w * o.r,
-        cell_w, cell_w)
+      local id = o.image
+      obj_img(still.rebound[id], o.r, o.c,
+        0.5 + still_offs.rebound[id][1],
+        0.5 + still_offs.rebound[id][2])
     end)
 
     board.each('chameleon', function (o)
