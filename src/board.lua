@@ -26,10 +26,12 @@ function Board.create(puzzle)
     if o.range_y ~= nil and o.range_y < 0 then
       o.r = o.r + o.range_y
       o.range_y = -o.range_y
+      o.range_y_flipped = true
     end
     if o.range_x ~= nil and o.range_x < 0 then
       o.c = o.c + o.range_x
       o.range_x = -o.range_x
+      o.range_x_flipped = true
     end
     if name == 'bloom' then
       o.used = false

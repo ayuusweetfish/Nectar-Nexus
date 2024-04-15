@@ -441,7 +441,7 @@ return function (puzzle_index)
   end
   local aseq_proceed = function (seq_name, rate)
     local list = aseq[seq_name]
-    return list[math.floor(rate * (#list - 1)) + 1]
+    return list[math.min(#list, math.floor(rate * #list) + 1)]
   end
 
   local pop_scale_effect = function (anim_progress)
@@ -576,7 +576,7 @@ return function (puzzle_index)
     local chameleon_anim_progress = {}
 
     board.each('chameleon', function (o)
-      local anim_progress = clamp_01((since_anim - 50) / 60)
+      local anim_progress = clamp_01((since_anim - 50) / 180)
       local provoke_progress = (o.provoked and 1 or 0)
       local eat_progress = 0
       if anim_progress < 1 then
@@ -584,12 +584,12 @@ return function (puzzle_index)
         local a_eat = find_anim(o, 'eat')
         local a_idle = find_anim(o, 'return_idle')
         if a_provoke then
-          provoke_progress = ease_quad_in_out(anim_progress)
+          provoke_progress = ease_quad_in_out(clamp_01(anim_progress * 3))
         elseif a_eat then
           provoke_progress = -1
           eat_progress = ease_quad_in_out(anim_progress)
         elseif a_idle then
-          provoke_progress = 1 - ease_quad_in_out(anim_progress)
+          provoke_progress = 1 - ease_quad_in_out(clamp_01(anim_progress * 3))
         end
       end
       chameleon_anim_progress[o] = {eat_progress, provoke_progress}
@@ -744,28 +744,46 @@ return function (puzzle_index)
 
     board.each('chameleon', function (o)
       local eat_progress, provoke_progress = unpack(chameleon_anim_progress[o])
-      local aseq_frames = {}  -- {name, alpha}
+      local aseq_frames = {}  -- {name, alpha, x, y (offset when left-extending)}
+      local eat_progress_alpha = 1
       if provoke_progress == -1 then
-        eat_progress = math.min(1, eat_progress * 1.1)
-        local f1 = aseq_proceed('chameleon-body', eat_progress)
-        local alpha = math.sqrt(math.min(eat_progress / 0.3))
-        aseq_frames[#aseq_frames + 1] = {f1, alpha}
-        local f2 = aseq_proceed('chameleon-tongue-4', eat_progress)
-        aseq_frames[#aseq_frames + 1] = {f2, alpha}
+        local alpha = math.sqrt(clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
+        eat_progress_alpha = math.sqrt(clamp_01((1 - eat_progress) / 0.25))
+
+        local f1 = aseq_proceed('chameleon-body',
+          clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
+        aseq_frames[#aseq_frames + 1] = {f1, alpha, 3.58, 2.53}
+
+        local prog2 = clamp_01((eat_progress - 0.25) / (0.75 - 0.25))
+        if prog2 > 0 and prog2 < 1 then
+          local f2 = aseq_proceed('chameleon-tongue-4', prog2)
+          aseq_frames[#aseq_frames + 1] = {f2, alpha, -1.2, -0.1}
+        end
       end
       if provoke_progress > 0 or provoke_progress == -1 then
         if provoke_progress == -1 then provoke_progress = 1 end
         local f = aseq_proceed('chameleon-eye', provoke_progress)
-        local alpha = math.sqrt(math.min(provoke_progress / 0.3))
-        aseq_frames[#aseq_frames + 1] = {f, alpha}
+        local alpha = math.sqrt(math.min(provoke_progress / 0.3)) * eat_progress_alpha
+        aseq_frames[#aseq_frames + 1] = {f, alpha, -1.2, -0.1}
       end
+      -- Recover original range x/y
+      local r, c, rx, ry = o.r, o.c, o.range_x, o.range_y
+      if o.range_x_flipped then
+        c = c + o.range_x
+        rx = -rx
+      end
+      if o.range_y_flipped then
+        r = r + o.range_y
+        ry = -ry
+      end
+      -- Offset images
       for i = 1, #aseq_frames do
-        local f, alpha = unpack(aseq_frames[i])
+        local f, alpha, offs_x, offs_y = unpack(aseq_frames[i])
         love.graphics.setColor(1, 1, 1, alpha)
         draw.img(
           f,
-          board_offs_x + cell_w * (o.c + 0.5),
-          board_offs_y + cell_w * (o.r + 0.5),
+          board_offs_x + cell_w * (c + 0.5 + offs_x),
+          board_offs_y + cell_w * (r + 0.5 + offs_y),
           draw.get(f):getWidth() * cell_scale * global_scale
         )
       end
