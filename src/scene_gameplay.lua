@@ -24,7 +24,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 21 -- #puzzles
+  puzzle_index = puzzle_index or 26 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -287,6 +287,7 @@ return function (puzzle_index)
   }
   bg_tint = bg_tint[palette_num]
 
+  -- Glaze tiles
   local glaze_tile_name = string.format('still/p%d-tiles', palette_num)
   local glaze_tile_tex = draw.get(glaze_tile_name)
   local glaze_tile_quads = {}
@@ -299,6 +300,17 @@ return function (puzzle_index)
   end
   local glaze_tile_opacity_in_game = {0.7, 0.8, 0.6}
   glaze_tile_opacity_in_game = glaze_tile_opacity_in_game[palette_num]
+
+  -- Obstacles
+  local obst_offs = {}
+  if palette_num == 3 then
+    obst_offs['1'] = {0, -0.1}
+    obst_offs['2.1'] = {-0.1, -0.2}
+  end
+  local obst_name = {}
+  for k, v in pairs(obst_offs) do
+    obst_name[k] = string.format('still/p%d-obst-%s', palette_num, k)
+  end
 
   local aseq = {}
   -- Butterfly
@@ -380,6 +392,7 @@ return function (puzzle_index)
     end
 
     -- Objects
+--[[
     board.each('obstacle', function (o)
       if not o.empty_background then
         love.graphics.setColor(0.7, 0.7, 0.7, 0.5)
@@ -389,6 +402,17 @@ return function (puzzle_index)
           cell_w, cell_w)
       end
     end)
+]]
+    love.graphics.setColor(1, 1, 1)
+    board.each('obstacle', function (o)
+      if not o.empty_background then
+        local id = o.image or '1'
+        draw.img(obst_name[id],
+          board_offs_x + cell_w * (o.c + 0.5 + obst_offs[id][1]),
+          board_offs_y + cell_w * (o.r + 0.5 + obst_offs[id][2]))
+      end
+    end)
+
     board.each('reflect_obstacle', function (o)
       love.graphics.setColor(1, 0.8, 0.7, 0.5)
       love.graphics.rectangle('fill',
@@ -426,12 +450,36 @@ return function (puzzle_index)
         cell_w * ((o.range_x or 0) + 1),
         cell_w * ((o.range_y or 0) + 1))
     end)
+
+--[[
     board.each('bloom', function (o)
       local used_rate = (o.used and 1 or 0)
       local anim_progress = clamp_01(since_anim / 50)
       if anim_progress < 1 and find_anim(o, 'use') then
         used_rate = ease_exp_out(anim_progress)
       end
+      love.graphics.setColor(1, 0.4, 0.5, 1 - 0.8 * used_rate)
+      love.graphics.circle('fill',
+        board_offs_x + cell_w * (o.c + 0.5),
+        board_offs_y + cell_w * (o.r + 0.5),
+        cell_w * (0.15 + 0.25 * used_rate))
+
+      local used_rate = (o.used and 1 or 0)
+      local anim_progress = clamp_01(since_anim / 90)
+      if anim_progress < 1 and find_anim(o, 'use') then
+        used_rate = ease_exp_out(anim_progress)
+      end
+      psys_by_obj[o].ordinary_fade = used_rate
+    end)
+]]
+    board.each('bloom', function (o)
+      local used_rate = (o.used and 1 or 0)
+      local anim_progress = clamp_01(since_anim / 50)
+      if anim_progress < 1 and find_anim(o, 'use') then
+        used_rate = ease_exp_out(anim_progress)
+      end
+
+      -- TODO
       love.graphics.setColor(1, 0.4, 0.5, 1 - 0.8 * used_rate)
       love.graphics.circle('fill',
         board_offs_x + cell_w * (o.c + 0.5),

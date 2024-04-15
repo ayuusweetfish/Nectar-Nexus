@@ -88,5 +88,11 @@ if true; then
       crop=1588x+3+0
     fi
     convert $from/*瓷砖.png -crop $crop +repage -resize 1600x800\! -quality 100 $dir-tiles.jpg
+
+    for i in $from/*障碍物*; do
+      bn=`basename $i`
+      id=${bn:11}
+      cp $i $dir-obst-$id
+    done
   done
 fi
