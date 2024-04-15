@@ -415,6 +415,24 @@ return function (puzzle_index)
   for i = 1, 8 do
     aseq['bloom-visited'][i] = string.format('bloom/visited/%02d', i)
   end
+  -- Chameleon
+  aseq['chameleon-eye'] = {}
+  for i = 1, 25 do
+    aseq['chameleon-eye'][i] = string.format('chameleon/p%d-eye/%02d', palette_num, i)
+  end
+  aseq['chameleon-body'] = {}
+  for i = 1, 3 do
+    aseq['chameleon-body'][i] = string.format('chameleon/p%d-body/%02d', palette_num, i)
+  end
+  for d = 1, 6 do
+    local t = {}
+    aseq[string.format('chameleon-tongue-%d', d)] = t
+    for i = 1, 8 do
+      local name = string.format('chameleon/p%d-tongue/%d-%d', palette_num, d, i)
+      if not draw.get(name) then break end
+      t[i] = name
+    end
+  end
 
   local aseq_loop = function (seq_name, frame_rate)
     local n = math.floor(T / 240 * frame_rate)
@@ -655,11 +673,22 @@ return function (puzzle_index)
         highlight_radius = 1 - ease_quad_in_out(anim_progress)
       end
 
-      local id = o.image
+    --[[
+      local t = T / 240 * 1.5
+      local rel_scale_x = 1 + math.sin(t) * 0.01
+      local rel_scale_y = 1 + math.sin(t + 1.5) * 0.01
+    ]]
       local rel_scale_x, rel_scale_y = 1, 1
+
+      local id = o.image
       local anim_progress = clamp_01((since_anim - 30) / 120)
       if anim_progress < 1 and find_anim(o, 'pollen_visit') then
-        rel_scale_x, rel_scale_y = pop_scale_effect(anim_progress)
+        local sx, sy = pop_scale_effect(anim_progress)
+      --[[
+        rel_scale_x = rel_scale_x * sx
+        rel_scale_y = rel_scale_y * sy
+      ]]
+        rel_scale_x, rel_scale_y = sx, sy
       end
       local rotation = (o.rotation or 0) * math.pi / 2
       obj_img(still.pollen[id], o.r, o.c,
@@ -715,7 +744,31 @@ return function (puzzle_index)
 
     board.each('chameleon', function (o)
       local eat_progress, provoke_progress = unpack(chameleon_anim_progress[o])
-      -- TODO
+      local aseq_frames = {}  -- {name, alpha}
+      if provoke_progress == -1 then
+        eat_progress = math.min(1, eat_progress * 1.1)
+        local f1 = aseq_proceed('chameleon-body', eat_progress)
+        local alpha = math.sqrt(math.min(eat_progress / 0.3))
+        aseq_frames[#aseq_frames + 1] = {f1, alpha}
+        local f2 = aseq_proceed('chameleon-tongue-4', eat_progress)
+        aseq_frames[#aseq_frames + 1] = {f2, alpha}
+      end
+      if provoke_progress > 0 or provoke_progress == -1 then
+        if provoke_progress == -1 then provoke_progress = 1 end
+        local f = aseq_proceed('chameleon-eye', provoke_progress)
+        local alpha = math.sqrt(math.min(provoke_progress / 0.3))
+        aseq_frames[#aseq_frames + 1] = {f, alpha}
+      end
+      for i = 1, #aseq_frames do
+        local f, alpha = unpack(aseq_frames[i])
+        love.graphics.setColor(1, 1, 1, alpha)
+        draw.img(
+          f,
+          board_offs_x + cell_w * (o.c + 0.5),
+          board_offs_y + cell_w * (o.r + 0.5),
+          draw.get(f):getWidth() * cell_scale * global_scale
+        )
+      end
     end)
 
     -- Particle systems (under butterflies)
