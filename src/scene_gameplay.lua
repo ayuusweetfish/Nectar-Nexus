@@ -21,7 +21,7 @@ return function (puzzle_index)
   local W, H = W, H
   local font = _G['font_Imprima']
 
-  puzzle_index = puzzle_index or 23 -- #puzzles
+  puzzle_index = puzzle_index or 10 -- #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
   local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
@@ -261,19 +261,33 @@ return function (puzzle_index)
   end
 
   local aseq = {}
-  aseq.butterfly_idle_side = {}
-  aseq.butterfly_idle_front = {}
-  aseq.butterfly_idle_back = {}
-  for i = 1, 16 do
-    aseq.butterfly_idle_side[i] = string.format('butterflies/idle-side/%02d', i)
-    aseq.butterfly_idle_front[i] = string.format('butterflies/idle-front/%02d', i)
-    aseq.butterfly_idle_back[i] = string.format('butterflies/idle-back/%02d', i)
+  for _, n in ipairs({
+    'idle-side', 'idle-front', 'idle-back'
+  }) do
+    full_name = 'butterfly-' .. n
+    aseq[full_name] = {}
+    for i = 1, 16 do
+      aseq[full_name][i] = string.format('butterflies/%s/%02d', n, i)
+    end
+  end
+  for _, n in ipairs({
+    'turn-front-side', 'turn-back-side', 'turn-side-front', 'turn-side-back',
+  }) do
+    full_name = 'butterfly-' .. n
+    aseq[full_name] = {}
+    for i = 1, 6 do
+      aseq[full_name][i] = string.format('butterflies/%s/%02d', n, i)
+    end
   end
 
-  local aseq_get = function (seq_name, frame_rate)
+  local aseq_loop = function (seq_name, frame_rate)
     local n = math.floor(T / 240 * frame_rate)
     local list = aseq[seq_name]
     return list[n % #list + 1]
+  end
+  local aseq_proceed = function (seq_name, rate)
+    local list = aseq[seq_name]
+    return list[math.floor(rate * (#list - 1)) + 1]
   end
 
   s.draw = function ()
@@ -490,20 +504,70 @@ return function (puzzle_index)
       local x0, y0 = unpack(butterfly_animated_pos[o])
       love.graphics.setColor(1, 1, 1)
 
+      local aseq_frame = nil
+
+      -- Idle sequence
       local idle_aseq
-      local idle_flip = false
+      local flip = false
       if o.dir == 2 then
-        idle_aseq = 'butterfly_idle_front'
+        idle_aseq = 'butterfly-idle-front'
       elseif o.dir == 4 then
-        idle_aseq = 'butterfly_idle_back'
+        idle_aseq = 'butterfly-idle-back'
       else
-        idle_aseq = 'butterfly_idle_side'
-        idle_flip = (o.dir == 3)
+        idle_aseq = 'butterfly-idle-side'
+        flip = (o.dir == 3)
+      end
+      aseq_frame = aseq_loop(idle_aseq, 24)
+
+      -- Turn sequence
+      local anim_progress = clamp_01(since_anim / 50)
+      if anim_progress < 1 then
+        local a = find_anim(o, 'turn')
+        if a ~= nil then
+          local to_angle = (o.dir - 1)
+          local from_angle = (a.from_dir - 1)
+          local diff = (to_angle - from_angle + 4) % 4
+          if diff == 3 then diff = -1 end
+
+          if diff == 2 then
+            diff = 1
+            if anim_progress < 0.5 then
+              anim_progress = anim_progress * 2
+              to_angle = (from_angle + 1) % 4
+            else
+              anim_progress = (anim_progress - 0.5) * 2
+              to_angle = (from_angle + 2) % 4
+              from_angle = (from_angle + 1) % 4
+            end
+          else
+            anim_progress = math.min(1, anim_progress * 2)
+          end
+
+          local turn_aseq = nil
+          -- 0 - 1, 2 - 1: side-front (flip false/true)
+          -- 1 - 0, 1 - 2: front-side (flip false/true)
+          -- 0 - 3, 2 - 3: side-back (flip false/true)
+          -- 3 - 0, 3 - 2: back-side (flip false/true)
+          if to_angle == 1 then
+            turn_aseq = 'butterfly-turn-side-front'
+            flip = (from_angle == 2)
+          elseif to_angle == 3 then
+            turn_aseq = 'butterfly-turn-side-back'
+            flip = (from_angle == 2)
+          elseif from_angle == 1 then
+            turn_aseq = 'butterfly-turn-front-side'
+            flip = (to_angle == 2)
+          elseif from_angle == 3 then
+            turn_aseq = 'butterfly-turn-back-side'
+            flip = (to_angle == 2)
+          end
+          aseq_frame = aseq_proceed(turn_aseq, anim_progress)
+        end
       end
 
       draw.img(
-        aseq_get(idle_aseq, 24),
-        x0, y0, cell_w * (idle_flip and -2 or 2), cell_w * 2)
+        aseq_frame,
+        x0, y0, cell_w * (flip and -2 or 2), cell_w * 2)
     end)
 
     -- Particle systems (above butterflies)
