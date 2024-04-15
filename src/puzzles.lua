@@ -1,5 +1,5 @@
 return {
-  test = 11,  -- ** 修改【起始关卡编号】 ** --
+  test = 10,  -- ** 修改【起始关卡编号】 ** --
 
   -- ** 搜索文本可以直接跳转到关卡 ** --
   -- ** 例如，搜索“谜题1” ** --
@@ -21,8 +21,8 @@ return {
     size = {3, 8},
     objs = {
       {'bloom', 1, 4},
-      {'pollen', 1, 6, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 7, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 6, group = 1, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 7, group = 1, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 1, dir = 4},
     },
   },
@@ -35,8 +35,8 @@ return {
       {'bloom', 0, 8},
       {'pollen', 2, 3, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 2, 4, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 5, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 7, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 5, group = 2, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 7, group = 2, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 2, 1, dir = 1},
     },
   },
@@ -47,10 +47,10 @@ return {
     objs = {
       {'bloom', 3, 6},
       {'bloom', 0, 6},
-      {'pollen', 1, 3, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 4, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 5, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 6, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 3, group = 1, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 4, group = 1, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 5, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 6, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 1, dir = 1},
     },
   },
@@ -127,8 +127,8 @@ return {
       {'bloom', 2, 3},
       {'pollen', 2, 5, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 2, 6, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 5, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 6, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 5, group = 2, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 6, group = 2, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 0, dir = 1},
       {'butterfly', 4, 4, dir = 4},
     },
@@ -142,12 +142,12 @@ return {
       {'bloom', 4, 3},
       {'bloom', 2, 6},
       {'bloom', 1, 7},
-      {'pollen', 2, 5, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 7, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 5, group = 1, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 7, group = 1, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 3, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 5, 3, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 4, 1, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 4, 5, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 4, 1, group = 3, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 4, 5, group = 3, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 0, dir = 1},
       {'butterfly', 2, 3, dir = 1},
     },
@@ -162,10 +162,10 @@ return {
     objs = {
       {'bloom', 2, 0},
       {'weeds', 2, 4},
-      {'pollen', 0, 1, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 0, 3, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 1, group = 2, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 3, group = 2, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 1, group = 1, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 3, group = 1, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 1, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 3, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 4, 1, group = 3, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 4, 3, group = 3, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 2, 2, dir = 1},
@@ -201,8 +201,8 @@ return {
       {'pollen', 1, 1, group = 3, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 1, 5, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 1, 6, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 5, group = 4, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 6, group = 4, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 5, group = 4, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 6, group = 4, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 0, 2, dir = 1},
     },
   },
@@ -216,14 +216,14 @@ return {
       {'bloom', 2, 4},
       {'bloom', 3, 4},
       {'weeds', 2, 3},
-      {'pollen', 0, 3, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 3, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 0, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 1, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 3, group = 1, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 3, group = 1, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 0, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 1, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 2, 5, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 2, 6, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 5, group = 4, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 6, group = 4, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 5, group = 4, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 6, group = 4, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 2, dir = 1},
     },
   },
@@ -237,10 +237,10 @@ return {
       {'bloom', 2, 7},
       {'pollen', 1, 1, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 1, 5, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 0, 1, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 0, 5, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 1, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 5, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 1, group = 2, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 5, group = 2, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 1, group = 3, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 5, group = 3, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 2, dir = 1},
     },
   },
@@ -253,10 +253,10 @@ return {
       {'bloom', 5, 3},
       {'bloom', 6, 4},
       {'bloom', 3, 3},
-      {'pollen', 0, 3, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 0, 4, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 3, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 4, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 3, group = 1, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 0, 4, group = 1, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 3, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 4, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 4, 3, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 4, 4, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 2, 0, dir = 1},
@@ -286,8 +286,8 @@ return {
       {'bloom', 1, 3},
       {'pollen', 0, 2, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 1, 2, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 3, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 4, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 3, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 4, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 3, 4, dir = 3},
       {'butterfly', 4, 4, dir = 3},
     },
@@ -304,10 +304,10 @@ return {
       {'weeds', 2, 3},
       {'bloom', 3, 7},
       {'bloom', 4, 7},
-      {'pollen', 1, 1, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 7, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 1, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 7, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 1, group = 1, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 7, group = 1, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 1, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 7, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 2, 5, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 6, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 4, dir = 1},
@@ -325,10 +325,10 @@ return {
       {'weeds', 3, 4},
       {'pollen', 0, 3, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 1, 3, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 3, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 4, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 5, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 5, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 3, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 4, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 5, group = 3, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 5, group = 3, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 2, 6, dir = 3},
     },
   },
@@ -349,8 +349,8 @@ return {
       {'bloom', 4, 5},
       {'pollen', 1, 3, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 2, 3, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 4, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 4, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 4, group = 2, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 4, group = 2, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'chameleon', 2, 5, range_x = -3},
       {'butterfly', 0, 3, dir = 2},
     },
@@ -365,10 +365,10 @@ return {
       {'obstacle', 5, 0, empty_background = true}, {'obstacle', 5, 1, empty_background = true}, {'obstacle', 5, 2, empty_background = true}, {'obstacle', 5, 3, empty_background = true}, {'obstacle', 5, 4, empty_background = true}, {'obstacle', 5, 5, empty_background = true},
       {'weeds', 2, 2},
       {'bloom', 2, 5},
-      {'pollen', 2, 7, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 8, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 5, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 6, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 7, group = 1, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 8, group = 1, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 5, group = 2, image = '5.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 6, group = 2, image = '5.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 5, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 6, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'chameleon', 3, 4, range_y = -2},
@@ -388,8 +388,8 @@ return {
       {'bloom', 4, 3},
       {'pollen', 5, 0, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 5, 3, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 1, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 2, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 1, group = 2, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 2, group = 2, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'chameleon', 3, 7, range_x = -4},
       {'butterfly', 0, 2, dir = 1},
       {'butterfly', 1, 2, dir = 1},
@@ -408,12 +408,12 @@ return {
       {'bloom', 4, 3},
       {'bloom', 1, 6},
       {'bloom', 1, 7},
-      {'pollen', 1, 2, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 8, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 2, group = 1, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 8, group = 1, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 2, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 4, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 5, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 5, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 5, group = 3, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 5, group = 3, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'chameleon', 2, 5, range_x = -3},
       {'butterfly', 2, 1, dir = 1},
     },
@@ -440,10 +440,10 @@ return {
       {'bloom', 5, 5},
       {'pollen', 6, 2, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 7, 2, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 6, 4, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 7, 4, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 6, 6, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 7, 6, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 6, 4, group = 2, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 7, 4, group = 2, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 6, 6, group = 3, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 7, 6, group = 3, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 0, 3, dir = 2},
     },
   },
@@ -465,10 +465,10 @@ return {
       {'bloom', 4, 2},
       {'chameleon', 2, 2, range_x = 2},
       {'chameleon', 4, 5, range_y = -1},
-      {'pollen', 3, 1, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 3, 2, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 1, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 2, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 1, group = 1, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 2, group = 1, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 1, group = 2, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 2, group = 2, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 1, 4, dir = 1},
     },
   },
@@ -488,8 +488,8 @@ return {
       {'bloom', 5, 6},
       {'pollen', 3, 8, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 9, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 8, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 5, 9, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 8, group = 2, image = '3.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 5, 9, group = 2, image = '3.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'chameleon', 3, 9, range_y = 2},
       {'butterfly', 0, 5, dir = 2},
     },
@@ -510,10 +510,10 @@ return {
       {'chameleon', 3, 2, range_x = 2},
       {'pollen', 3, 2, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'pollen', 3, 4, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 1, 5, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 5, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 1, group = 3, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 2, group = 3, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 1, 5, group = 2, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 5, group = 2, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 1, group = 3, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 2, group = 3, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 4, 4, dir = 1},
     },
   },
@@ -528,10 +528,10 @@ return {
       {'bloom', 5, 1},
       {'bloom', 4, 8},
       {'chameleon', 2, 5, range_y = 3},
-      {'pollen', 3, 6, group = 1, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 2, 4, group = 1, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 4, 6, group = 2, image = '1.1'},  -- ** 修改 image【传粉花图片编号】 ** --
-      {'pollen', 4, 7, group = 2, image = '1.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 3, 6, group = 1, image = '4.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 2, 4, group = 1, image = '4.2'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 4, 6, group = 2, image = '2.1'},  -- ** 修改 image【传粉花图片编号】 ** --
+      {'pollen', 4, 7, group = 2, image = '2.2'},  -- ** 修改 image【传粉花图片编号】 ** --
       {'butterfly', 3, 2, dir = 1},
     },
   },
