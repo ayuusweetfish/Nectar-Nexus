@@ -68,6 +68,34 @@ if false; then
 fi
 
 if true; then
+  # Bloom
+  rm -rf bloom
+  mkdir bloom
+  Xc=$((Xo + 550))
+  Yc=$((Yo + 150))
+  W=120
+  H=120
+  X=$((Xc - W/2))
+  Y=$((Yc - H/2))
+  for i in ../img/吸引花元件/吸引花/*; do (
+    dir=$ORIG_WD/bloom/`basename $i`
+    echo $i $dir
+    mkdir -p $dir
+    cd $i
+    for j in {1..20}; do
+      if [ -e *-$j.png ]; then
+        convert *-$j.png -crop ${W}x${H}+${X}+${Y} +repage $dir/`printf "%02d" $j`.png
+      fi
+    done
+  ); done
+  (
+    cd bloom
+    mv 待机 idle
+    mv 开放 visited
+  )
+fi
+
+if false; then
   # Still
   rm -rf still
   mkdir still

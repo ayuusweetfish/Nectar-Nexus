@@ -306,8 +306,8 @@ function Board.create(puzzle)
     if r == nil then
       local changes, anims = move_insects(nil, nil)
       if #changes == 0 then
-        -- Nothing happens
-        return nil
+        -- Nothing happens, but return the animations anyway
+        return anims
       end
       undo[#undo + 1] = changes
       return anims
