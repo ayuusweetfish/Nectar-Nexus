@@ -5,9 +5,9 @@ local shader_light = love.graphics.newShader([[
 uniform float fade;
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
   float alpha;
-  alpha = clamp(1 - 2 * length(vec2(texture_coords.x - 0.5, (texture_coords.y - 0.5) * 1.1)) - fade, 0.0, 1.0);
+  alpha = clamp(1.0 - 2.0 * length(vec2(texture_coords.x - 0.5, (texture_coords.y - 0.5) * 1.1)) - fade, 0.0, 1.0);
   // Map [0, 1 - fade] onto [0, (1 - fade)^2], with a sine easing
-  alpha = (sin((alpha / (1 - fade) - 0.5) * 3.14159265359) + 1) / 2 * (1 - fade) * (1 - fade);
+  alpha = (sin((alpha / (1.0 - fade) - 0.5) * 3.14159265359) + 1.0) / 2.0 * (1.0 - fade) * (1.0 - fade);
   return vec4(color.rgb, alpha);
 }
 ]])
