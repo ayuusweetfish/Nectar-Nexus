@@ -22,129 +22,6 @@ local clamp_01 = function (x)
   else return x end
 end
 
-local glow_colours = {
-  {
-    {1, 0.559168, 0},
-    {0.802, 0.046516, 0.780655},
-    {0.092556, 0.857, 0.838502},
-    {0.201596, 0.118656, 0.927},
-  }, {
-    {1, 0.298, 0.370283},
-    {1, 0.948875, 0.023},
-    {0.733127, 1, 0.4},
-    {1, 0.613995, 0.558},
-  }, {
-    {0.797314, 1, 0.473},
-    {0.216216, 0.591241, 0.792},
-    {0.163329, 0.115251, 0.937},
-    {0.847555, 0.506656, 0.892},
-  }
-}
-
-local create_colour_picker = function (tint, fn)
-  local s = {}
-  s.x = 0
-  s.y = 0
-  s.w = 100
-  s.h = 100
-  s.r = 200
-
-  local rgb_to_hsv = function (r, g, b)
-    local cmax = math.max(r, g, b)
-    local cmin = math.min(r, g, b)
-    local delta = cmax - cmin
-    local h
-    if delta == 0 then h = 0
-    elseif cmax == r then h = 60 * ((g - b) / delta % 6)
-    elseif cmax == g then h = 60 * ((b - r) / delta + 2)
-    else h = 60 * ((r - g) / delta + 4) end
-    local s = (cmax == 0 and 0 or (delta / cmax))
-    return h, s, cmax
-  end
-
-  local hsv_to_rgb = function (h, s, v)
-    local c = v * s
-    local x = c * (1 - math.abs((h / 60) % 2 - 1))
-    local m = v - c
-    local r, g, b
-    if h < 60 then r, g, b = c, x, 0
-    elseif h < 120 then r, g, b = x, c, 0
-    elseif h < 180 then r, g, b = 0, c, x
-    elseif h < 240 then r, g, b = 0, x, c
-    elseif h < 300 then r, g, b = x, 0, c
-    else r, g, b = c, 0, x end
-    return (r + m), (g + m), (b + m)
-  end
-
-  local tint_h, tint_s, tint_v = rgb_to_hsv(unpack(tint))
-
-  local held = false
-  local held_type   -- 0: square; 1: circle
-
-  s.press = function (x, y)
-    if (x - s.x) ^ 2 + (y - s.y) ^ 2 <= s.r ^ 2 then
-      if x >= s.x - s.w/2 and x <= s.x + s.w/2 and
-         y >= s.y - s.h/2 and y <= s.y + s.h/2 then
-        held_type = 0
-      else
-        held_type = 1
-      end
-      held = true
-      s.move(x, y)
-      return true
-    end
-  end
-
-  s.move = function (x, y)
-    if not held then return false end
-    if held_type == 0 then
-      local x1 = clamp_01((x - s.x) / s.w + 0.5)
-      local y1 = clamp_01((y - s.y) / s.h + 0.5)
-      tint_s = x1
-      tint_v = 1 - y1
-    else
-      local r = math.atan2(y - s.y, x - s.x)
-      tint_h = (r / math.pi * 180 + 360 + 90) % 360
-    end
-    fn(hsv_to_rgb(tint_h, tint_s, tint_v))
-    return true
-  end
-
-  s.release = function (x, y)
-    if held then
-      held = false
-      return true
-    end
-  end
-
-  s.draw = function ()
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.circle('line', s.x, s.y, s.r - 7.5)
-
-    -- Knob
-    love.graphics.setColor(1, 1, 1)
-    local angle = (tint_h - 90) / 360 * math.pi * 2
-    love.graphics.circle('fill',
-      s.x + (s.r - 5) * math.cos(angle),
-      s.y + (s.r - 5) * math.sin(angle),
-      15
-    )
-
-    love.graphics.setColor(1, 1, 1)
-    love.graphics.rectangle('fill', s.x - s.w / 2, s.y - s.h / 2, s.w, s.h)
-
-    -- Knob
-    love.graphics.setColor(0, 0, 0)
-    love.graphics.circle('line',
-      s.x - s.w / 2 + s.w * tint_s,
-      s.y - s.h / 2 + s.h * (1 - tint_v),
-      15
-    )
-  end
-
-  return s
-end
-
 return function (puzzle_index)
   local s = {}
   local W, H = W, H
@@ -338,17 +215,10 @@ return function (puzzle_index)
     return true
   end
 
-  local show_colour_picker  -- function
-
   -- 1 ~ 9: trigger blossom
   -- 0/Enter/Tab/Space/N: move on without triggering blossom
   -- Backspace/Z/P/U/R: undo
   s.key = function (key)
-    if key == 'space' then
-      show_colour_picker()
-      return
-    end
-
     if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
@@ -569,6 +439,25 @@ return function (puzzle_index)
   end
 
   -- Particles
+  local glow_colours = {
+    {
+      {1, 0.559168, 0},
+      {0.802, 0.046516, 0.780655},
+      {0.092556, 0.857, 0.838502},
+      {0.201596, 0.118656, 0.927},
+    }, {
+      {1, 0.298, 0.370283},
+      {1, 0.948875, 0.023},
+      {0.733127, 1, 0.4},
+      {1, 0.613995, 0.558},
+    }, {
+      {0.797314, 1, 0.473},
+      {0.216216, 0.591241, 0.792},
+      {0.163329, 0.115251, 0.937},
+      {0.847555, 0.506656, 0.892},
+    }
+  }
+
   local psys = {}
   local psys_by_obj = {}
   local obj_by_psys = {}
@@ -582,41 +471,6 @@ return function (puzzle_index)
     psys_by_obj[o] = p
     obj_by_psys[p] = o
   end)
-
-  -- Colour picker
-  local colour_picker_group_num = 0
-  show_colour_picker = function ()
-    colour_picker_group_num = colour_picker_group_num % #glow_colours[palette_num] + 1
-    local group_num = colour_picker_group_num
-    colour_picker = create_colour_picker(
-      glow_colours[palette_num][group_num],
-      function (r, g, b)
-        glow_colours[palette_num][group_num] = {r, g, b}
-        board.each('pollen', function (o)
-          local r, g, b = unpack(glow_colours[palette_num][o.group])
-          psys_by_obj[o].tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
-        end)
-        -- Save
-        local text = {}
-        for i = 1, #glow_colours do
-          for j = 1, #glow_colours[i] do
-            local r, g, b = unpack(glow_colours[i][j])
-            text[#text + 1] = string.format('%g %g %g', r, g, b)
-          end
-          text[#text + 1] = ''
-        end
-        -- local success, message = love.filesystem.write('tint.txt', table.concat(text, '\n'))
-        local f = io.open('tint.txt', 'w')
-        f:write(table.concat(text, '\n'))
-        f:close()
-      end
-    )
-    colour_picker.w = 200
-    colour_picker.h = 200
-    colour_picker.r = 180
-    colour_picker.x = W * 0.97 - colour_picker.r
-    colour_picker.y = H * 0.97 - colour_picker.r
-  end
 
   -- Grid line ranges
   local has_glaze_tile = function (r, c)
