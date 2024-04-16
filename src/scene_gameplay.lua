@@ -64,6 +64,27 @@ return function (puzzle_index)
   local btn_next = button(
     draw.get('icons/next'),
     function ()
+      -- Go back?
+      local vase_end = {
+        [6] = 1,
+        [10] = 2,
+        [14] = 3,
+        [20] = 4,
+        [24] = 5,
+      }
+      if vase_end[puzzle_index] then
+        local other_scene = _G['intro_scene_instance']
+        if other_scene then
+          other_scene.max_vase = vase_end[puzzle_index] + 1
+          other_scene.overlay_back()
+          replaceScene(other_scene)
+          return
+        end
+      elseif puzzle_index == 30 then
+        replaceScene(_G['sceneEnding']())
+        return
+      end
+
       local index = puzzle_index % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
     end,

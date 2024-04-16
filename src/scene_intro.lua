@@ -47,15 +47,20 @@ local scene_intro = function ()
         -- Back (from overlay to scene)
         since_enter_vase = -1
         since_exit_vase = 0
-      end, function (i)
+      end, function (carousel_index)
         -- Confirm
         _G['intro_scene_instance'] = s
-        replaceScene(sceneGameplay(i))
+        local vase_start = {1, 7, 11, 15, 21, 25}
+        replaceScene(sceneGameplay(vase_start[i]))
       end)
     end, scale)
     btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
     btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
     buttons[#buttons + 1] = btn
+  end
+
+  s.overlay_back = function ()
+    overlay.back()
   end
 
   local scroll_main = scroll({
@@ -269,6 +274,11 @@ create_overlay = function (fn_back, fn_confirm)
     end
     scroll_pressed = false
     return true
+  end
+
+  s.back = function ()
+    fn_back()
+    since_exit = 0
   end
 
   s.update = function ()

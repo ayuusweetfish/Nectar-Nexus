@@ -16,10 +16,15 @@ return function ()
   local bloom_held = false
   local since_bloom = -1
 
+  local return_held = false
+
   s.press = function (x, y)
     if since_bloom == -1 and
         (bloom_x - x) ^ 2 + (bloom_y - y) ^ 2 <= (W * 0.04) ^ 2 then
       bloom_held = true
+    end
+    if since_bloom >= 1600 then
+      return_held = true
     end
   end
 
@@ -33,6 +38,12 @@ return function ()
     if since_bloom == -1 and bloom_held and
         (bloom_x - x) ^ 2 + (bloom_y - y) ^ 2 <= (W * 0.04) ^ 2 then
       since_bloom = 0
+    end
+    if return_held then
+      local other_scene = _G['intro_scene_instance']
+      if other_scene then
+        replaceScene(other_scene)
+      end
     end
   end
 
