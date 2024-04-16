@@ -1,7 +1,7 @@
 local imgs = {}
 
 local function load_imgs(path)
-  if path ~= '' and path ~= '/ending' and path:sub(1, 6) ~= '/bloom' and path:sub(1, 7) ~= '/butter' and path ~= '/intro' then return end
+  -- if path ~= '' and path ~= '/ending' and path:sub(1, 6) ~= '/bloom' and path:sub(1, 7) ~= '/butter' and path ~= '/intro' then return end
   local files = love.filesystem.getDirectoryItems('assets_img' .. path)
   for i = 1, #files do
     local basename = files[i]

@@ -134,5 +134,9 @@ return function (options)
     return math.floor(-s.dx / w + 0.5 + 1)
   end
 
+  s.impulse = function (v)
+    inertia_v = inertia_v + v
+  end
+
   return s
 end

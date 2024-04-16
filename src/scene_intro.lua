@@ -24,22 +24,15 @@ local create_overlay
 local scene_intro = function ()
   local s = {}
   local W, H = W, H
-  local font = _G['font_Imprima']
+
+  s.max_vase = 1
 
   local overlay
   local since_enter_vase = -1
   local since_exit_vase = -1
   local vase_offs_x, vase_offs_y = 0, 0
 
-  local t1 = love.graphics.newText(font(80), 'B')
-
-  local btnStart = button(
-    draw.enclose(love.graphics.newText(font(36), 'Start'), 120, 60),
-    function () replaceScene(sceneIntro(), transitions['fade'](0.1, 0.1, 0.1)) end
-  )
-  btnStart.x0 = W * 0.5
-  btnStart.y = H * 0.65
-  local buttons = { btnStart }
+  local buttons = {}
 
   for i = 1, 6 do
     local img = draw.get('intro/large_vase_' .. tostring((i - 1) % 3 + 1))
@@ -70,11 +63,18 @@ local scene_intro = function ()
     x_max = 0,
   })
 
+  local press_x, press_y
+
   s.press = function (x, y)
     if since_exit_vase >= 0 then return true end
     if overlay ~= nil and overlay.press(x, y) then return true end
     scroll_main.press(x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
+
+    if scroll_main.dx >= -W * 0.3 then
+      press_x, press_y = x, y
+      return true
+    end
   end
 
   s.hover = function (x, y)
@@ -96,6 +96,14 @@ local scene_intro = function ()
     if overlay ~= nil and overlay.release(x, y) then return true end
     scroll_main.release(x, y)
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
+
+    if press_x ~= nil then
+      local dist_sq = (x - press_x) ^ 2 + (y - press_y) ^ 2
+      if dist_sq <= (W * 0.03) ^ 2 then
+        scroll_main.impulse(-5)
+      end
+      press_x, press_y = nil
+    end
   end
 
   s.update = function ()
@@ -114,6 +122,7 @@ local scene_intro = function ()
       local b = buttons[i]
       b.x = b.x0 + sdx
       b.update()
+      b.enabled = (i <= s.max_vase)
     end
   end
   s.update()
@@ -147,10 +156,9 @@ local scene_intro = function ()
       pushed_transform = true
     end
 
-    love.graphics.clear(1, 1, 0.99)
+    love.graphics.clear(0, 0, 0)
     love.graphics.setColor(1, 1, 1)
-    draw.img('intro_bg', W / 2 + sdx, H / 2, W, H)
-    draw.shadow(0.95, 0.95, 0.95, 1, t1, W / 2 + sdx, H * 0.35)
+    draw.img('cover', W / 2 + sdx, H / 2, W, H)
 
     love.graphics.setColor(1, 1, 1)
     for i = 1, 3 do
@@ -169,14 +177,19 @@ local scene_intro = function ()
       {'intro/small_vase_5', 0.946, 0.790},
       {'intro/small_vase_6', 0.112, 0.844},
     }
-    for i = 1, #small_vases do
+    local small_vase_limit = {
+      0, 3, 6, 6, 6, 6
+    }
+    for i = 1, small_vase_limit[s.max_vase] do
       local n, x, y = unpack(small_vases[i])
       draw.img(n, W * (1.13 + x) + sdx, H * y,
         draw.get(n):getWidth() * scale)
     end
 
     love.graphics.setColor(1, 1, 1)
-    for i = 1, #buttons do buttons[i].draw() end
+    for i = 1, #buttons do
+      if i <= s.max_vase then buttons[i].draw() end
+    end
 
     if pushed_transform then
       love.graphics.pop()
@@ -270,6 +283,7 @@ create_overlay = function (fn_back, fn_confirm)
       rate = 1 - clamp_01(since_exit / 40)
     end
 
+--[[
     local sdx = scroll_carousel.dx
     love.graphics.setColor(1, 1, 1, ease_quad_in_out(rate))
     love.graphics.setScissor(
@@ -283,6 +297,7 @@ create_overlay = function (fn_back, fn_confirm)
         screen_x_max - screen_x_min, screen_y_max - screen_y_min)
     end
     love.graphics.setScissor()
+]]
   end
 
   s.destroy = function ()

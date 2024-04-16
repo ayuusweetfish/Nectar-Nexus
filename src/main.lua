@@ -46,9 +46,9 @@ _G['sceneIntro'] = require 'scene_intro'
 _G['sceneGameplay'] = require 'scene_gameplay'
 _G['sceneEnding'] = require 'scene_ending'
 
--- local curScene = sceneIntro()
+local curScene = sceneIntro()
 -- local curScene = sceneGameplay()
-local curScene = sceneEnding()
+-- local curScene = sceneEnding()
 local lastScene = nil
 local transitionTimer = 0
 local currentTransition = nil
@@ -59,7 +59,7 @@ _G['replaceScene'] = function (newScene, transition)
   lastScene = curScene
   curScene = newScene
   transitionTimer = 0
-  currentTransition = transition or transitions['fade'](0.9, 0.9, 0.9)
+  currentTransition = transition or transitions['fade'](0.1, 0.1, 0.1)
 end
 
 local mouseScene = nil
