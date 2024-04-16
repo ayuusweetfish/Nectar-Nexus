@@ -25,7 +25,7 @@ local scene_intro = function ()
   local s = {}
   local W, H = W, H
 
-  s.max_vase = 6--1
+  s.max_vase = 1
 
   local overlay
   local since_enter_vase = -1
@@ -51,7 +51,7 @@ local scene_intro = function ()
       end, function (carousel_index)
         -- Confirm
         _G['intro_scene_instance'] = s
-        local vase_start = {1, 7, 11, 15, 21, 25}
+        local vase_start = {1, 7, 11, 17, 21, 25}
         replaceScene(sceneGameplay(vase_start[i]))
       end)
     end, scale)
@@ -65,6 +65,12 @@ local scene_intro = function ()
   s.overlay_back = function ()
     overlay.back()
   end
+
+  local new_vase = function (target)
+    if s.max_vase >= math.min(target, 6) then return end
+    s.max_vase = target
+  end
+  s.new_vase = new_vase
 
   local scroll_main = scroll({
     x_min = -W * 2.3,
@@ -111,6 +117,19 @@ local scene_intro = function ()
         scroll_main.impulse(-5)
       end
       press_x, press_y = nil
+    end
+  end
+
+  s.key = function (key)
+    if key == 'escape' then
+      if overlay then
+        overlay.back()
+      end
+    end
+    if key == 'tab' then
+      if s.max_vase < 6 then
+        new_vase(s.max_vase + 1)
+      end
     end
   end
 
@@ -187,10 +206,10 @@ local scene_intro = function ()
 
       {'intro/small_vase_6', 1.107, 0.296},
       {'intro/small_vase_1', 1.070, 0.762},
-      {'intro/small_vase_4', 1.388, 0.300},
+      {'intro/small_vase_3', 1.395, 0.240},
       {'intro/small_vase_2', 1.600, 0.226},
       {'intro/small_vase_5', 1.940, 0.238},
-      {'intro/small_vase_3', 1.946, 0.790},
+      {'intro/small_vase_4', 1.946, 0.790},
       {'intro/small_vase_1', 2.1, 0.5},
     }
     local small_vase_limit = {
@@ -292,8 +311,10 @@ create_overlay = function (fn_back, fn_confirm)
   end
 
   s.back = function ()
-    fn_back()
-    since_exit = 0
+    if since_exit == -1 then
+      fn_back()
+      since_exit = 0
+    end
   end
 
   s.update = function ()

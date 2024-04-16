@@ -38,10 +38,10 @@ return function (puzzle_index)
   btn_undo = button(
     draw.get('icons/undo'),
     function () btn_undo_fn() end,
-    H * 0.09 / 100
+    H * 0.09 / 100 * 1.5
   )
-  btn_undo.x = W * 0.1
-  btn_undo.y = H * 0.1
+  btn_undo.x = W * 0.14
+  btn_undo.y = H * 0.14
   btn_undo.enabled = false
   btn_undo.response_when_disabled = true
   buttons[#buttons + 1] = btn_undo
@@ -57,7 +57,7 @@ return function (puzzle_index)
     H * 0.09 / 100
   )
   btn_back.x = W * 0.1
-  btn_back.y = H * 0.5
+  btn_back.y = H * 0.85
   buttons[#buttons + 1] = btn_back
 
   local btn_next = button(
@@ -67,14 +67,14 @@ return function (puzzle_index)
       local vase_end = {
         [6] = 1,
         [10] = 2,
-        [14] = 3,
+        [16] = 3,
         [20] = 4,
         [24] = 5,
       }
       if vase_end[puzzle_index] then
         local other_scene = _G['intro_scene_instance']
         if other_scene then
-          other_scene.max_vase = vase_end[puzzle_index] + 1
+          other_scene.new_vase(vase_end[puzzle_index] + 1)
           other_scene.overlay_back()
           replaceScene(other_scene)
           return
@@ -87,10 +87,10 @@ return function (puzzle_index)
       local index = puzzle_index % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
     end,
-    H * 0.09 / 100
+    H * 0.09 / 100 * 1.5
   )
-  btn_next.x = W * 0.9
-  btn_next.y = H * 0.9
+  btn_next.x = W * 0.87
+  btn_next.y = H * 0.84
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 
@@ -259,7 +259,7 @@ return function (puzzle_index)
       end
     end
 
-    if (key == 'left' or key == 'right') and puzzles.debug_arrows then
+    if (key == 'left' or key == 'right') and puzzles.debug_navi then
       local index = (puzzle_index + (key == 'left' and #puzzles - 2 or 0)) % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
     end
@@ -965,7 +965,7 @@ return function (puzzle_index)
 
     -- Text
     love.graphics.setColor(1, 1, 1)
-    draw.img(icon_puzzle_num, W * 0.1, H * 0.9, H * 0.09)
+    draw.img(icon_puzzle_num, W * 0.18, H * 0.85, H * 0.09)
 
     -- Buttons
     for i = 1, #buttons do
