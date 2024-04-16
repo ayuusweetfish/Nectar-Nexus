@@ -2,7 +2,7 @@ return {
   -- Debug use
   test = 14,  -- Puzzle index if directly entering gameplay scene
   chameleon_inspect = 0,  -- Whether chameleons are always displayed
-  debug_navi = false,     -- Whether allow arrow key for quick navigation between puzzles
+  debug_navi = true,     -- Whether allow arrow key for quick navigation between puzzles
 
   ------ Vase 1: Fundamentals ------
   -- Game objective

@@ -177,38 +177,6 @@ return function (puzzle_index)
     trigger_buffer = {}
   end
 
-  local group_colours = {
-    {0.8, 0.5, 1},
-    {0.5, 0.9, 0.5},
-    {0.4, 0.8, 1},
-    {1, 0.8, 0.5},
-  }
-
-  local psys = {}
-  local psys_by_obj = {}
-  local obj_by_psys = {}
-  board.each('pollen', function (o)
-    local p = particles({ scale = cell_scale })
-    p.x = board_offs_x + cell_w * (o.c + 0.5)
-    p.y = board_offs_y + cell_w * (o.r + 0.5)
-    local r, g, b = unpack(group_colours[o.group])
-    p.tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
-    psys[#psys + 1] = p
-    psys_by_obj[o] = p
-    obj_by_psys[p] = o
-  end)
---[[
-  board.each('bloom', function (o)
-    local p = particles({ y_max = 40, x_spread = 40, scale = cell_scale })
-    p.x = board_offs_x + cell_w * (o.c + 0.5)
-    p.y = board_offs_y + cell_w * (o.r + 0.5)
-    p.tint = {1, 0.6, 0.5}
-    psys[#psys + 1] = p
-    psys_by_obj[o] = p
-    obj_by_psys[p] = o
-  end)
-]]
-
   local since_clear = -1
 
   s.press = function (x, y)
@@ -266,26 +234,6 @@ return function (puzzle_index)
   end
 
   local T = 0
-
-  s.update = function ()
-    T = T + 1
-
-    for i = 1, #buttons do buttons[i].update() end
-    since_anim = since_anim + 1 + #trigger_buffer
-    flush_trigger_buffer()
-    for i = 1, #psys do psys[i].update() end
-
-    if since_clear == -1 and board.cleared then
-      since_clear = 0
-    elseif not board.cleared then
-      since_clear = -1
-      btn_next.enabled = false
-    end
-    if since_clear >= 0 then
-      since_clear = since_clear + 1
-      btn_next.enabled = (since_clear >= 240)
-    end
-  end
 
   local find_anim = function (o, name)
     if board_anims == nil then return nil end
@@ -485,6 +433,60 @@ return function (puzzle_index)
     return rel_scale_x, rel_scale_y
   end
 
+  -- Particles
+  -- ** 光点颜色 **
+  local group_colours = {}
+  if palette_num == 1 then
+    -- 蓝
+    group_colours = {
+      {0.8, 0.5, 1.0},
+      {0.5, 0.9, 0.5},
+      {0.4, 0.8, 1.0},
+      {1.0, 0.8, 0.5},
+    }
+  elseif palette_num == 2 then
+    -- 粉
+    group_colours = {
+      {0.8, 0.5, 1.0},
+      {100/255, 0.9, 0.5},
+      {0.4, 0.8, 1.0},
+      {1.0, 0.8, 0.5},
+    }
+  elseif palette_num == 3 then
+    -- 红
+    group_colours = {
+      {0.8, 0.5, 1.0},
+      {0.4, 0.7, 0.3},
+      {0.4, 0.8, 1.0},
+      {1.0, 0.8, 0.5},
+    }
+  end
+
+  local psys = {}
+  local psys_by_obj = {}
+  local obj_by_psys = {}
+  board.each('pollen', function (o)
+    local p = particles({ scale = cell_scale })
+    p.x = board_offs_x + cell_w * (o.c + 0.5)
+    p.y = board_offs_y + cell_w * (o.r + 0.5)
+    local r, g, b = unpack(group_colours[o.group])
+    p.tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
+    psys[#psys + 1] = p
+    psys_by_obj[o] = p
+    obj_by_psys[p] = o
+  end)
+--[[
+  board.each('bloom', function (o)
+    local p = particles({ y_max = 40, x_spread = 40, scale = cell_scale })
+    p.x = board_offs_x + cell_w * (o.c + 0.5)
+    p.y = board_offs_y + cell_w * (o.r + 0.5)
+    p.tint = {1, 0.6, 0.5}
+    psys[#psys + 1] = p
+    psys_by_obj[o] = p
+    obj_by_psys[p] = o
+  end)
+]]
+
   -- Grid line ranges
   local has_glaze_tile = function (r, c)
     if r < 0 or r >= board.nrows or c < 0 or c >= board.nrows then
@@ -514,6 +516,26 @@ return function (puzzle_index)
       end
     end
     grid_line_c_range[c] = {r0, r1}
+  end
+
+  s.update = function ()
+    T = T + 1
+
+    for i = 1, #buttons do buttons[i].update() end
+    since_anim = since_anim + 1 + #trigger_buffer
+    flush_trigger_buffer()
+    for i = 1, #psys do psys[i].update() end
+
+    if since_clear == -1 and board.cleared then
+      since_clear = 0
+    elseif not board.cleared then
+      since_clear = -1
+      btn_next.enabled = false
+    end
+    if since_clear >= 0 then
+      since_clear = since_clear + 1
+      btn_next.enabled = (since_clear >= 240)
+    end
   end
 
   s.draw = function ()
