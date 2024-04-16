@@ -38,10 +38,10 @@ return function (puzzle_index)
   btn_undo = button(
     draw.get('icons/undo'),
     function () btn_undo_fn() end,
-    1 / 1.5
+    H * 0.09 / 100
   )
-  btn_undo.x = W * 0.15
-  btn_undo.y = H * 0.08
+  btn_undo.x = W * 0.1
+  btn_undo.y = H * 0.1
   btn_undo.enabled = false
   btn_undo.response_when_disabled = true
   buttons[#buttons + 1] = btn_undo
@@ -54,10 +54,10 @@ return function (puzzle_index)
         replaceScene(other_scene)
       end
     end,
-    1 / 1.5
+    H * 0.09 / 100
   )
-  btn_back.x = W * 0.08
-  btn_back.y = H * 0.09
+  btn_back.x = W * 0.1
+  btn_back.y = H * 0.5
   buttons[#buttons + 1] = btn_back
 
   local btn_next = button(
@@ -87,10 +87,10 @@ return function (puzzle_index)
       local index = puzzle_index % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
     end,
-    1 / 1.5
+    H * 0.09 / 100
   )
   btn_next.x = W * 0.9
-  btn_next.y = H * 0.87
+  btn_next.y = H * 0.9
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 

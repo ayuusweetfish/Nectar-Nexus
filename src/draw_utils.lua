@@ -24,8 +24,14 @@ local draw = function (drawable, x, y, w, h, ax, ay, r)
   ay = ay or 0.5
   r = r or 0
   local iw, ih = drawable:getDimensions()
-  local sx = w and w / iw or 1
-  local sy = h and h / ih or sx
+  local sx = w and w / iw
+  local sy = h and h / ih
+  if sx == nil and sy == nil then
+    sx, sy = 1, 1
+  else
+    local s = sx or sy
+    sx, sy = s, s
+  end
   love.graphics.draw(drawable,
     x, y, r,
     sx, sy,

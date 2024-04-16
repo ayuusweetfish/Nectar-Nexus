@@ -54,25 +54,45 @@ return function ()
 
   local flowers = {}  -- {x, y}
   local seed = 202404161
-  local rand = function ()
+  local randi = function ()
     seed = (seed * 1664525 + 1013904223) % 0x80000000
-    return seed / 0x80000000
+    return seed
+  end
+  local rand = function ()
+    return randi() / 0x80000000
   end
   for i = 1, 100 do
     local x = rand()
     local y = rand() * 0.2
     flowers[i] = {x, y}
   end
-  for i = 1, 10 do
-    local x = 0.4 + 0.2 * rand()
+  for i = 1, 30 do
+    local x = 0.3 + 0.4 * rand()
     local y = rand() * 0.14
     flowers[i] = {x, y}
+  end
+  for i = 1, 80 do
+    local x = 0.0125 * (i + 0.4 + 0.2 * rand())
+    local y = -0.05 + rand() * 0.1 + 0.06 * (i % 2)
+    y = y * (2 - 2 * math.abs(x - 0.5))
+    print(x, 2 - 2 * math.abs(x - 0.5))
+    flowers[i] = {x, y}
+  end
+  -- Shuffle
+  for i = 1, 100 do
+    local j = randi() % i + 1
+    if i ~= j then
+      flowers[i], flowers[j] = 
+      flowers[j], flowers[i]
+    end
   end
   flowers[#flowers + 1] = {0.442, 0.25}
   flowers[#flowers + 1] = {0.457, 0.233}
 
   s.draw = function ()
     draw.img('intro/background_vases', W * 0.5, H * 0.5, W, H)
+    draw.img('intro/large_vase_1', W * 0.25, H * 0.623, nil, H * 0.754)
+    draw.img('intro/large_vase_3', W * 0.75, H * 0.623, nil, H * 0.754)
 
     -- Flowers
     local bloom_frame = function (since)
