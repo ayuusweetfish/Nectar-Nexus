@@ -485,23 +485,60 @@ return function (puzzle_index)
     return rel_scale_x, rel_scale_y
   end
 
+  -- Grid line ranges
+  local has_glaze_tile = function (r, c)
+    if r < 0 or r >= board.nrows or c < 0 or c >= board.nrows then
+      return false
+    end
+    local o = board.find_one(r, c, 'obstacle')
+    return (not o or not o.empty_background)
+  end
+  local grid_line_r_range = {}
+  local grid_line_c_range = {}
+  for r = 0, board.nrows do
+    local c0, c1 = -1, -1
+    for c = 0, board.ncols - 1 do
+      if has_glaze_tile(r - 1, c) or has_glaze_tile(r, c) then
+        if c0 == -1 then c0 = c end
+        c1 = c
+      end
+    end
+    grid_line_r_range[r] = {c0, c1}
+  end
+  for c = 0, board.ncols do
+    local r0, r1 = -1, -1
+    for r = 0, board.nrows - 1 do
+      if has_glaze_tile(r, c - 1) or has_glaze_tile(r, c) then
+        if r0 == -1 then r0 = r end
+        r1 = r
+      end
+    end
+    grid_line_c_range[c] = {r0, r1}
+  end
+
   s.draw = function ()
     love.graphics.clear(unpack(bg_tint))
 
     -- Grid lines
-    love.graphics.setColor(0.95, 0.95, 0.95, 0.06)
+    love.graphics.setColor(0.95, 0.95, 0.95, 0.09)
     love.graphics.setLineWidth(2.0)
     for r = 0, board.nrows do
-      local y = board_offs_y + cell_w * r
-      local x0 = board_offs_x
-      local x1 = board_offs_x + cell_w * board.ncols
-      love.graphics.line(x0, y, x1, y)
+      local c0, c1 = unpack(grid_line_r_range[r])
+      if c0 >= 0 then
+        local y = board_offs_y + cell_w * r
+        local x0 = board_offs_x + cell_w * c0
+        local x1 = board_offs_x + cell_w * (c1 + 1)
+        love.graphics.line(x0, y, x1, y)
+      end
     end
     for c = 0, board.ncols do
-      local x = board_offs_x + cell_w * c
-      local y0 = board_offs_y
-      local y1 = board_offs_y + cell_w * board.nrows
-      love.graphics.line(x, y0, x, y1)
+      local r0, r1 = unpack(grid_line_c_range[c])
+      if r0 >= 0 then
+        local x = board_offs_x + cell_w * c
+        local y0 = board_offs_y + cell_w * r0
+        local y1 = board_offs_y + cell_w * (r1 + 1)
+        love.graphics.line(x, y0, x, y1)
+      end
     end
 
     -- Tiles
