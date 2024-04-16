@@ -22,6 +22,129 @@ local clamp_01 = function (x)
   else return x end
 end
 
+local glow_colours = {
+  {
+    {0.8, 0.5, 1.0},
+    {0.5, 0.9, 0.5},
+    {0.4, 0.8, 1.0},
+    {1.0, 0.8, 0.5},
+  }, {
+    {0.8, 0.5, 1.0},
+    {0.5, 0.9, 0.5},
+    {0.4, 0.8, 1.0},
+    {1.0, 0.8, 0.5},
+  }, {
+    {0.8, 0.5, 1.0},
+    {0.4, 0.7, 0.3},
+    {0.4, 0.8, 1.0},
+    {1.0, 0.8, 0.5},
+  }
+}
+
+local create_colour_picker = function (tint, fn)
+  local s = {}
+  s.x = 0
+  s.y = 0
+  s.w = 100
+  s.h = 100
+  s.r = 200
+
+  local rgb_to_hsv = function (r, g, b)
+    local cmax = math.max(r, g, b)
+    local cmin = math.min(r, g, b)
+    local delta = cmax - cmin
+    local h
+    if delta == 0 then h = 0
+    elseif cmax == r then h = 60 * ((g - b) / delta % 6)
+    elseif cmax == g then h = 60 * ((b - r) / delta + 2)
+    else h = 60 * ((r - g) / delta + 4) end
+    local s = (cmax == 0 and 0 or (delta / cmax))
+    return h, s, cmax
+  end
+
+  local hsv_to_rgb = function (h, s, v)
+    local c = v * s
+    local x = c * (1 - math.abs((h / 60) % 2 - 1))
+    local m = v - c
+    local r, g, b
+    if h < 60 then r, g, b = c, x, 0
+    elseif h < 120 then r, g, b = x, c, 0
+    elseif h < 180 then r, g, b = 0, c, x
+    elseif h < 240 then r, g, b = 0, x, c
+    elseif h < 300 then r, g, b = x, 0, c
+    else r, g, b = c, 0, x end
+    return (r + m), (g + m), (b + m)
+  end
+
+  local tint_h, tint_s, tint_v = rgb_to_hsv(unpack(tint))
+
+  local held = false
+  local held_type   -- 0: square; 1: circle
+
+  s.press = function (x, y)
+    if (x - s.x) ^ 2 + (y - s.y) ^ 2 <= s.r ^ 2 then
+      if x >= s.x - s.w/2 and x <= s.x + s.w/2 and
+         y >= s.y - s.h/2 and y <= s.y + s.h/2 then
+        held_type = 0
+      else
+        held_type = 1
+      end
+      held = true
+      s.move(x, y)
+      return true
+    end
+  end
+
+  s.move = function (x, y)
+    if not held then return false end
+    if held_type == 0 then
+      local x1 = clamp_01((x - s.x) / s.w + 0.5)
+      local y1 = clamp_01((y - s.y) / s.h + 0.5)
+      tint_s = x1
+      tint_v = 1 - y1
+    else
+      local r = math.atan2(y - s.y, x - s.x)
+      tint_h = (r / math.pi * 180 + 360 + 90) % 360
+    end
+    fn(hsv_to_rgb(tint_h, tint_s, tint_v))
+    return true
+  end
+
+  s.release = function (x, y)
+    if held then
+      held = false
+      return true
+    end
+  end
+
+  s.draw = function ()
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.circle('line', s.x, s.y, s.r - 7.5)
+
+    -- Knob
+    love.graphics.setColor(1, 1, 1)
+    local angle = (tint_h - 90) / 360 * math.pi * 2
+    love.graphics.circle('fill',
+      s.x + (s.r - 5) * math.cos(angle),
+      s.y + (s.r - 5) * math.sin(angle),
+      15
+    )
+
+    love.graphics.setColor(1, 1, 1)
+    love.graphics.rectangle('fill', s.x - s.w / 2, s.y - s.h / 2, s.w, s.h)
+
+    -- Knob
+    love.graphics.setColor(0, 0, 0)
+    love.graphics.circle('line',
+      s.x - s.w / 2 + s.w * tint_s,
+      s.y - s.h / 2 + s.h * (1 - tint_v),
+      15
+    )
+  end
+
+  return s
+end
+
 return function (puzzle_index)
   local s = {}
   local W, H = W, H
@@ -177,9 +300,12 @@ return function (puzzle_index)
     trigger_buffer = {}
   end
 
+  local colour_picker
+
   local since_clear = -1
 
   s.press = function (x, y)
+    if colour_picker and colour_picker.press(x, y) then return true end
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
     pt_bloom = false
@@ -196,11 +322,13 @@ return function (puzzle_index)
   end
 
   s.move = function (x, y)
+    if colour_picker and colour_picker.move(x, y) then return true end
     for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
     return true
   end
 
   s.release = function (x, y)
+    if colour_picker and colour_picker.release(x, y) then return true end
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
     local r1, c1 = pt_to_cell(x, y)
     if r1 == pt_r and c1 == pt_c then
@@ -210,10 +338,17 @@ return function (puzzle_index)
     return true
   end
 
+  local show_colour_picker  -- function
+
   -- 1 ~ 9: trigger blossom
   -- 0/Enter/Tab/Space/N: move on without triggering blossom
   -- Backspace/Z/P/U/R: undo
   s.key = function (key)
+    if key == 'space' then
+      show_colour_picker()
+      return
+    end
+
     if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
@@ -434,34 +569,6 @@ return function (puzzle_index)
   end
 
   -- Particles
-  -- ** 光点颜色 **
-  local group_colours = {}
-  if palette_num == 1 then
-    -- 蓝
-    group_colours = {
-      {0.8, 0.5, 1.0},
-      {0.5, 0.9, 0.5},
-      {0.4, 0.8, 1.0},
-      {1.0, 0.8, 0.5},
-    }
-  elseif palette_num == 2 then
-    -- 粉
-    group_colours = {
-      {0.8, 0.5, 1.0},
-      {100/255, 0.9, 0.5},
-      {0.4, 0.8, 1.0},
-      {1.0, 0.8, 0.5},
-    }
-  elseif palette_num == 3 then
-    -- 红
-    group_colours = {
-      {0.8, 0.5, 1.0},
-      {0.4, 0.7, 0.3},
-      {0.4, 0.8, 1.0},
-      {1.0, 0.8, 0.5},
-    }
-  end
-
   local psys = {}
   local psys_by_obj = {}
   local obj_by_psys = {}
@@ -469,23 +576,47 @@ return function (puzzle_index)
     local p = particles({ scale = cell_scale })
     p.x = board_offs_x + cell_w * (o.c + 0.5)
     p.y = board_offs_y + cell_w * (o.r + 0.5)
-    local r, g, b = unpack(group_colours[o.group])
+    local r, g, b = unpack(glow_colours[palette_num][o.group])
     p.tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
     psys[#psys + 1] = p
     psys_by_obj[o] = p
     obj_by_psys[p] = o
   end)
---[[
-  board.each('bloom', function (o)
-    local p = particles({ y_max = 40, x_spread = 40, scale = cell_scale })
-    p.x = board_offs_x + cell_w * (o.c + 0.5)
-    p.y = board_offs_y + cell_w * (o.r + 0.5)
-    p.tint = {1, 0.6, 0.5}
-    psys[#psys + 1] = p
-    psys_by_obj[o] = p
-    obj_by_psys[p] = o
-  end)
-]]
+
+  -- Colour picker
+  local colour_picker_group_num = 0
+  show_colour_picker = function ()
+    colour_picker_group_num = colour_picker_group_num % #glow_colours[palette_num] + 1
+    local group_num = colour_picker_group_num
+    colour_picker = create_colour_picker(
+      glow_colours[palette_num][group_num],
+      function (r, g, b)
+        glow_colours[palette_num][group_num] = {r, g, b}
+        board.each('pollen', function (o)
+          local r, g, b = unpack(glow_colours[palette_num][o.group])
+          psys_by_obj[o].tint = {1 - (1 - r) * 0.5, 1 - (1 - g) * 0.5, 1 - (1 - b) * 0.5}
+        end)
+        -- Save
+        local text = {}
+        for i = 1, #glow_colours do
+          for j = 1, #glow_colours[i] do
+            local r, g, b = unpack(glow_colours[i][j])
+            text[#text + 1] = string.format('%g %g %g', r, g, b)
+          end
+          text[#text + 1] = ''
+        end
+        -- local success, message = love.filesystem.write('tint.txt', table.concat(text, '\n'))
+        local f = io.open('tint.txt', 'w')
+        f:write(table.concat(text, '\n'))
+        f:close()
+      end
+    )
+    colour_picker.w = 200
+    colour_picker.h = 200
+    colour_picker.r = 180
+    colour_picker.x = W * 0.97 - colour_picker.r
+    colour_picker.y = H * 0.97 - colour_picker.r
+  end
 
   -- Grid line ranges
   local has_glaze_tile = function (r, c)
@@ -765,8 +896,6 @@ return function (puzzle_index)
     end)
 
     board.each('pollen', function (o)
-      local tint = group_colours[o.group]
-
       local shadow_radius = (o.matched and 0 or 1)
       local anim_progress = clamp_01((since_anim - 120) / 60)
       if anim_progress < 1 and find_anim(o, 'pollen_match') then
@@ -1038,6 +1167,12 @@ return function (puzzle_index)
       end
       love.graphics.setColor(1, 1, 1, alpha)
       buttons[i].draw()
+    end
+
+    if colour_picker then
+      colour_picker.draw()
+      love.graphics.setColor(1, 1, 1)
+      love.graphics.print(tostring(colour_picker_group_num), W - 18, H - 24)
     end
   end
 
