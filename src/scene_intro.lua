@@ -78,6 +78,8 @@ local scene_intro = function ()
   })
 
   local press_x, press_y
+  local T = 0
+  local nnnn = 0
 
   s.press = function (x, y)
     if since_exit_vase >= 0 then return true end
@@ -85,7 +87,7 @@ local scene_intro = function ()
     scroll_main.press(x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
 
-    if scroll_main.dx >= -W * 0.3 then
+    if scroll_main.dx >= -W * 0.3 and T >= 240 then
       press_x, press_y = x, y
       return true
     end
@@ -131,9 +133,18 @@ local scene_intro = function ()
         new_vase(s.max_vase + 1)
       end
     end
+    if key == 'n' then
+      nnnn = nnnn + 1
+      if nnnn == 10 then
+        require('puzzles').debug_navi = true
+      end
+    else
+      nnnn = 0
+    end
   end
 
   s.update = function ()
+    T = T + 1
     if overlay ~= nil then overlay.update() end
     if since_enter_vase >= 0 then since_enter_vase = since_enter_vase + 1 end
     if since_exit_vase >= 0 then
