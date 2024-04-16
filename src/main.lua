@@ -13,7 +13,7 @@ love.window.setMode(
 local globalScale, Wx, Hx, offsX, offsY
 
 local updateLogicalDimensions = function ()
-  love.window.setTitle('LD55')
+  love.window.setTitle('Nectar Nexus')
   local wDev, hDev = love.graphics.getDimensions()
   globalScale = math.min(wDev / W, hDev / H)
   Wx = wDev / globalScale
