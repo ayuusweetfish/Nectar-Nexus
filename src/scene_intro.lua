@@ -67,7 +67,7 @@ local scene_intro = function ()
   end
 
   local new_vase = function (target)
-    if s.max_vase >= math.min(target, 6) then return end
+    if s.max_vase >= math.min(target, 7) then return end
     s.max_vase = target
   end
   s.new_vase = new_vase
@@ -129,7 +129,7 @@ local scene_intro = function ()
       end
     end
     if key == 'tab' then
-      if s.max_vase < 6 then
+      if s.max_vase < 7 then
         new_vase(s.max_vase + 1)
       end
     end
@@ -224,7 +224,7 @@ local scene_intro = function ()
       {'intro/small_vase_1', 2.1, 0.34},
     }
     local small_vase_limit = {
-      0, 3, 6, 8, 10, 13
+      0, 3, 6, 8, 10, 13, 13
     }
     for i = 1, small_vase_limit[s.max_vase] do
       local n, x, y = unpack(small_vases[i])
@@ -233,11 +233,25 @@ local scene_intro = function ()
     end
 
     love.graphics.setColor(1, 1, 1)
-    for i = 1, s.max_vase do
+    for i = 1, math.min(6, s.max_vase) do
       local img, x0, y, scale = unpack(shadows[i])
       draw.img(img, x0 + sdx + W * 0.06, y + H * 0.04, draw.get(img):getWidth() * scale)
       buttons[i].draw()
     end
+
+    -- Butterfly (Bee!)
+    local butterfly_x, butterfly_y = unpack(({
+      {0.1, 0.5},
+      {0.39, 0.68},
+      {0.64, 0.46},
+      {1.12, 0.51},
+      {1.38, 0.71},
+      {1.65, 0.45},
+      {2.12, 0.63},
+    })[s.max_vase])
+    local frame = math.floor(T / 240 * 24) % 16 + 1
+    draw.img(string.format('butterflies/idle-side/%02d', frame),
+      W * (1.13 + butterfly_x) + sdx, H * butterfly_y, 200 / 1.5)
 
     if pushed_transform then
       love.graphics.pop()
