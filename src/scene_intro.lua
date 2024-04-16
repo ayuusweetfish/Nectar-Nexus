@@ -25,7 +25,7 @@ local scene_intro = function ()
   local s = {}
   local W, H = W, H
 
-  s.max_vase = 1
+  s.max_vase = 6--1
 
   local overlay
   local since_enter_vase = -1
@@ -33,6 +33,7 @@ local scene_intro = function ()
   local vase_offs_x, vase_offs_y = 0, 0
 
   local buttons = {}
+  local shadows = {}  -- {img, x0, y, scale}
 
   for i = 1, 6 do
     local img = draw.get('intro/large_vase_' .. tostring((i - 1) % 3 + 1))
@@ -56,7 +57,9 @@ local scene_intro = function ()
     end, scale)
     btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
     btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
-    buttons[#buttons + 1] = btn
+    buttons[i] = btn
+    local img = 'intro/large_vase_' .. tostring((i - 1) % 3 + 1) .. '_shadow'
+    shadows[i] = {img, btn.x0, btn.y, scale}
   end
 
   s.overlay_back = function ()
@@ -177,13 +180,21 @@ local scene_intro = function ()
     local small_vases = {
       {'intro/small_vase_1', 0.112, 0.296},
       {'intro/small_vase_2', 0.376, 0.248},
+      {'intro/small_vase_6', 0.112, 0.844},
       {'intro/small_vase_3', 0.600, 0.226},
       {'intro/small_vase_4', 0.940, 0.238},
       {'intro/small_vase_5', 0.946, 0.790},
-      {'intro/small_vase_6', 0.112, 0.844},
+
+      {'intro/small_vase_6', 1.107, 0.296},
+      {'intro/small_vase_1', 1.070, 0.762},
+      {'intro/small_vase_4', 1.388, 0.300},
+      {'intro/small_vase_2', 1.600, 0.226},
+      {'intro/small_vase_5', 1.940, 0.238},
+      {'intro/small_vase_3', 1.946, 0.790},
+      {'intro/small_vase_1', 2.1, 0.5},
     }
     local small_vase_limit = {
-      0, 3, 6, 6, 6, 6
+      0, 3, 6, 8, 10, 13
     }
     for i = 1, small_vase_limit[s.max_vase] do
       local n, x, y = unpack(small_vases[i])
@@ -192,8 +203,10 @@ local scene_intro = function ()
     end
 
     love.graphics.setColor(1, 1, 1)
-    for i = 1, #buttons do
-      if i <= s.max_vase then buttons[i].draw() end
+    for i = 1, s.max_vase do
+      local img, x0, y, scale = unpack(shadows[i])
+      draw.img(img, x0 + sdx + W * 0.06, y + H * 0.04, draw.get(img):getWidth() * scale)
+      buttons[i].draw()
     end
 
     if pushed_transform then
@@ -224,10 +237,12 @@ create_overlay = function (fn_back, fn_confirm)
     draw.get('weeds/p3-idle/06'),
   }
 
-  local screen_x_min = W * 0.18
-  local screen_x_max = W * 0.82
-  local screen_y_min = H * 0.5 - W * 0.18
-  local screen_y_max = H * 0.5 + W * 0.18
+  local range_w = W * 0.5
+  local range_h = range_w * 9 / 16
+  local screen_x_min = W * 0.5 - range_w / 2
+  local screen_x_max = W * 0.5 + range_w / 2
+  local screen_y_min = H * 0.5 - range_h / 2
+  local screen_y_max = H * 0.5 + range_h / 2
   local scroll_carousel = scroll({
     x_min = -(screen_x_max - screen_x_min) * 3,
     x_max = 0,
