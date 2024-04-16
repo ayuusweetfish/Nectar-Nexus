@@ -209,8 +209,8 @@ local scene_intro = function ()
       {'intro/small_vase_3', 1.395, 0.240},
       {'intro/small_vase_2', 1.600, 0.226},
       {'intro/small_vase_5', 1.940, 0.238},
-      {'intro/small_vase_4', 1.946, 0.790},
-      {'intro/small_vase_1', 2.1, 0.5},
+      {'intro/small_vase_4', 1.970, 0.790},
+      {'intro/small_vase_1', 2.1, 0.34},
     }
     local small_vase_limit = {
       0, 3, 6, 8, 10, 13
