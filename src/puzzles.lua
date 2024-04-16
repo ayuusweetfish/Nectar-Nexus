@@ -1,5 +1,5 @@
 return {
-  test = 21,  -- ** 修改【起始关卡编号】 ** --
+  test = 30,  -- ** 修改【起始关卡编号】 ** --
   chameleon_inspect = 0,  -- ** 是否一直显示变色龙 ** --
 
   -- ** 搜索文本可以直接跳转到关卡 ** --
@@ -18,7 +18,7 @@ return {
   },
   -- Blossom
   [2] = {    -- ** 谜题2 ** --
-    tile = {1, 1},   -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
+    tile = {4, 3},   -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
     size = {3, 8},
     objs = {
       {'bloom', 1, 4},
@@ -30,7 +30,7 @@ return {
   -- Fuzzy (i.e. non-orthogonal layout) turn,
   -- corner case (square), multiple pollen pairs
   [3] = {    -- ** 谜题3 ** --
-    tile = {1, 1},   -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
+    tile = {1, 5},   -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
     size = {4, 9},
     objs = {
       {'bloom', 0, 8},
@@ -421,7 +421,6 @@ return {
   },
 
   ------ Vase 6: Everything everywhere all at once ------
-  -- TODO 5/6
   [25] = {    -- ** 谜题25 ** --
     tile = {1, 1},   -- ** 修改【背景瓷砖起始位置（行、列，左上角为 1）】 ** --
     size = {8, 10},
@@ -536,4 +535,47 @@ return {
       {'butterfly', 3, 2, dir = 1},
     },
   },
+  -- Home stretch
+  [30] = {
+    tile = {2, 2},
+    size = {7, 7},
+    objs = {
+      {'bloom', 0, 0},
+      {'bloom', 0, 2},
+      {'bloom', 0, 6},
+      {'bloom', 1, 1},
+      {'bloom', 1, 3},
+      {'bloom', 1, 5},
+      {'bloom', 2, 0},
+      {'bloom', 2, 2},
+      {'bloom', 2, 4},
+      {'bloom', 2, 6},
+      {'bloom', 3, 1},
+      {'bloom', 3, 3},
+      {'bloom', 3, 5},
+      {'bloom', 4, 0},
+      {'bloom', 4, 2},
+      {'bloom', 4, 4},
+      {'bloom', 4, 6},
+      {'bloom', 5, 1},
+      {'bloom', 5, 3},
+      {'bloom', 5, 5},
+      {'bloom', 6, 0},
+      {'bloom', 6, 2},
+      {'bloom', 6, 4},
+      {'bloom', 6, 6},
+      {'pollen', 0, 3, group = 1, image = '4.1'},
+      {'pollen', 2, 3, group = 1, image = '4.2'},
+      {'pollen', 6, 3, group = 2, image = '4.1'},
+      {'pollen', 4, 3, group = 2, image = '4.2'},
+      {'pollen', 3, 0, group = 3, image = '4.1'},
+      {'pollen', 3, 2, group = 3, image = '4.2'},
+      {'pollen', 3, 6, group = 4, image = '4.1'},
+      {'pollen', 3, 4, group = 4, image = '4.2'},
+      {'butterfly', 0, 4, dir = 1},
+      {'butterfly', 5, 0, dir = 1},
+      {'butterfly', 6, 5, dir = 2},
+      {'butterfly', 5, 6, dir = 4},
+    },
+  }
 }

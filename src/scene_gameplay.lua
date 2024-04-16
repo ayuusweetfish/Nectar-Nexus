@@ -283,8 +283,10 @@ return function (puzzle_index)
     palette_num = 1
   elseif puzzle_index >= 21 and puzzle_index <= 24 then
     palette_num = 2
-  elseif puzzle_index >= 25 and puzzle_index <= 30 then
+  elseif puzzle_index >= 25 and puzzle_index <= 29 then
     palette_num = 3
+  elseif puzzle_index == 30 then
+    palette_num = 1
   end
 
   local bg_tint = {
@@ -307,6 +309,12 @@ return function (puzzle_index)
   end
   local glaze_tile_opacity_in_game = {0.7, 0.8, 0.6}
   glaze_tile_opacity_in_game = glaze_tile_opacity_in_game[palette_num]
+
+  -- Vines
+  local vine_name = string.format('vines/%02d', puzzle_index)
+  if draw.get(vine_name) == nil then
+    vine_name = nil
+  end
 
   local still = {}
   local still_offs = {}
@@ -498,6 +506,11 @@ return function (puzzle_index)
           end
         end
       end
+    end
+
+    -- Vines
+    if vine_name ~= nil then
+      draw.img(vine_name, W / 2, H / 2, W, H)
     end
 
     -- Objects
