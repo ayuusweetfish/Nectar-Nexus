@@ -30,44 +30,47 @@ return function (puzzle_index)
   puzzle_index = puzzle_index or puzzles.test or #puzzles
   local board = Board.create(puzzles[puzzle_index])
 
-  local text_puzzle_name = love.graphics.newText(font(60), tostring(puzzle_index))
+  local icon_puzzle_num = string.format('icons/number_%02d', puzzle_index)
 
   local button = require 'button'
   local buttons = {}
 
   local btn_undo, btn_undo_fn
   btn_undo = button(
-    draw.enclose(love.graphics.newText(font(36), 'Undo'), 120, 60),
-    function () btn_undo_fn() end
+    draw.get('icons/undo'),
+    function () btn_undo_fn() end,
+    1 / 1.5
   )
   btn_undo.x = W * 0.15
-  btn_undo.y = H * 0.18
+  btn_undo.y = H * 0.08
   btn_undo.enabled = false
   btn_undo.response_when_disabled = true
   buttons[#buttons + 1] = btn_undo
 
   local btn_back = button(
-    draw.enclose(love.graphics.newText(font(36), 'Return'), 120, 60),
+    draw.get('icons/return'),
     function ()
       local other_scene = _G['intro_scene_instance']
       if other_scene then
         replaceScene(other_scene)
       end
-    end
+    end,
+    1 / 1.5
   )
-  btn_back.x = W * 0.15
-  btn_back.y = H * 0.08
+  btn_back.x = W * 0.08
+  btn_back.y = H * 0.09
   buttons[#buttons + 1] = btn_back
 
   local btn_next = button(
-    draw.enclose(love.graphics.newText(font(36), 'Next'), 120, 60),
+    draw.get('icons/next'),
     function ()
       local index = puzzle_index % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
-    end
+    end,
+    1 / 1.5
   )
-  btn_next.x = W * 0.8
-  btn_next.y = H * 0.9
+  btn_next.x = W * 0.9
+  btn_next.y = H * 0.87
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
 
@@ -942,7 +945,7 @@ return function (puzzle_index)
 
     -- Text
     love.graphics.setColor(1, 1, 1)
-    draw.shadow(0.95, 0.95, 0.95, 1, text_puzzle_name, W * 0.1, H * 0.9)
+    draw.img(icon_puzzle_num, W * 0.1, H * 0.9, H * 0.09)
 
     -- Buttons
     for i = 1, #buttons do
