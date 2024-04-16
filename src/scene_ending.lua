@@ -76,7 +76,6 @@ return function ()
     local x = 0.0125 * (i + 0.4 + 0.2 * rand())
     local y = -0.05 + rand() * 0.1 + 0.06 * (i % 2)
     y = y * (2 - 2 * math.abs(x - 0.5))
-    print(x, 2 - 2 * math.abs(x - 0.5))
     flowers[i] = {x, y}
   end
   -- Shuffle

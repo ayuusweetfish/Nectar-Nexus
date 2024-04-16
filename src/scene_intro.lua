@@ -232,6 +232,13 @@ local scene_intro = function ()
         draw.get(n):getWidth() * scale)
     end
 
+    if s.max_vase == 7 then
+      love.graphics.setColor(1, 1, 1)
+      local x = 1.65
+      draw.img('intro/graffiti_1', W * x + sdx, H * 0.5, W, H)
+      draw.img('intro/graffiti_2', W * (x + 1.134) + sdx, H * 0.5, W, H)
+    end
+
     love.graphics.setColor(1, 1, 1)
     for i = 1, math.min(6, s.max_vase) do
       local img, x0, y, scale = unpack(shadows[i])
