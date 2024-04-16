@@ -3,7 +3,6 @@ local draw = require 'draw_utils'
 return function ()
   local s = {}
   local W, H = W, H
-  local font = _G['font_Imprima']
 
   s.press = function (x, y)
   end

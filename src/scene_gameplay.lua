@@ -25,7 +25,6 @@ end
 return function (puzzle_index)
   local s = {}
   local W, H = W, H
-  local font = _G['font_Imprima']
 
   puzzle_index = puzzle_index or puzzles.test or #puzzles
   local board = Board.create(puzzles[puzzle_index])

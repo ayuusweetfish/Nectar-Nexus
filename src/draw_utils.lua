@@ -1,18 +1,17 @@
 local imgs = {}
 
 local function load_imgs(path)
-  -- if path ~= '' and path ~= '/ending' and path:sub(1, 6) ~= '/bloom' and path:sub(1, 7) ~= '/butter' and path ~= '/intro' then return end
-  local files = love.filesystem.getDirectoryItems('assets_img' .. path)
+  local files = love.filesystem.getDirectoryItems('img' .. path)
   for i = 1, #files do
     local basename = files[i]
     if basename:sub(-4) == '.png' or basename:sub(-4) == '.jpg' then
       local name = (path .. '/' .. basename:sub(1, #basename - 4)):sub(2)
-      local img = love.graphics.newImage('assets_img' .. path .. '/' .. basename)
+      local img = love.graphics.newImage('img' .. path .. '/' .. basename)
       imgs[name] = img
       print(name)
     else
       -- Folder?
-      if love.filesystem.getInfo('assets_img' .. path .. '/' .. basename).type == 'directory' then
+      if love.filesystem.getInfo('img' .. path .. '/' .. basename).type == 'directory' then
         load_imgs(path .. '/' .. basename)
       end
     end
