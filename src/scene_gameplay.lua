@@ -260,7 +260,7 @@ return function (puzzle_index)
       end
     end
 
-    if key == 'left' or key == 'right' then
+    if (key == 'left' or key == 'right') and puzzles.debug_arrows then
       local index = (puzzle_index + (key == 'left' and #puzzles - 2 or 0)) % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
     end
