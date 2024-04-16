@@ -28,7 +28,7 @@ local draw = function (drawable, x, y, w, h, ax, ay, r)
   local sy = h and h / ih
   if sx == nil and sy == nil then
     sx, sy = 1, 1
-  else
+  elseif sx == nil or sy == nil then
     local s = sx or sy
     sx, sy = s, s
   end
