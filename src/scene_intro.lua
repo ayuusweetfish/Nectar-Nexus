@@ -194,7 +194,6 @@ end
 create_overlay = function (fn_back, fn_confirm)
   local s = {}
   local W, H = W, H
-  local font = _G['font_Imprima']
 
   local since_enter = 0
   local empty_held = false
