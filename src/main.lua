@@ -91,8 +91,19 @@ function love.keypressed(key)
   end
 end
 
+-- Background track
+-- Load after visuals have been ready
+local audio = require 'audio'
+local bgm, bgm_update = audio.loop(
+  nil, 0,
+  'aud/background.ogg', (36 * 3) * (60 / 72),
+  1600 * 4)
+bgm:setVolume(1)
+
 local T = 0
 local timeStep = 1 / 240
+
+local sinceAudioUpdate = 0
 
 function love.update(dt)
   T = T + dt
@@ -110,6 +121,13 @@ function love.update(dt)
       curScene:update()
     end
   end
+
+  sinceAudioUpdate = sinceAudioUpdate + dt
+  if sinceAudioUpdate >= 0.5 then
+    sinceAudioUpdate = sinceAudioUpdate - 0.5
+    bgm_update()
+  end
+  audio.sfx_update(dt)
 end
 
 transitions['fade'] = function (r, g, b)

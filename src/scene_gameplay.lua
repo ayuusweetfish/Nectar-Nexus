@@ -2,6 +2,7 @@ local draw = require 'draw_utils'
 local Board = require 'board'
 local puzzles = require 'puzzles'
 local particles = require 'particles'
+local audio = require 'audio'
 
 local ease_quad_in_out = function (x)
   if x < 0.5 then return x * x * 2
@@ -167,6 +168,16 @@ return function (puzzle_index)
   local trigger = function (r, c)
     trigger_buffer[#trigger_buffer + 1] = {r, c}
     flush_trigger_buffer()
+
+    -- Sound effects
+    audio.sfx('move')
+    for _, anims in pairs(board_anims) do
+      for name, _ in pairs(anims) do
+        if name == 'weeds_trigger' then
+          audio.sfx('weeds')
+        end
+      end
+    end
   end
 
   btn_undo_fn = function ()
@@ -175,6 +186,8 @@ return function (puzzle_index)
     board_anims = nil
     trigger_wait = 0
     trigger_buffer = {}
+    audio.sfx_cancel_all()
+    audio.sfx('undo')
   end
 
   local colour_picker
