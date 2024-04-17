@@ -23,6 +23,17 @@ local clamp_01 = function (x)
   else return x end
 end
 
+local shader_alpha_mask = love.graphics.newShader([[
+uniform Image mask;
+uniform float progress;
+vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
+  vec4 c = Texel(tex, texture_coords);
+  if (Texel(mask, texture_coords).r > progress) c.a = 0;
+  return c;
+}
+]])
+shader_alpha_mask:send('mask', draw.get('chameleon/fade-in'))
+
 return function (puzzle_index)
   local s = {}
   local W, H = W, H
@@ -158,6 +169,18 @@ return function (puzzle_index)
 
     btn_undo.enabled = board.can_undo()
     since_anim = 0
+
+    -- Sound effects
+    if board_anims ~= nil then
+      audio.sfx('move')
+      for _, anims in pairs(board_anims) do
+        for name, _ in pairs(anims) do
+          if name == 'weeds_trigger' then
+            audio.sfx('weeds', 0.2)
+          end
+        end
+      end
+    end
   end
   local flush_trigger_buffer = function ()
     if since_anim >= trigger_wait and #trigger_buffer > 0 then
@@ -168,16 +191,6 @@ return function (puzzle_index)
   local trigger = function (r, c)
     trigger_buffer[#trigger_buffer + 1] = {r, c}
     flush_trigger_buffer()
-
-    -- Sound effects
-    audio.sfx('move')
-    for _, anims in pairs(board_anims) do
-      for name, _ in pairs(anims) do
-        if name == 'weeds_trigger' then
-          audio.sfx('weeds')
-        end
-      end
-    end
   end
 
   btn_undo_fn = function ()
@@ -671,7 +684,7 @@ return function (puzzle_index)
         nil, rel_scale_x, rel_scale_y, rotation)
     end)
 
-    -- Key: chameleon object; value: animation progress {eat, provoke, eat_distance}
+    -- Key: chameleon object; value: animation progress {eat, provoke, eat_distance, eye_anim}
     -- When `eat` is active, `provoke` does not matter (progress set to -1)
     -- (provoke, eat) = (0, 0) and (1, 1) are the same thing
     -- Saved for later use
@@ -682,7 +695,8 @@ return function (puzzle_index)
       local provoke_progress = (o.provoked and 1 or 0)
       local eat_progress = 0
       local eat_distance = nil
-      if anim_progress < 1 then
+      local eye_anim_progress = clamp_01((since_anim - 50) / 480)
+      if eye_anim_progress < 1 then
         local a_provoke = find_anim(o, 'provoke')
         local a_eat = find_anim(o, 'eat')
         local a_idle = find_anim(o, 'return_idle')
@@ -696,7 +710,7 @@ return function (puzzle_index)
           provoke_progress = 1 - ease_quad_in_out(clamp_01(anim_progress * 3))
         end
       end
-      chameleon_anim_progress[o] = {eat_progress, provoke_progress, eat_distance}
+      chameleon_anim_progress[o] = {eat_progress, provoke_progress, eat_distance, eye_anim_progress}
 
       local alpha = 0.3
       if provoke_progress == -1 then alpha = alpha + 0.5 * (1 - eat_progress)
@@ -851,17 +865,23 @@ return function (puzzle_index)
     obj_img_draw()
 
     board.each('chameleon', function (o)
-      local eat_progress, provoke_progress, eat_distance = unpack(chameleon_anim_progress[o])
+      local eat_progress, provoke_progress, eat_distance, eye_anim_progress
+        = unpack(chameleon_anim_progress[o])
       local aseq_frames = {}  -- {name, alpha, x, y (offset when left-extending)}
-      -- Inspect
+      -- Inspect during testing
       if puzzles.chameleon_inspect ~= 0 then
         local f1 = aseq_proceed('chameleon-body', 0)
-        aseq_frames[#aseq_frames + 1] = {f1, alpha, 3.6, 2.53}
+        aseq_frames[#aseq_frames + 1] = {f1, 1, 3.6, 2.53}
       end
-      local hide_eyes_by_eat_progress
+      if provoke_progress > 0 or (provoke_progress == -1 and eat_progress < 0.25) then
+        local x = (provoke_progress > 0 and provoke_progress or 1)
+        local y = (provoke_progress > 0 and eye_anim_progress or 1)
+        local f = aseq_proceed('chameleon-eye', y)
+        local alpha = math.sqrt(math.min(x / 0.3))
+        aseq_frames[#aseq_frames + 1] = {f, alpha, -1.2, -0.1}
+      end
       if provoke_progress == -1 then
         local alpha = math.sqrt(clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
-        if eat_progress >= 0.25 then hide_eyes_by_eat_progress = true end
 
         local f1 = aseq_proceed('chameleon-body',
           clamp_01(math.min(eat_progress / 0.25, (1 - eat_progress) / 0.25)))
@@ -872,13 +892,6 @@ return function (puzzle_index)
           local f2 = aseq_proceed('chameleon-tongue-' .. tostring(eat_distance), prog2)
           aseq_frames[#aseq_frames + 1] = {f2, alpha, -1.2, -0.1}
         end
-      end
-      if not hide_eyes_by_eat_progress and
-          (provoke_progress > 0 or provoke_progress == -1) then
-        if provoke_progress == -1 then provoke_progress = 1 end
-        local f = aseq_proceed('chameleon-eye', provoke_progress)
-        local alpha = math.sqrt(math.min(provoke_progress / 0.3))
-        aseq_frames[#aseq_frames + 1] = {f, alpha, -1.2, -0.1}
       end
       -- Recover original range x/y
       local r, c, rx, ry = o.r, o.c, o.range_x, o.range_y
@@ -897,14 +910,15 @@ return function (puzzle_index)
       else
         flip_x = (rx > 0)
       end
-      -- Offset images
+      love.graphics.setShader(shader_alpha_mask)
       for i = 1, #aseq_frames do
+        -- Offset images
         local f, alpha, offs_x, offs_y = unpack(aseq_frames[i])
         offs_x, offs_y =
           offs_x * math.cos(rotation) - offs_y * math.sin(rotation),
           offs_x * math.sin(rotation) + offs_y * math.cos(rotation)
         if flip_x then offs_x = -offs_x end
-        love.graphics.setColor(1, 1, 1, alpha)
+        shader_alpha_mask:send('progress', alpha)
         draw.img(
           f,
           board_offs_x + cell_w * (c + 0.5 + offs_x),
@@ -915,6 +929,7 @@ return function (puzzle_index)
           rotation
         )
       end
+      love.graphics.setShader()
     end)
 
     -- Particle systems (under butterflies)
