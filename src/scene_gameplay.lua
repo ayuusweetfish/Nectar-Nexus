@@ -267,8 +267,8 @@ return function (puzzle_index)
     if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
-      if key == 'return' and btn_next.enabled then btn_next_fn() end
-      trigger(nil, nil)
+      if key == 'return' and btn_next.enabled then btn_next_fn()
+      else trigger(nil, nil) end
     elseif #key == 1 and key >= '0' and key <= '9' then
       local index = string.byte(key, 1) - 48
       if index == 0 then
