@@ -28,7 +28,7 @@ uniform Image mask;
 uniform float progress;
 vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords) {
   vec4 c = Texel(tex, texture_coords);
-  if (Texel(mask, texture_coords).r > progress) c.a = 0;
+  if (Texel(mask, texture_coords).r > progress) c.a = 0.0;
   return c;
 }
 ]])

@@ -14,13 +14,21 @@
         position: absolute; margin: auto;
         top: 0; bottom: 0; left: 0; right: 0;
       }
+      #loading {
+        position: absolute;
+        bottom: 0;
+        user-select: none;
+        color: #fefefe;
+      }
     </style>
   </head>
   <body>
     <canvas id="loadingCanvas" oncontextmenu="event.preventDefault()" width="720" height="480"></canvas>
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
+    <p id='loading'>Loading...</p>
 
     <script type='text/javascript'>
+      var loadingText = document.getElementById('loading');
       function goFullScreen(){
             var canvas = document.getElementById("canvas");
             if(canvas.requestFullScreen)
@@ -64,6 +72,10 @@
       var Module = {
         arguments: ["./game.love"],
         INITIAL_MEMORY: 134217728,
+        print: function (text) {
+          if (loadingText !== null)
+            loadingText.innerText = 'Loading assets... (' + text + ')';
+        },
         printErr: console.error.bind(console),
         canvas: (function() {
           var canvas = document.getElementById('canvas');
@@ -77,10 +89,14 @@
         })(),
         setStatus: function(text) {
           if (text) {
+            if (text === 'Running...') text = 'Loading assets...';
             drawLoadingText(text);
+            loadingText.innerText = text;
           } else if (Module.remainingDependencies === 0) {
             document.getElementById('loadingCanvas').style.display = 'none';
             document.getElementById('canvas').style.visibility = 'visible';
+            loadingText.remove();
+            loadingText = null;
           }
         },
         totalDependencies: 0,
