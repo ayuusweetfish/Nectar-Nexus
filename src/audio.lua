@@ -1,8 +1,25 @@
-local sources = {
-  move = love.audio.newSource('aud/move.ogg', 'static'),
-  undo = love.audio.newSource('aud/undo.ogg', 'static'),
-  weeds = love.audio.newSource('aud/weeds.ogg', 'static'),
-}
+local sources = { }
+
+local function load_audio(path)
+  local files = love.filesystem.getDirectoryItems('aud' .. path)
+  for i = 1, #files do
+    local basename = files[i]
+    if basename:sub(-4) == '.ogg' then
+      local name = (path .. '/' .. basename:sub(1, #basename - 4)):sub(2)
+      if name ~= 'background' then
+        local img = love.audio.newSource('aud' .. path .. '/' .. basename, 'static')
+        sources[name] = img
+        print(name)
+      end
+    else
+      -- Folder?
+      if love.filesystem.getInfo('img' .. path .. '/' .. basename).type == 'directory' then
+        load_audio(path .. '/' .. basename)
+      end
+    end
+  end
+end
+load_audio('')
 
 local T = 0
 local delayed_sfx = {}  -- {time, name}

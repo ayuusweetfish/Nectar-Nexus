@@ -96,7 +96,7 @@ end
 local audio = require 'audio'
 local bgm, bgm_update = audio.loop(
   nil, 0,
-  'aud/background.ogg', (36 * 3) * (60 / 72),
+  'aud/background.ogg', (80 * 3) * (60 / 72),
   1600 * 4)
 bgm:setVolume(1)
 

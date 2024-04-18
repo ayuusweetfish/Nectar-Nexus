@@ -172,13 +172,30 @@ return function (puzzle_index)
 
     -- Sound effects
     if board_anims ~= nil then
-      audio.sfx('move')
-      for _, anims in pairs(board_anims) do
+      local is_bloom = false
+      for o, anims in pairs(board_anims) do
         for name, _ in pairs(anims) do
           if name == 'weeds_trigger' then
-            audio.sfx('weeds', 0.2)
+            audio.sfx('weeds', 0.14)
+          elseif name == 'provoke' then
+            audio.sfx('chameleon_provoke', 0.4)
+          elseif name == 'eat' then
+            audio.sfx('chameleon_eat', 0.4)
+          elseif name == 'carry_pollen' then
+            audio.sfx('pollen_carry', 0.2)
+          elseif name == 'pollen_match' then
+            audio.sfx('pollen_match', 0.2)
+          elseif o.name == 'reflect_obstacle' and name == 'hit' then
+            audio.sfx('rebound', 0.2)
+          elseif name == 'use' then
+            audio.sfx('bloom')
+            audio.sfx('move', 0.1)
+            is_bloom = true
           end
         end
+      end
+      if not is_bloom then
+        audio.sfx('move')
       end
     end
   end
@@ -539,6 +556,7 @@ return function (puzzle_index)
 
     if since_clear == -1 and board.cleared then
       since_clear = 0
+      audio.sfx('clear', 0.5)
     elseif not board.cleared then
       since_clear = -1
       btn_next.enabled = false
