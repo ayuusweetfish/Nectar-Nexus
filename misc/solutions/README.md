@@ -3,10 +3,12 @@
 The solution to each puzzle will be given as a string of digits:
 - Digit 0 denotes an empty step (without triggering blossoms);
 - Digit 1-9 denote the triggering of a blossom of that respective number — refer to the screenshots attached.
+
 This string can be typed directly into the game screen to progress through each step. For clarity, digits are displayed in groups of four.
 
 
 The rule for turning, in case you need it:
+
 ![Explanation for turning rules](turning.png)
 
 
@@ -237,7 +239,7 @@ The rule for turning, in case you need it:
 
 <details>
   <summary>Hint</summary>
-  _Sacrifices must be made_. Which of them?
+  <i>Sacrifices must be made</i>. Which of them?
 
   One of the flowers must be saved for the final turn. Which of them?
 
@@ -263,7 +265,7 @@ The rule for turning, in case you need it:
 
 <details>
   <summary>Hint</summary>
-  Sacrifices must _not_ be made. This leaves us with a single choice for the first steps.
+  Sacrifices must <i>not</i> be made. This leaves us with a single choice for the first steps.
 
   **0 2 1 30 400**
 </details>
