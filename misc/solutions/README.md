@@ -51,7 +51,9 @@ The rule for turning, in case you need it:
 
 ![Screenshot of puzzle 6](puzzle-06.jpg)
 
-**0 2000 1 30**
+Solution 1: **2000 3 10**
+
+Solution 2: **0 2000 1 30**
 
 
 ## 07
@@ -92,7 +94,9 @@ The rule for turning, in case you need it:
 <details>
   <summary>Hint</summary>
   The vertical pair needs a direct, straight route through them (because 4 blossoms will be required otherwise).
+
   Which bee is the one to do this? Quickly eliminating some of the obscure, infeasible options, we are left with the lower bee doing a backward turn.
+
   When should this happen? A lockstep can be carefully crafted so that the upper bee ends up at the correct row.
 
   **0000 20000 100 3000 0000**
@@ -255,6 +259,7 @@ The rule for turning, in case you need it:
   <summary>Hint</summary>
 
   Solution 1: **00 100 2 3000 0000**
+
   Solution 2: **00 1 20000 300 000** (one bee gets eaten after fulfilling its duty)
 </details>
 
