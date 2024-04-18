@@ -3,6 +3,7 @@ return {
   test = 14,  -- Puzzle index if directly entering gameplay scene
   chameleon_inspect = 0,  -- Whether chameleons are always displayed
   debug_navi = false,     -- Whether allow arrow key for quick navigation between puzzles
+  debug_numbering = false,-- Whether bloom index is displayed over the puzzle image
 
   ------ Vase 1: Fundamentals ------
   -- Game objective
@@ -473,6 +474,24 @@ return {
   },
   [27] = {
     tile = {1, 1},
+    size = {6, 10},
+    objs = {
+      {'obstacle', 0, 5, empty_background = true}, {'obstacle', 0, 6, empty_background = true}, {'obstacle', 0, 7, empty_background = true}, {'obstacle', 0, 8, empty_background = true}, {'obstacle', 0, 9, empty_background = true},
+      {'obstacle', 1, 5, empty_background = true}, {'obstacle', 1, 6, empty_background = true}, {'obstacle', 1, 7, empty_background = true}, {'obstacle', 1, 8, empty_background = true}, {'obstacle', 1, 9, empty_background = true},
+      {'weeds', 3, 4},
+      {'bloom', 1, 1},
+      {'bloom', 5, 1},
+      {'bloom', 4, 8},
+      {'chameleon', 2, 5, range_y = 3},
+      {'pollen', 3, 6, group = 1, image = '4.1'},
+      {'pollen', 2, 4, group = 1, image = '4.2'},
+      {'pollen', 4, 6, group = 2, image = '2.1'},
+      {'pollen', 4, 7, group = 2, image = '2.2'},
+      {'butterfly', 3, 2, dir = 1},
+    },
+  },
+  [28] = {
+    tile = {1, 1},
     size = {6, 11},
     objs = {
       {'obstacle', 0, 0, empty_background = true}, {'obstacle', 0, 7, empty_background = true}, {'obstacle', 0, 8, empty_background = true}, {'obstacle', 0, 9, empty_background = true}, {'obstacle', 0, 10, empty_background = true},
@@ -493,7 +512,7 @@ return {
       {'butterfly', 0, 5, dir = 2},
     },
   },
-  [28] = {
+  [29] = {
     tile = {1, 1},
     size = {6, 8},
     objs = {
@@ -514,24 +533,6 @@ return {
       {'pollen', 2, 1, group = 3, image = '2.2', rotation = -1},
       {'pollen', 2, 2, group = 3, image = '2.1', rotation = 1},
       {'butterfly', 4, 4, dir = 1},
-    },
-  },
-  [29] = {
-    tile = {1, 1},
-    size = {6, 10},
-    objs = {
-      {'obstacle', 0, 5, empty_background = true}, {'obstacle', 0, 6, empty_background = true}, {'obstacle', 0, 7, empty_background = true}, {'obstacle', 0, 8, empty_background = true}, {'obstacle', 0, 9, empty_background = true},
-      {'obstacle', 1, 5, empty_background = true}, {'obstacle', 1, 6, empty_background = true}, {'obstacle', 1, 7, empty_background = true}, {'obstacle', 1, 8, empty_background = true}, {'obstacle', 1, 9, empty_background = true},
-      {'weeds', 3, 4},
-      {'bloom', 1, 1},
-      {'bloom', 5, 1},
-      {'bloom', 4, 8},
-      {'chameleon', 2, 5, range_y = 3},
-      {'pollen', 3, 6, group = 1, image = '4.1'},
-      {'pollen', 2, 4, group = 1, image = '4.2'},
-      {'pollen', 4, 6, group = 2, image = '2.1'},
-      {'pollen', 4, 7, group = 2, image = '2.2'},
-      {'butterfly', 3, 2, dir = 1},
     },
   },
   -- Home stretch

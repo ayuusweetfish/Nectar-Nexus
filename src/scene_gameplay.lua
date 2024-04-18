@@ -72,33 +72,35 @@ return function (puzzle_index)
   btn_back.y = H * 0.85
   buttons[#buttons + 1] = btn_back
 
-  local btn_next = button(
-    draw.get('icons/next'),
-    function ()
-      -- Go back?
-      local vase_end = {
-        [6] = 1,
-        [10] = 2,
-        [16] = 3,
-        [20] = 4,
-        [24] = 5,
-      }
-      if vase_end[puzzle_index] then
-        local other_scene = _G['intro_scene_instance']
-        if other_scene then
-          other_scene.new_vase(vase_end[puzzle_index] + 1)
-          other_scene.overlay_back()
-          replaceScene(other_scene)
-          return
-        end
-      elseif puzzle_index == 30 then
-        replaceScene(_G['sceneEnding']())
+  local btn_next_fn = function ()
+    -- Go back?
+    local vase_end = {
+      [6] = 1,
+      [10] = 2,
+      [16] = 3,
+      [20] = 4,
+      [24] = 5,
+    }
+    if vase_end[puzzle_index] then
+      local other_scene = _G['intro_scene_instance']
+      if other_scene then
+        other_scene.new_vase(vase_end[puzzle_index] + 1)
+        other_scene.overlay_back()
+        replaceScene(other_scene)
         return
       end
+    elseif puzzle_index == 30 then
+      replaceScene(_G['sceneEnding']())
+      return
+    end
 
-      local index = puzzle_index % #puzzles + 1
-      replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
-    end,
+    local index = puzzle_index % #puzzles + 1
+    replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+  end
+
+  local btn_next = button(
+    draw.get('icons/next'),
+    btn_next_fn,
     H * 0.09 / 100 * 1.5
   )
   btn_next.x = W * 0.87
@@ -265,6 +267,7 @@ return function (puzzle_index)
     if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
+      if key == 'return' and btn_next.enabled then btn_next_fn() end
       trigger(nil, nil)
     elseif #key == 1 and key >= '0' and key <= '9' then
       local index = string.byte(key, 1) - 48
@@ -278,6 +281,12 @@ return function (puzzle_index)
     if (key == 'left' or key == 'right') and puzzles.debug_navi then
       local index = (puzzle_index + (key == 'left' and #puzzles - 2 or 0)) % #puzzles + 1
       replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+    end
+    if key == '=' and puzzles.debug_numbering then
+      local name = string.format('puzzle-%02d.png', puzzle_index)
+      love.filesystem.setIdentity('Nectar_Nexus')
+      love.graphics.captureScreenshot(name)
+      print('Captured ' .. name)
     end
   end
 
@@ -547,6 +556,7 @@ return function (puzzle_index)
   end
 
   s.update = function ()
+    if puzzles.debug_numbering then return end
     T = T + 1
 
     for i = 1, #buttons do buttons[i].update() end
@@ -564,6 +574,15 @@ return function (puzzle_index)
     if since_clear >= 0 then
       since_clear = since_clear + 1
       btn_next.enabled = (since_clear >= 240)
+    end
+  end
+
+  local numbering
+  if puzzles.debug_numbering then
+    local font = love.graphics.newFont('misc/Imprima-Regular.ttf', 40)
+    numbering = {}
+    for i = 1, 9 do
+      numbering[i] = love.graphics.newText(font, tostring(i))
     end
   end
 
@@ -1049,6 +1068,24 @@ return function (puzzle_index)
         board_offs_x + cell_w * pt_c,
         board_offs_y + cell_w * pt_r,
         cell_w, cell_w)
+    end
+
+    -- Bloom numbering (if enabled)
+    if puzzles.debug_numbering then
+      love.graphics.setLineWidth(2)
+      local i = 0
+      board.each('bloom', function (o)
+        i = i + 1
+        if i <= 9 then
+          local x = board_offs_x + cell_w * (o.c + 0.48)
+          local y = board_offs_y + cell_w * (o.r + 0.55)
+          love.graphics.setColor(0.98, 0.98, 0.98, 0.9)
+          love.graphics.circle('fill', x, y, cell_w * 0.4)
+          love.graphics.setColor(0.2, 0.2, 0.2)
+          love.graphics.circle('line', x, y, cell_w * 0.4)
+          draw(numbering[i], x, y)
+        end
+      end)
     end
 
     -- Text

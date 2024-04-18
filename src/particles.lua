@@ -15,6 +15,15 @@ local rect = function (x1, y1, x2, y2)
   love.graphics.draw(white_tex_1x1, x1, y1, 0, x2 - x1, y2 - y1, 0, 0)
 end
 
+local seed = 202404191
+local randi = function ()
+  seed = (seed * 1664525 + 1013904223) % 0x80000000
+  return seed
+end
+local rand = function ()
+  return randi() / 0x80000000
+end
+
 return function (options)
   local s = {}
   s.x = 0
@@ -34,28 +43,28 @@ return function (options)
   local map_asin = function (x) return 0.5 + math.asin(2 * x - 1) / math.pi end
   local new_particle = function ()
     return {
-      x_rg = (map_asin(map_asin(math.random())) - 0.5) * 0.04,
-      x_offs = (math.random() - 0.5) * x_spread,
-      v = (1 + math.random() * 0.1) * 0.06,
-      y_lim = (1 + math.random()^2 * 0.4) * y_max,
-      y_offs = (math.random() - 0.5) * 10,
-      lfo1_f = (1 + math.random() * 0.3) * 0.012,
-      lfo1_a = math.random() * 15,
-      lfo1_ph = math.random() * math.pi * 2,
-      lfo2_f = (1 + math.random() * 0.3) * 0.006,
-      lfo2_a = math.random()^3 * 8,
-      lfo2_ph = math.random() * math.pi * 2,
-      lfo3_f = (1 + math.random() * 0.5) * 0.008,
-      lfo3_a = (1 + math.random() * 0.3) * 35,
-      lfo4_f = (1 + math.random() * 0.5) * 0.005,
-      lfo4_a = (1 + math.random() * 0.3) * 25,
+      x_rg = (map_asin(map_asin(rand())) - 0.5) * 0.04,
+      x_offs = (rand() - 0.5) * x_spread,
+      v = (1 + rand() * 0.1) * 0.06,
+      y_lim = (1 + rand()^2 * 0.4) * y_max,
+      y_offs = (rand() - 0.5) * 10,
+      lfo1_f = (1 + rand() * 0.3) * 0.012,
+      lfo1_a = rand() * 15,
+      lfo1_ph = rand() * math.pi * 2,
+      lfo2_f = (1 + rand() * 0.3) * 0.006,
+      lfo2_a = rand()^3 * 8,
+      lfo2_ph = rand() * math.pi * 2,
+      lfo3_f = (1 + rand() * 0.5) * 0.008,
+      lfo3_a = (1 + rand() * 0.3) * 35,
+      lfo4_f = (1 + rand() * 0.5) * 0.005,
+      lfo4_a = (1 + rand() * 0.3) * 25,
       age = 0,
     }
   end
 
   for i = 1, 40 do
     local p = new_particle()
-    p.age = math.random() * (p.y_lim / p.v)
+    p.age = rand() * (p.y_lim / p.v)
     ps[#ps + 1] = p
   end
 
@@ -64,7 +73,7 @@ return function (options)
     if #ps < 40 and until_next_spawn < 0 then
       -- Spawn a new particle
       ps[#ps + 1] = new_particle()
-      until_next_spawn = math.floor(math.random() * 60)
+      until_next_spawn = math.floor(rand() * 60)
     end
     local i = 1
     while i <= #ps do
