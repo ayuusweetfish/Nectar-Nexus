@@ -32,7 +32,9 @@ return function ()
   end
 
   s.key = function (key)
-    if key == 'return' then btn_next_fn() end
+    if key == 'return' or (key == 'right' and require('puzzles').debug_navi) then
+      btn_next_fn()
+    end
   end
 
   local T = 0
@@ -56,6 +58,8 @@ return function ()
       glaze_tile_tex, glaze_tile_quad,
       board_offs_x, board_offs_y,
       0, global_scale)
+    draw.img('still/tutorial-overlay',
+      W / 2, H / 2, 1280 * global_scale, 720 * global_scale)
 
     -- Overlay
     for r = 0, 6 do
