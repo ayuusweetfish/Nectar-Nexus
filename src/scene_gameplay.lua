@@ -3,6 +3,7 @@ local Board = require 'board'
 local puzzles = require 'puzzles'
 local particles = require 'particles'
 local audio = require 'audio'
+local overlay_tutorial = require 'overlay_tutorial'
 
 local ease_quad_in_out = function (x)
   if x < 0.5 then return x * x * 2
@@ -22,6 +23,8 @@ local clamp_01 = function (x)
   elseif x > 1 then return 1
   else return x end
 end
+
+local tutorial_shown = false
 
 local shader_alpha_mask = love.graphics.newShader([[
 uniform Image mask;
@@ -43,6 +46,8 @@ return function (puzzle_index)
 
   local icon_puzzle_num = string.format('icons/number_%02d', puzzle_index)
 
+  if _G['intro_scene_instance'] == nil then puzzles.debug_navi = true end
+
   local button = require 'button'
   local buttons = {}
 
@@ -53,7 +58,7 @@ return function (puzzle_index)
     H * 0.09 / 100 * 1.5
   )
   btn_undo.x = W * 0.14
-  btn_undo.y = H * 0.14
+  btn_undo.y = H * 0.16
   btn_undo.enabled = false
   btn_undo.response_when_disabled = true
   buttons[#buttons + 1] = btn_undo
@@ -95,11 +100,7 @@ return function (puzzle_index)
     end
 
     local index = puzzle_index % #puzzles + 1
-    if index == 4 then
-      replaceScene(sceneTutorial(), transitions['fade'](0.1, 0.1, 0.1))
-    else
-      replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
-    end
+    replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
   end
 
   local btn_next = button(
@@ -111,6 +112,33 @@ return function (puzzle_index)
   btn_next.y = H * 0.84
   btn_next.enabled = false
   buttons[#buttons + 1] = btn_next
+
+  local palette_num = 1
+  if puzzle_index >= 1 and puzzle_index <= 6 then
+    palette_num = 1
+  elseif puzzle_index >= 7 and puzzle_index <= 10 then
+    palette_num = 2
+  elseif puzzle_index >= 11 and puzzle_index <= 16 then
+    palette_num = 3
+  elseif puzzle_index >= 17 and puzzle_index <= 20 then
+    palette_num = 1
+  elseif puzzle_index >= 21 and puzzle_index <= 24 then
+    palette_num = 2
+  elseif puzzle_index >= 25 and puzzle_index <= 29 then
+    palette_num = 3
+  elseif puzzle_index == 30 then
+    palette_num = 1
+  end
+
+  local tutorial
+  if puzzle_index >= 4 then
+    local auto_activate = false
+    if puzzle_index == 4 then
+      auto_activate = not tutorial_shown
+      tutorial_shown = true
+    end
+    tutorial = overlay_tutorial(palette_num, auto_activate)
+  end
 
   local global_scale = 1 / 1.5
   local cell_w_orig = 100 * global_scale
@@ -231,6 +259,7 @@ return function (puzzle_index)
   local since_clear = -1
 
   s.press = function (x, y)
+    if tutorial and tutorial.press(x, y) then return true end
     if colour_picker and colour_picker.press(x, y) then return true end
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
@@ -248,12 +277,14 @@ return function (puzzle_index)
   end
 
   s.move = function (x, y)
+    if tutorial and tutorial.move(x, y) then return true end
     if colour_picker and colour_picker.move(x, y) then return true end
     for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
     return true
   end
 
   s.release = function (x, y)
+    if tutorial and tutorial.release(x, y) then return true end
     if colour_picker and colour_picker.release(x, y) then return true end
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
     local r1, c1 = pt_to_cell(x, y)
@@ -268,6 +299,8 @@ return function (puzzle_index)
   -- 0/Enter/Tab/Space/N: move on without triggering blossom
   -- Backspace/Z/P/U/R: undo
   s.key = function (key)
+    if tutorial and tutorial.key(key) then return true end
+
     if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
@@ -303,23 +336,6 @@ return function (puzzle_index)
   end
 
   ------ Visuals!! ------
-
-  local palette_num = 1
-  if puzzle_index >= 1 and puzzle_index <= 6 then
-    palette_num = 1
-  elseif puzzle_index >= 7 and puzzle_index <= 10 then
-    palette_num = 2
-  elseif puzzle_index >= 11 and puzzle_index <= 16 then
-    palette_num = 3
-  elseif puzzle_index >= 17 and puzzle_index <= 20 then
-    palette_num = 1
-  elseif puzzle_index >= 21 and puzzle_index <= 24 then
-    palette_num = 2
-  elseif puzzle_index >= 25 and puzzle_index <= 29 then
-    palette_num = 3
-  elseif puzzle_index == 30 then
-    palette_num = 1
-  end
 
   local bg_tint = {
     {0.02, 0.41, 0.38},
@@ -561,6 +577,8 @@ return function (puzzle_index)
 
   s.update = function ()
     if puzzles.debug_numbering then return end
+
+    if tutorial then tutorial.update() end
     T = T + 1
 
     for i = 1, #buttons do buttons[i].update() end
@@ -1092,8 +1110,10 @@ return function (puzzle_index)
       end)
     end
 
+    local tutorial_hide_alpha = 1 - (tutorial and tutorial.alpha() or 0)
+
     -- Text
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(1, 1, 1, tutorial_hide_alpha)
     draw.img(icon_puzzle_num, W * 0.18, H * 0.85, H * 0.09)
 
     -- Buttons
@@ -1106,7 +1126,7 @@ return function (puzzle_index)
           alpha = ease_quad_in_out(math.max(0, math.min(1, (since_clear - 240) / 60)))
         end
       end
-      love.graphics.setColor(1, 1, 1, alpha)
+      love.graphics.setColor(1, 1, 1, alpha * tutorial_hide_alpha)
       buttons[i].draw()
     end
 
@@ -1115,6 +1135,8 @@ return function (puzzle_index)
       love.graphics.setColor(1, 1, 1)
       love.graphics.print(tostring(colour_picker_group_num), W - 18, H - 24)
     end
+
+    if tutorial then tutorial.draw() end
   end
 
   s.destroy = function ()
