@@ -44,11 +44,11 @@ end
 
 _G['sceneIntro'] = require 'scene_intro'
 _G['sceneGameplay'] = require 'scene_gameplay'
+_G['sceneTutorial'] = require 'scene_tutorial'
 _G['sceneEnding'] = require 'scene_ending'
 
-local curScene = sceneIntro()
--- local curScene = sceneGameplay()
--- local curScene = sceneEnding()
+-- local curScene = sceneIntro()
+local curScene = sceneTutorial()
 local lastScene = nil
 local transitionTimer = 0
 local currentTransition = nil

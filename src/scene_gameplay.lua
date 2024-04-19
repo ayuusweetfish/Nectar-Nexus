@@ -95,7 +95,11 @@ return function (puzzle_index)
     end
 
     local index = puzzle_index % #puzzles + 1
-    replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+    if index == 4 then
+      replaceScene(sceneTutorial(), transitions['fade'](0.1, 0.1, 0.1))
+    else
+      replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+    end
   end
 
   local btn_next = button(
