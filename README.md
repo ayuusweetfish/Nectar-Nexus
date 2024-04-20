@@ -1,6 +1,6 @@
 # Nectar Nexus
 
-**[Play in browser](https://0-th.art/Nectar-Nexus)** | **[LD entry page](https://ldjam.com/events/ludum-dare/55/nectar-nexus)** | **[Hints and solutions](misc/solutions/README.md)**
+🕹️ **[Play in browser](https://0-th.art/Nectar-Nexus)** | 🌐 **[LD entry page](https://ldjam.com/events/ludum-dare/55/nectar-nexus)** | 📄 **[Hints and solutions](misc/solutions/README.md)**
 
 Welcome to *Nectar Nexus* — a wonderful puzzle game where a whimsical porcelain garden experience is about to unfold.
 

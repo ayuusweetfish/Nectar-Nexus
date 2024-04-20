@@ -1,10 +1,10 @@
 # Hints and Solutions to _Nectar Nexus_
 
-The solution to each puzzle will be given as a string of digits:
+The solution to each puzzle will be given as a sequence of digits:
 - Digit 0 denotes an empty step (without triggering blossoms);
 - Digit 1-9 denote the triggering of a blossom of that respective number — refer to the screenshots attached.
 
-This string can be typed directly into the game screen to progress through each step. For clarity, digits are displayed in groups of four.
+This sequence can be typed directly into the game screen to progress through each step. For clarity, digits are displayed in groups, separated by spaces.
 
 
 The rule for turning, in case you need it:
@@ -234,13 +234,6 @@ Solution 2: **0 2000 1 30**
 
 ![Screenshot of puzzle 26](puzzle-26.jpg)
 
-**00 1 2 300 000**
-
-
-## 27
-
-![Screenshot of puzzle 27](puzzle-27.jpg)
-
 <details>
   <summary>Hint</summary>
   <i>Sacrifices must be made</i>. Which of them?
@@ -249,6 +242,13 @@ Solution 2: **0 2000 1 30**
 
   **0 1 20000 30000**
 </details>
+
+
+## 27
+
+![Screenshot of puzzle 27](puzzle-27.jpg)
+
+**00 1 2 300 000**
 
 
 ## 28
