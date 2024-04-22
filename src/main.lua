@@ -46,7 +46,8 @@ _G['sceneIntro'] = require 'scene_intro'
 _G['sceneGameplay'] = require 'scene_gameplay'
 _G['sceneEnding'] = require 'scene_ending'
 
-local curScene = sceneIntro()
+--local curScene = sceneIntro()
+local curScene = sceneGameplay(4)
 local lastScene = nil
 local transitionTimer = 0
 local currentTransition = nil
@@ -96,7 +97,7 @@ local bgm, bgm_update = audio.loop(
   nil, 0,
   'aud/background.ogg', (80 * 3) * (60 / 72),
   1600 * 4)
-bgm:setVolume(1)
+bgm:setVolume(0)
 
 local T = 0
 local timeStep = 1 / 240

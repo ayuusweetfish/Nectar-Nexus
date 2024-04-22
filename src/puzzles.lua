@@ -49,7 +49,6 @@ return {
     objs = {
       {'bloom', 3, 6},
       {'bloom', 0, 6},
-      {'obstacle', 1, 6, image = '1.1'},
       {'pollen', 1, 3, group = 1, image = '3.2'},
       {'pollen', 1, 4, group = 1, image = '3.1'},
       {'pollen', 2, 5, group = 2, image = '4.1'},

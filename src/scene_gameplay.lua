@@ -147,17 +147,33 @@ return function (puzzle_index)
   local board_offs_y = (H - cell_w * board.nrows) / 2
   local cell_scale = cell_w / cell_w_orig
 
-  local pt_to_cell = function (x, y)
+  local pt_to_cell = function (x, y, sel_r, sel_c)
     local c = math.floor((x - board_offs_x) / cell_w)
     local r = math.floor((y - board_offs_y) / cell_w)
-    if r < 0 or r >= board.nrows or c < 0 or c >= board.ncols then
-      return nil
+    -- If a blossom is previously selected, check the distance
+    if sel_r ~= nil then
+      if (r - sel_r) ^ 2 + (c - sel_c) ^ 2 <= 2 then
+        return sel_r, sel_c
+      else
+        return nil, nil
+      end
     end
-    return r, c
+    -- Otherwise, find the nearest blossom within a fixed radius
+    local bloom_r, bloom_c
+    local best_dist = 2
+    board.each('bloom', function (o)
+      if not o.used then
+        local dist = (o.r - r) ^ 2 + (o.c - c) ^ 2
+        if dist < best_dist then
+          bloom_r, bloom_c = o.r, o.c
+        end
+      end
+    end)
+    return bloom_r, bloom_c
   end
 
   local pt_r, pt_c
-  local pt_bloom
+  local since_pt = -1
 
   local board_anims
   local since_anim = 0
@@ -263,13 +279,7 @@ return function (puzzle_index)
     if colour_picker and colour_picker.press(x, y) then return true end
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
     pt_r, pt_c = pt_to_cell(x, y)
-    pt_bloom = false
-    if pt_r ~= nil then
-      local o = board.find_one(pt_r, pt_c, 'bloom')
-      if o ~= nil and not o.used then
-        pt_bloom = true
-      end
-    end
+    if pt_r ~= nil then since_pt = 0 end
     return true
   end
 
@@ -287,11 +297,12 @@ return function (puzzle_index)
     if tutorial and tutorial.release(x, y) then return true end
     if colour_picker and colour_picker.release(x, y) then return true end
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end
-    local r1, c1 = pt_to_cell(x, y)
+    local r1, c1 = pt_to_cell(x, y, pt_r, pt_c)
     if r1 == pt_r and c1 == pt_c then
       trigger(r1, c1)
     end
-    pt_r, pt_c, pt_bloom = nil, nil, false
+    pt_r, pt_c = nil, nil
+    since_pt = -1
     return true
   end
 
@@ -580,6 +591,8 @@ return function (puzzle_index)
 
     if tutorial then tutorial.update() end
     T = T + 1
+
+    if since_pt >= 0 then since_pt = since_pt + 1 end
 
     for i = 1, #buttons do buttons[i].update() end
     since_anim = since_anim + 1 + #trigger_buffer
@@ -1084,12 +1097,22 @@ return function (puzzle_index)
     end
 
     -- Pointer
-    if pt_bloom then
+    if pt_r ~= nil then
       love.graphics.setColor(1, 1, 0.3, 0.2)
       love.graphics.rectangle('fill',
         board_offs_x + cell_w * pt_c,
         board_offs_y + cell_w * pt_r,
         cell_w, cell_w)
+    --[[
+      local a = math.min(1, since_pt / 48)
+      love.graphics.setColor(1, 1, 0.3, 0.8 * ease_quad_in_out(a))
+      local w = 2 - ease_exp_out(a)
+      love.graphics.setLineWidth(2)
+      love.graphics.rectangle('line',
+        board_offs_x + cell_w * (pt_c - (w - 1) / 2),
+        board_offs_y + cell_w * (pt_r - (w - 1) / 2),
+        cell_w * w, cell_w * w)
+    ]]
     end
 
     -- Bloom numbering (if enabled)
