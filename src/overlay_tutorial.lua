@@ -148,7 +148,11 @@ return function (palette_num, activate_imm)
     love.graphics.setColor(bg_r, bg_g, bg_b, global_alpha * 0.5)
     love.graphics.rectangle('fill', 0, 0, W, H)
 
-    love.graphics.setColor(0.9, 0.9, 0.9, global_alpha)
+    love.graphics.setColor(
+      1 - (1 - bg_r) * 0.1,
+      1 - (1 - bg_g) * 0.1,
+      1 - (1 - bg_b) * 0.1,
+      global_alpha)
     love.graphics.draw(
       glaze_tile_tex, glaze_tile_quad,
       board_offs_x, board_offs_y,
@@ -177,7 +181,7 @@ return function (palette_num, activate_imm)
         local phase = (i / 4 + T / 240 * 0.15) % 1
         local alpha = 0
         if phase <= 0.25 then
-          phase = phase * 4
+          local phase = phase * 4
           alpha = alpha + 0.3 * 0.5 * (1 - math.cos(math.pi * 2 * phase))
         end
         love.graphics.setColor(tr, tg, tb, alpha * global_alpha)
@@ -185,6 +189,91 @@ return function (palette_num, activate_imm)
           board_offs_x + 100 * global_scale * c,
           board_offs_y + 100 * global_scale * r,
           100 * global_scale, 100 * global_scale)
+        -- Flower?
+        local bloom_alpha = 0
+        local bloom_frame
+        local butterfly_alpha = 0
+        local butterfly_frame, butterfly_flip_x
+        local butterfly_x, butterfly_y
+        if ((r == 1 and c == 4) or (r == 5 and c == 4) or
+            (r == 3 and c == 2) or (r == 3 and c == 8))
+           and phase <= 0.25 then
+          local phase = phase * 4
+          -- Blossom
+          bloom_alpha = 0.5 * (1 - math.cos(math.pi * 2 * phase))
+          if phase >= 0.5 then
+            bloom_alpha = bloom_alpha * bloom_alpha
+          end
+          if phase < 6 / 28 then
+            bloom_frame = string.format('bloom/idle/%02d',
+              math.min(6, 1 + math.floor(phase * 28)))
+          else
+            bloom_frame = string.format('bloom/visited/%02d',
+              math.min(8, 1 + math.floor(phase * 28 - 6)))
+          end
+          -- Butterfly
+          if phase >= 5 / 28 then
+            butterfly_x, butterfly_y = 5.5, 3.5
+            butterfly_alpha = 0.7 * ease_quad_in_out(
+              math.max(0, math.min(1, (phase - 5 / 24) * 4, (18 / 24 - phase) * 4)))
+            local dx, dy
+            local turn_aseq, idle_aseq
+            if c == 4 then
+              -- Up/down
+              dx, dy = 0, (r == 1 and -1 or 1)
+              local facing = (r == 1 and 'back' or 'front')
+              local frame = 1 + math.floor(phase * 28 - 5)
+              if frame <= 6 then
+                butterfly_frame = string.format('butterflies/turn-side-%s/%02d', facing, frame)
+              else
+                frame = (frame - 6 - 1) % 16 + 1
+                butterfly_frame = string.format('butterflies/idle-%s/%02d', facing, frame)
+              end
+            elseif r == 3 and c == 2 then
+              -- Left
+              dx, dy = -0.2, 0
+              local frame = (phase * 28 - 5)
+              if frame < 6 then
+                if frame < 3 then
+                  butterfly_frame = string.format('butterflies/turn-side-front/%02d', math.floor(frame) + 1)
+                else
+                  butterfly_frame = string.format('butterflies/turn-front-side/%02d', math.floor(frame - 3) + 1)
+                  butterfly_flip_x = true
+                end
+              else
+                frame = math.floor(frame - 6) % 16 + 1
+                butterfly_frame = string.format('butterflies/idle-side/%02d', frame)
+                butterfly_flip_x = true
+              end
+            elseif r == 3 and c == 8 then
+              -- Right
+              dx, dy = 1, 0
+              local frame = 1 + math.floor(phase * 28 - 5) % 16
+              butterfly_frame = string.format('butterflies/idle-side/%02d', frame)
+            end
+            local move_progress = ease_quad_in_out(math.min(1, (phase - 5 / 24) * 3))
+            butterfly_x = butterfly_x + dx * move_progress
+            butterfly_y = butterfly_y + dy * move_progress
+          end
+        end
+        if bloom_alpha > 0 then
+          love.graphics.setColor(1, 1, 1, bloom_alpha * global_alpha)
+          draw.img(bloom_frame,
+            board_offs_x + 100 * global_scale * (c + 0.59),
+            board_offs_y + 100 * global_scale * (r + 0.5),
+            120 * global_scale,
+            120 * global_scale
+          )
+        end
+        if butterfly_alpha > 0 then
+          love.graphics.setColor(1, 1, 1, butterfly_alpha * global_alpha)
+          draw.img(butterfly_frame,
+            board_offs_x + 100 * global_scale * butterfly_x,
+            board_offs_y + 100 * global_scale * butterfly_y,
+            (butterfly_flip_x and -200 or 200) * global_scale,
+            200 * global_scale
+          )
+        end
       end
     end
 

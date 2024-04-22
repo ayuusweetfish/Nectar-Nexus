@@ -16,12 +16,13 @@ return {
       {'butterfly', 1, 0, dir = 1},
     },
   },
-  -- Blossom
+  -- Blossom, obstacles
   [2] = {
     tile = {4, 3},
     size = {3, 8},
     objs = {
       {'bloom', 1, 4},
+      {'obstacle', 0, 1, image = '1.1'},
       {'pollen', 1, 6, group = 1, image = '4.1'},
       {'pollen', 1, 7, group = 1, image = '4.2'},
       {'butterfly', 1, 1, dir = 4},
@@ -48,6 +49,7 @@ return {
     objs = {
       {'bloom', 3, 6},
       {'bloom', 0, 6},
+      {'obstacle', 1, 6, image = '1.1'},
       {'pollen', 1, 3, group = 1, image = '3.2'},
       {'pollen', 1, 4, group = 1, image = '3.1'},
       {'pollen', 2, 5, group = 2, image = '4.1'},
@@ -55,7 +57,7 @@ return {
       {'butterfly', 1, 1, dir = 1},
     },
   },
-  -- Mild difficulty (trickery!), obstacles
+  -- Mild difficulty (trickery!)
   [5] = {
     tile = {1, 1},
     size = {5, 9},
