@@ -50,7 +50,7 @@ local audio = require 'audio'
 local bgm, bgm_update
 
 local load_next = function ()
-  local bgm, bgm_update = audio.loop(
+  bgm, bgm_update = audio.loop(
     nil, 0,
     'aud/background.ogg', (80 * 3) * (60 / 72),
     1600 * 4)
