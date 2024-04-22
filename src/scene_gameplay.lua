@@ -175,6 +175,8 @@ return function (puzzle_index)
   local pt_r, pt_c
   local since_pt = -1
 
+  local show_bloom_indices = false
+
   local board_anims
   local since_anim = 0
 
@@ -324,6 +326,7 @@ return function (puzzle_index)
       else
         trigger(index)
       end
+      show_bloom_indices = true
     end
 
     if (key == 'left' or key == 'right') and puzzles.debug_navi then
@@ -1129,6 +1132,25 @@ return function (puzzle_index)
           love.graphics.setColor(0.2, 0.2, 0.2)
           love.graphics.circle('line', x, y, cell_w * 0.4)
           draw(numbering[i], x, y)
+        end
+      end)
+    elseif show_bloom_indices then
+      love.graphics.setLineWidth(1)
+      local i = 0
+      board.each('bloom', function (o)
+        i = i + 1
+        if i <= 9 then
+          local x = board_offs_x + cell_w * (o.c + 0.125)
+          local y = board_offs_y + cell_w * (o.r + 0.82)
+          love.graphics.setColor(
+            1 - (1 - bg_tint[1]) * 0.07,
+            1 - (1 - bg_tint[2]) * 0.07,
+            1 - (1 - bg_tint[3]) * 0.07,
+            0.9)
+          love.graphics.circle('fill', x, y, cell_w * 0.2)
+          love.graphics.setColor(0.2, 0.2, 0.2)
+          love.graphics.circle('line', x, y, cell_w * 0.2)
+          draw.img('icons/digit_' .. tostring(i), x, y, cell_w * 0.3, cell_w * 0.3)
         end
       end)
     end

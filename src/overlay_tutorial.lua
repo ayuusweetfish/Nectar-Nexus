@@ -93,6 +93,9 @@ return function (palette_num, activate_imm)
     if key == 'return' or key == 'escape' or (key == 'right' and require('puzzles').debug_navi) then
       btn_next_fn()
       return true
+    elseif #key == 1 and key >= '0' and key <= '9' then
+      -- Intercept digit keys
+      return true
     end
   end
 
