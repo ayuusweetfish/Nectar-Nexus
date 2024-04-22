@@ -43,7 +43,18 @@ end
 -- love.graphics.setFont(_G['font_Imprima'](40))
 
 _G['sceneLoading'] = require 'scene_loading'
+
+-- Background track
+-- Load after visuals have been ready
+local audio = require 'audio'
+local bgm, bgm_update
+
 local load_next = function ()
+  local bgm, bgm_update = audio.loop(
+    nil, 0,
+    'aud/background.ogg', (80 * 3) * (60 / 72),
+    1600 * 4)
+  bgm:setVolume(1)
   _G['sceneIntro'] = require 'scene_intro'
   _G['sceneGameplay'] = require 'scene_gameplay'
   _G['sceneEnding'] = require 'scene_ending'
@@ -92,15 +103,6 @@ function love.keypressed(key)
   end
 end
 
--- Background track
--- Load after visuals have been ready
-local audio = require 'audio'
-local bgm, bgm_update = audio.loop(
-  nil, 0,
-  'aud/background.ogg', (80 * 3) * (60 / 72),
-  1600 * 4)
-bgm:setVolume(1)
-
 local T = 0
 local timeStep = 1 / 240
 
@@ -126,7 +128,7 @@ function love.update(dt)
   sinceAudioUpdate = sinceAudioUpdate + dt
   if sinceAudioUpdate >= 0.5 then
     sinceAudioUpdate = sinceAudioUpdate - 0.5
-    bgm_update()
+    if bgm_update then bgm_update() end
   end
   audio.sfx_update(dt)
 end
