@@ -1,23 +1,39 @@
 local imgs = {}
 
-local function load_imgs(path)
+local imgs_to_load = {}
+local function find_imgs(path)
   local files = love.filesystem.getDirectoryItems('img' .. path)
   for i = 1, #files do
     local basename = files[i]
     if basename:sub(-4) == '.png' or basename:sub(-4) == '.jpg' then
       local name = (path .. '/' .. basename:sub(1, #basename - 4)):sub(2)
-      local img = love.graphics.newImage('img' .. path .. '/' .. basename)
-      imgs[name] = img
-      print(name)
+      local img_path = 'img' .. path .. '/' .. basename
+      imgs_to_load[#imgs_to_load + 1] = {name, img_path}
     else
       -- Folder?
       if love.filesystem.getInfo('img' .. path .. '/' .. basename).type == 'directory' then
-        load_imgs(path .. '/' .. basename)
+        find_imgs(path .. '/' .. basename)
       end
     end
   end
 end
-load_imgs('')
+find_imgs('')
+table.sort(imgs_to_load, function (a, b)
+  local a_priority = ((a[1]:sub(1, 22) == 'butterflies/idle-side/' or a[1] == 'bloom/visited/08') and 0 or 1)
+  local b_priority = ((b[1]:sub(1, 22) == 'butterflies/idle-side/' or b[1] == 'bloom/visited/08') and 0 or 1)
+  if a_priority ~= b_priority then return a_priority < b_priority end
+  return a[1] < b[1]
+end)
+
+-- Returns (progress, total, name)
+local imgs_to_load_ptr = 0
+local load_img_step = function ()
+  if imgs_to_load_ptr >= #imgs_to_load then return end
+  imgs_to_load_ptr = imgs_to_load_ptr + 1
+  local name, img_path = unpack(imgs_to_load[imgs_to_load_ptr])
+  imgs[name] = love.graphics.newImage(img_path)
+  return imgs_to_load_ptr, #imgs_to_load, name
+end
 
 local draw = function (drawable, x, y, w, h, ax, ay, r)
   ax = ax or 0.5
@@ -66,6 +82,7 @@ local enclose = function (drawable, w, h, extraOffsX, extraOffsY)
 end
 
 local draw_ = {
+  load_img_step = load_img_step,
   get = function (name) return imgs[name] end,
   img = img,
   shadow = shadow,

@@ -73,8 +73,14 @@
         arguments: ["./game.love"],
         INITIAL_MEMORY: 134217728,
         print: function (text) {
-          if (loadingText !== null)
-            loadingText.innerText = 'Loading assets... (' + text + ')';
+          if (loadingText !== null) {
+            if (text !== '*finish') {
+              loadingText.innerText = 'Loading assets... (' + text + ')';
+            } else {
+              loadingText.remove();
+              loadingText = null;
+            }
+          }
         },
         printErr: console.error.bind(console),
         canvas: (function() {
@@ -95,8 +101,7 @@
           } else if (Module.remainingDependencies === 0) {
             document.getElementById('loadingCanvas').style.display = 'none';
             document.getElementById('canvas').style.visibility = 'visible';
-            loadingText.remove();
-            loadingText = null;
+            loadingText.innerText = '';
           }
         },
         totalDependencies: 0,

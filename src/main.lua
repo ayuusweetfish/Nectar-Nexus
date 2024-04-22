@@ -42,11 +42,14 @@ end
 -- _G['font_Imprima'] = fontSizeFactory('assets/Imprima-Regular.ttf', {28, 36})
 -- love.graphics.setFont(_G['font_Imprima'](40))
 
-_G['sceneIntro'] = require 'scene_intro'
-_G['sceneGameplay'] = require 'scene_gameplay'
-_G['sceneEnding'] = require 'scene_ending'
+_G['sceneLoading'] = require 'scene_loading'
+local load_next = function ()
+  _G['sceneIntro'] = require 'scene_intro'
+  _G['sceneGameplay'] = require 'scene_gameplay'
+  _G['sceneEnding'] = require 'scene_ending'
+end
 
-local curScene = sceneIntro()
+local curScene = sceneLoading(load_next)
 local lastScene = nil
 local transitionTimer = 0
 local currentTransition = nil
