@@ -133,7 +133,7 @@ return function (puzzle_index)
   local tutorial
   if puzzle_index >= 4 then
     local auto_activate = false
-    if puzzle_index == 4 then
+    if not puzzles.debug_numbering and puzzle_index == 4 then
       auto_activate = not tutorial_shown
       tutorial_shown = true
     end
@@ -148,8 +148,8 @@ return function (puzzle_index)
   local cell_scale = cell_w / cell_w_orig
 
   local pt_to_cell = function (x, y, sel_r, sel_c)
-    local c = math.floor((x - board_offs_x) / cell_w)
-    local r = math.floor((y - board_offs_y) / cell_w)
+    local c = (x - board_offs_x) / cell_w - 0.5
+    local r = (y - board_offs_y) / cell_w - 0.5
     -- If a blossom is previously selected, check the distance
     if sel_r ~= nil then
       if (r - sel_r) ^ 2 + (c - sel_c) ^ 2 <= 2 then
@@ -160,12 +160,14 @@ return function (puzzle_index)
     end
     -- Otherwise, find the nearest blossom within a fixed radius
     local bloom_r, bloom_c
-    local best_dist = 2
+    local best_dist = 0.5
     board.each('bloom', function (o)
       if not o.used then
         local dist = (o.r - r) ^ 2 + (o.c - c) ^ 2
+        print(dist)
         if dist < best_dist then
           bloom_r, bloom_c = o.r, o.c
+          best_dist = dist
         end
       end
     end)

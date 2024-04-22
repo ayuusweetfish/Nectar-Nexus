@@ -51,9 +51,9 @@ The rule for turning, in case you need it:
 
 ![Screenshot of puzzle 6](puzzle-06.jpg)
 
-Solution 1: **2000 3 10**
+Solution 1: **0 200 1 3**
 
-Solution 2: **0 2000 1 30**
+Solution 2: **2000 3 10**
 
 
 ## 07
@@ -114,7 +114,12 @@ Solution 2: **0 2000 1 30**
 
 ![Screenshot of puzzle 12](puzzle-12.jpg)
 
-**300 2 1000**
+<details>
+  <summary>Hint</summary>
+  As usual, determine the direction of entrance. Up? Turns out impossible.
+
+  **300 2 1000**
+</details>
 
 
 ## 13
@@ -132,12 +137,12 @@ Solution 2: **0 2000 1 30**
   <summary>Hint 1</summary>
   In which direction should the bee enter the weeds?
 
-  <details>
-    <summary>Hint 2</summary>
-    Right (no pun intended). This implies that a backward turn needs to take place with blossom 2.
+<details>
+  <summary>Hint 2</summary>
+  Right (no pun intended). This implies that a backward turn needs to take place later with blossom 2.
 
-    **1 300 2000 000**
-  </details>
+  **1 300 2000 000**
+</details>
 </details>
 
 
@@ -189,9 +194,9 @@ Solution 2: **0 2000 1 30**
   <summary>Hint</summary>
   The purple-glowing (diagonal) pollen pair must be visited by a single bee — the initial one.
 
-  The rebounding obstacle turns useful afterwards.
+  Afterwards, bees spawn from the weeds, and the target directions of each of them become apparent. The rebounding obstacle turns out useful.
 
-  **000 2 4 1 3 000**
+  **000 2 3 1 4 000**
 </details>
 
 
@@ -282,9 +287,14 @@ Solution 2: **0 2000 1 30**
 
 <details>
   <summary>Hint</summary>
+
   The asymmetries secretly points to a single first step.
 
+<details>
+  <summary>Solution</summary>
+
   **20 50**
+</details>
 </details>
 
 
