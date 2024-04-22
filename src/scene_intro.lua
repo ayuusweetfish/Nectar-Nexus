@@ -288,12 +288,12 @@ create_overlay = function (fn_back, fn_confirm)
     draw.get('weeds/p3-idle/06'),
   }
 
-  local range_w = W * 0.5
-  local range_h = range_w * 9 / 16
-  local screen_x_min = W * 0.5 - range_w / 2
-  local screen_x_max = W * 0.5 + range_w / 2
-  local screen_y_min = H * 0.5 - range_h / 2
-  local screen_y_max = H * 0.5 + range_h / 2
+  local range_w, range_x_cen = W * 0.6, W * 0.5
+  local range_h, range_y_cen = H * 0.7, H * 0.6
+  local screen_x_min = range_x_cen - range_w / 2
+  local screen_x_max = range_x_cen + range_w / 2
+  local screen_y_min = range_y_cen - range_h / 2
+  local screen_y_max = range_y_cen + range_h / 2
   local scroll_carousel = scroll({
     x_min = -(screen_x_max - screen_x_min) * 3,
     x_max = 0,
