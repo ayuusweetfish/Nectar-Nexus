@@ -29,7 +29,7 @@ return function (complete_fn)
       local name
       progress, total, name = draw.load_img_step()
       print(name)
-      if name:sub(1, 22) ~= 'butterflies/idle-side/' then
+      if name:sub(1, 22) ~= 'butterflies/idle-side/' and name ~= 'bloom/visited/08' then
         prio_done = true
       end
       if progress == total then
