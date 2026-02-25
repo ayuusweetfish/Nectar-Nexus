@@ -77,11 +77,12 @@ local scene_intro = function ()
     x_max = 0,
   })
 
-  local press_x, press_y
+  local press_x, press_y  -- For the nudging hint
   local T = 0
   local nnnn = 0
 
-  s.press = function (x, y)
+  s.press = function (x, y, button)
+    if button ~= 1 then return false end
     if since_exit_vase >= 0 then return true end
     if overlay ~= nil and overlay.press(x, y) then return true end
     scroll_main.press(x, y)
@@ -89,8 +90,8 @@ local scene_intro = function ()
 
     if scroll_main.dx >= -W * 0.3 and T >= 240 then
       press_x, press_y = x, y
-      return true
     end
+    return true
   end
 
   s.hover = function (x, y)
@@ -107,7 +108,7 @@ local scene_intro = function ()
     for i = 1, #buttons do if buttons[i].move(x, y) then return true end end
   end
 
-  s.release = function (x, y)
+  s.release = function (x, y, button)
     if since_exit_vase >= 0 then return true end
     if overlay ~= nil and overlay.release(x, y) then return true end
     scroll_main.release(x, y)

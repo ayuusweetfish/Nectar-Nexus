@@ -278,7 +278,9 @@ return function (puzzle_index)
 
   local since_clear = -1
 
-  s.press = function (x, y)
+  s.press = function (x, y, button)
+    if button == 2 then return true end
+    if button ~= 1 then return false end
     if tutorial and tutorial.press(x, y) then return true end
     if colour_picker and colour_picker.press(x, y) then return true end
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
@@ -297,7 +299,8 @@ return function (puzzle_index)
     return true
   end
 
-  s.release = function (x, y)
+  s.release = function (x, y, button)
+    if button == 2 then btn_undo_fn() return true end
     if tutorial and tutorial.release(x, y) then return true end
     if colour_picker and colour_picker.release(x, y) then return true end
     for i = 1, #buttons do if buttons[i].release(x, y) then return true end end

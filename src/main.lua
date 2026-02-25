@@ -76,20 +76,19 @@ end
 
 local mouseScene = nil
 function love.mousepressed(x, y, button, istouch, presses)
-  if button ~= 1 then return end
   if lastScene ~= nil then return end
-  mouseScene = curScene
-  curScene.press((x - offsX) / globalScale, (y - offsY) / globalScale)
+  if curScene.press((x - offsX) / globalScale, (y - offsY) / globalScale, button) then
+    mouseScene = curScene
+  end
 end
-function love.mousemoved(x, y, button, istouch)
+function love.mousemoved(x, y, dx, dy, istouch)
   curScene.hover((x - offsX) / globalScale, (y - offsY) / globalScale)
   if mouseScene ~= curScene then return end
-  curScene.move((x - offsX) / globalScale, (y - offsY) / globalScale)
+  curScene.move((x - offsX) / globalScale, (y - offsY) / globalScale, button)
 end
 function love.mousereleased(x, y, button, istouch, presses)
-  if button ~= 1 then return end
   if mouseScene ~= curScene then return end
-  curScene.release((x - offsX) / globalScale, (y - offsY) / globalScale)
+  curScene.release((x - offsX) / globalScale, (y - offsY) / globalScale, button)
   mouseScene = nil
 end
 function love.keypressed(key)

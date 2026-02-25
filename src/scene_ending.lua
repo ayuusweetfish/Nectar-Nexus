@@ -18,7 +18,8 @@ return function ()
 
   local return_held = false
 
-  s.press = function (x, y)
+  s.press = function (x, y, button)
+    if button ~= 1 then return false end
     if since_bloom == -1 and
         (bloom_x - x) ^ 2 + (bloom_y - y) ^ 2 <= (W * 0.04) ^ 2 then
       bloom_held = true
@@ -26,6 +27,7 @@ return function ()
     if since_bloom >= 1600 then
       return_held = true
     end
+    return true
   end
 
   s.hover = function (x, y)
@@ -34,7 +36,7 @@ return function ()
   s.move = function (x, y)
   end
 
-  s.release = function (x, y)
+  s.release = function (x, y, button)
     if since_bloom == -1 and bloom_held and
         (bloom_x - x) ^ 2 + (bloom_y - y) ^ 2 <= (W * 0.04) ^ 2 then
       since_bloom = 0
