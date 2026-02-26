@@ -31,6 +31,7 @@ local scene_intro = function ()
   local since_enter_vase = -1
   local since_exit_vase = -1
   local vase_offs_x, vase_offs_y = 0, 0
+  local vase_sel_img, vase_sel_x, vase_sel_y
 
   local buttons = {}
   local shadows = {}  -- {img, x0, y, scale}
@@ -45,6 +46,13 @@ local scene_intro = function ()
       since_enter_vase = 0
       vase_offs_x = W / 2 - btn.x
       vase_offs_y = H / 2 - btn.y + H * ({-0.08, 0.00, 0.00})[genus]
+      vase_sel_img = 'intro/large_vase_' .. genus .. '_sel'
+      local sel_offs_x, sel_offs_y =
+        unpack(({{0.00054, 0.1157}, {0, 0.0084}, {0, -0.016}})[genus])
+      vase_sel_x = btn.x0 + W * sel_offs_x
+      vase_sel_y = btn.y + H * sel_offs_y
+      -- For vase overlay image processing:
+      -- Scaled vase width is (w * scale * 2.75). Should adjust due to blurry edges.
       overlay = create_overlay(function ()
         -- Back (from overlay to scene)
         since_enter_vase = -1
@@ -54,11 +62,7 @@ local scene_intro = function ()
         _G['intro_scene_instance'] = s
         local vase_start = {1, 7, 11, 17, 21, 25}
         replaceScene(sceneGameplay(vase_start[i]))
-      end,
-      'intro/large_vase_' .. genus .. '_sel',
-      ({{0.0015, 0.098}, {0, 0.023}, {0, -0.044}})[genus])
-      -- For vase overlay image processing:
-      -- Scaled vase width is (w * scale * 2.75). Should adjust due to blurry edges.
+      end)
     end, scale)
     btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
     btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
@@ -175,6 +179,7 @@ local scene_intro = function ()
     local sdx = scroll_main.dx
 
     local pushed_transform = false
+    local overlay_rate = 0
     if since_enter_vase ~= -1 or since_exit_vase ~= -1 then
       local vase_offs_x, vase_offs_y = vase_offs_x, vase_offs_y
       local vase_scale
@@ -198,6 +203,7 @@ local scene_intro = function ()
       love.graphics.translate(-W / 2, -H / 2)
       love.graphics.translate(vase_offs_x, vase_offs_y)
       pushed_transform = true
+      overlay_rate = rate
     end
 
     love.graphics.clear(0, 0, 0)
@@ -252,6 +258,15 @@ local scene_intro = function ()
       buttons[i].draw()
     end
 
+    if vase_sel_img then
+      love.graphics.setColor(1, 1, 1, ease_tetra_in_out(overlay_rate))
+      if not love.keyboard.isDown('space') then
+      draw.img(vase_sel_img,
+        vase_sel_x + sdx, vase_sel_y,
+        draw.get(vase_sel_img):getWidth() / 2.75)
+      end
+    end
+
     -- Butterfly (Bee!)
     local butterfly_x, butterfly_y = unpack(({
       {0.1, 0.5},
@@ -263,6 +278,7 @@ local scene_intro = function ()
       {2.12, 0.63},
     })[s.max_vase])
     local frame = math.floor(T / 240 * 24) % 16 + 1
+    love.graphics.setColor(1, 1, 1, 1)
     draw.img(string.format('butterflies/idle-side/%02d', frame),
       W * (1.13 + butterfly_x) + sdx, H * butterfly_y, 200 / 1.5)
 
@@ -279,10 +295,7 @@ local scene_intro = function ()
   return s
 end
 
-create_overlay = function (
-  fn_back, fn_confirm,
-  vase_overlay_img, vase_overlay_offs
-)
+create_overlay = function (fn_back, fn_confirm)
   local s = {}
   local W, H = W, H
 
@@ -368,13 +381,6 @@ create_overlay = function (
     local rate = clamp_01((since_enter - 240) / 60)
     if since_exit >= 0 then
       rate = 1 - clamp_01(since_exit / 40)
-    end
-
-    love.graphics.setColor(1, 1, 1, ease_quad_in_out(rate))
-    if not love.keyboard.isDown('space') then
-    draw.img(vase_overlay_img,
-      W * (0.5 + vase_overlay_offs[1]),
-      H * (0.5 + vase_overlay_offs[2]))
     end
 
 --[[
