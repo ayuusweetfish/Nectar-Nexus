@@ -36,17 +36,27 @@ return function ()
   s.move = function (x, y)
   end
 
+  local back = function ()
+    local other_scene = _G['intro_scene_instance']
+    if other_scene then
+      other_scene.next_puzzle(31)
+      replaceScene(other_scene)
+    end
+  end
+
   s.release = function (x, y, button)
     if since_bloom == -1 and bloom_held and
         (bloom_x - x) ^ 2 + (bloom_y - y) ^ 2 <= (W * 0.04) ^ 2 then
       since_bloom = 0
     end
-    if return_held then
-      local other_scene = _G['intro_scene_instance']
-      if other_scene then
-        other_scene.next_puzzle(31)
-        replaceScene(other_scene)
-      end
+    if return_held then back() end
+  end
+
+  s.key = function (key)
+    if since_bloom < 0 and key == '1' then
+      since_bloom = 0
+    elseif since_bloom >= 1600 and key == 'return' then
+      back()
     end
   end
 
