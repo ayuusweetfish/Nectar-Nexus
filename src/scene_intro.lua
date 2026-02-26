@@ -36,14 +36,15 @@ local scene_intro = function ()
   local shadows = {}  -- {img, x0, y, scale}
 
   for i = 1, 6 do
-    local img = draw.get('intro/large_vase_' .. tostring((i - 1) % 3 + 1))
+    local genus = (i - 1) % 3 + 1
+    local img = draw.get('intro/large_vase_' .. genus)
     local w, h = img:getDimensions()
     local scale = H * 0.487 / h
     local btn
     btn = button(img, function ()
       since_enter_vase = 0
       vase_offs_x = W / 2 - btn.x
-      vase_offs_y = H / 2 - btn.y + H * ({-0.08, 0.00, 0.00})[(i - 1) % 3 + 1]
+      vase_offs_y = H / 2 - btn.y + H * ({-0.08, 0.00, 0.00})[genus]
       overlay = create_overlay(function ()
         -- Back (from overlay to scene)
         since_enter_vase = -1
@@ -53,7 +54,11 @@ local scene_intro = function ()
         _G['intro_scene_instance'] = s
         local vase_start = {1, 7, 11, 17, 21, 25}
         replaceScene(sceneGameplay(vase_start[i]))
-      end)
+      end,
+      'intro/large_vase_' .. genus .. '_sel',
+      ({{0.0015, 0.098}, {0, 0.023}, {0, -0.044}})[genus])
+      -- For vase overlay image processing:
+      -- Scaled vase width is (w * scale * 2.75). Should adjust due to blurry edges.
     end, scale)
     btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
     btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
@@ -274,7 +279,10 @@ local scene_intro = function ()
   return s
 end
 
-create_overlay = function (fn_back, fn_confirm)
+create_overlay = function (
+  fn_back, fn_confirm,
+  vase_overlay_img, vase_overlay_offs
+)
   local s = {}
   local W, H = W, H
 
@@ -360,6 +368,13 @@ create_overlay = function (fn_back, fn_confirm)
     local rate = clamp_01((since_enter - 240) / 60)
     if since_exit >= 0 then
       rate = 1 - clamp_01(since_exit / 40)
+    end
+
+    love.graphics.setColor(1, 1, 1, ease_quad_in_out(rate))
+    if not love.keyboard.isDown('space') then
+    draw.img(vase_overlay_img,
+      W * (0.5 + vase_overlay_offs[1]),
+      H * (0.5 + vase_overlay_offs[2]))
     end
 
 --[[
