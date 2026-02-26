@@ -323,6 +323,8 @@ return function (puzzle_index)
         trigger(index)
       end
       show_bloom_indices = true
+    elseif key == 'escape' and not board.cleared then
+      btn_back.fn()
     end
 
     if (key == 'left' or key == 'right') and puzzles.debug_navi then

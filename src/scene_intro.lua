@@ -413,8 +413,7 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
     if scroll_carousel.release(x, y) then
       if scroll_pressed then
         -- Pressed on scroll area and not cancelled, confirm
-        local i = scroll_carousel.carousel_page_index()
-        fn_confirm(i)
+        fn_confirm(scroll_carousel.carousel_page_index())
       end
       return true
     end
@@ -434,9 +433,16 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
   end
 
   s.key = function (key)
-    if key == 'escape' and since_enter > 240 then
+    if since_enter <= 240 then return true end
+    if key == 'escape' then
       s.back()
       return true
+    elseif key == 'left' then
+      scroll_carousel.carousel_flip_page(1)
+    elseif key == 'right' then
+      scroll_carousel.carousel_flip_page(-1)
+    elseif key == 'return' then
+      fn_confirm(scroll_carousel.carousel_page_index())
     end
   end
 

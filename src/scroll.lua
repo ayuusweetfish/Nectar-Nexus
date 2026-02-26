@@ -37,6 +37,7 @@ return function (options)
     captured = false
     history, history_ptr = {}, HISTORY_WINDOW
     inertia_v = 0
+    carousel_target = nil
     return true
   end
 
@@ -121,7 +122,16 @@ return function (options)
       end
       -- Pull towards target
       if carousel_target ~= nil then
-        s.dx = s.dx + (carousel_target - s.dx) * 0.06
+        local d = carousel_target - s.dx
+        if d > 0 then
+          s.dx = s.dx + math.min(d, math.max(d * 0.06, 0.06))
+        else
+          s.dx = s.dx + math.max(d, math.min(d * 0.06, 0.06))
+        end
+        if math.abs(carousel_target - s.dx) < 1e-6 then
+          s.dx = carousel_target
+          carousel_target = nil
+        end
       else
         -- Pull into range
         if s.dx < x_min then
@@ -134,7 +144,7 @@ return function (options)
   end
 
   s.carousel_page_index = function ()
-    return math.floor(-s.dx / w + 0.5 + 1)
+    return math.floor(-(carousel_target or s.dx) / w + 0.5 + 1)
   end
 
   s.impulse = function (v)
@@ -147,6 +157,12 @@ return function (options)
 
   s.is_inside_range = function ()
     return s.dx >= x_min - 1e-6 and s.dx <= x_max + 1e-6
+  end
+
+  s.carousel_flip_page = function (delta_page)
+    s.release()   -- Interrupt ongoing pointer dragging
+    carousel_target = (carousel_target or s.dx) + delta_page * w
+    carousel_target = math.max(x_min, math.min(x_max, carousel_target))
   end
 
   return s
