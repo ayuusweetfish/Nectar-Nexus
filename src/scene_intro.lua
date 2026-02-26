@@ -25,7 +25,7 @@ local scene_intro = function ()
   local s = {}
   local W, H = W, H
 
-  s.max_vase = 1
+  max_vase = 1
   local max_puzzle = 1
   local overlay_vase = 0
 
@@ -94,7 +94,7 @@ local scene_intro = function ()
     local v = 1
     while v < #vase_start_puzzle and
       vase_start_puzzle[v + 1] <= puzzle_index do v = v + 1 end
-    s.max_vase = math.max(s.max_vase, v)
+    max_vase = math.max(max_vase, v)
     max_puzzle = math.max(max_puzzle, puzzle_index)
     if overlay then
       local vase_s = vase_start_puzzle[overlay_vase]
@@ -165,7 +165,7 @@ local scene_intro = function ()
       local b = buttons[i]
       b.x = b.x0 + sdx
       b.update()
-      b.enabled = (i <= s.max_vase)
+      b.enabled = (i <= max_vase)
     end
   end
 
@@ -186,15 +186,15 @@ local scene_intro = function ()
     end
 
     if require('puzzles').debug_navi and key == 'tab' then
-      if s.max_vase < 7 then
-        next_puzzle(vase_start_puzzle[s.max_vase + 1])
+      if max_vase < 7 then
+        next_puzzle(vase_start_puzzle[max_vase + 1])
       end
     end
     if key == 'left' then key_l = true
     elseif key == 'right' then key_r = true
     elseif key == 'return' and scroll_main.is_inside_range() then
       local best_dist, best_button = 1/0, nil
-      for i = 1, s.max_vase do
+      for i = 1, math.min(6, max_vase) do
         local d = math.abs(buttons[i].x - W / 2)
         if best_dist > d then
           best_dist, best_button = d, i
@@ -298,13 +298,13 @@ local scene_intro = function ()
     local small_vase_limit = {
       0, 3, 6, 8, 10, 13, 13
     }
-    for i = 1, small_vase_limit[s.max_vase] do
+    for i = 1, small_vase_limit[max_vase] do
       local n, x, y = unpack(small_vases[i])
       draw.img(n, W * (1.13 + x) + sdx, H * y,
         draw.get(n):getWidth() * scale)
     end
 
-    if s.max_vase == 7 then
+    if max_vase == 7 then
       love.graphics.setColor(1, 1, 1)
       local x = 1.65
       draw.img('intro/graffiti_1', W * x + sdx, H * 0.5, W, H)
@@ -312,7 +312,7 @@ local scene_intro = function ()
     end
 
     love.graphics.setColor(1, 1, 1)
-    for i = 1, math.min(6, s.max_vase) do
+    for i = 1, math.min(6, max_vase) do
       local img, x0, y, scale = unpack(shadows[i])
       draw.img(img, x0 + sdx + W * 0.06, y + H * 0.04, draw.get(img):getWidth() * scale)
       buttons[i].draw()
@@ -334,7 +334,7 @@ local scene_intro = function ()
       {1.38, 0.71},
       {1.65, 0.45},
       {2.12, 0.63},
-    })[s.max_vase])
+    })[max_vase])
     local frame = math.floor(T / 240 * 24) % 16 + 1
     love.graphics.setColor(1, 1, 1, 1)
     draw.img(string.format('butterflies/idle-side/%02d', frame),
