@@ -141,5 +141,9 @@ return function (options)
     inertia_v = inertia_v + v
   end
 
+  s.set_x_min = function (new_x_min)
+    x_min = new_x_min
+  end
+
   return s
 end

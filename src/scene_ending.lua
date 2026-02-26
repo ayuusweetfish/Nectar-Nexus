@@ -44,7 +44,7 @@ return function ()
     if return_held then
       local other_scene = _G['intro_scene_instance']
       if other_scene then
-        other_scene.new_vase(7)
+        other_scene.next_puzzle(31)
         replaceScene(other_scene)
       end
     end

@@ -26,6 +26,8 @@ local scene_intro = function ()
   local W, H = W, H
 
   s.max_vase = 1
+  local max_puzzle = 1
+  local overlay_vase = 0
 
   local overlay
   local since_enter_vase = -1
@@ -36,6 +38,8 @@ local scene_intro = function ()
   local buttons = {}
   local shadows = {}  -- {img, x0, y, scale}
 
+  local vase_start_puzzle = {1, 7, 11, 17, 21, 25, 31}
+
   for i = 1, 6 do
     local genus = (i - 1) % 3 + 1
     local img = draw.get('intro/large_vase_' .. genus)
@@ -43,6 +47,7 @@ local scene_intro = function ()
     local scale = H * 0.487 / h
     local btn
     btn = button(img, function ()
+      overlay_vase = i
       since_enter_vase = 0
       vase_offs_x = W / 2 - btn.x
       vase_offs_y = H / 2 - btn.y + H * ({-0.08, 0.00, 0.00})[genus]
@@ -51,6 +56,8 @@ local scene_intro = function ()
         unpack(({{0.00054, 0.1157}, {0, 0.0084}, {0, -0.016}})[genus])
       vase_sel_x = btn.x0 + W * sel_offs_x
       vase_sel_y = btn.y + H * sel_offs_y
+      local vase_s = vase_start_puzzle[i]
+      local vase_e = vase_start_puzzle[i + 1] - 1
       -- For vase overlay image processing:
       -- Scaled vase width is (w * scale * 2.75). Should adjust due to blurry edges.
       overlay = create_overlay(function ()
@@ -60,9 +67,13 @@ local scene_intro = function ()
       end, function (carousel_index)
         -- Confirm
         _G['intro_scene_instance'] = s
-        local vase_start = {1, 7, 11, 17, 21, 25}
-        replaceScene(sceneGameplay(vase_start[i]))
-      end)
+        replaceScene(sceneGameplay(vase_s + carousel_index - 1))
+      end,
+        vase_start_puzzle[i], vase_e,
+        H * ({0.09, -0.015, -0.072})[genus])
+      local n = math.min(vase_e, max_puzzle) - vase_s + 1
+      overlay.set_num_pages(n)
+      overlay.move_to_page(max_puzzle < vase_e and n or 1)
     end, scale)
     btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
     btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
@@ -75,11 +86,22 @@ local scene_intro = function ()
     overlay.back()
   end
 
-  local new_vase = function (target)
-    if s.max_vase >= math.min(target, 7) then return end
-    s.max_vase = target
+  local next_puzzle = function (puzzle_index)
+    local v = 1
+    while v < #vase_start_puzzle and
+      vase_start_puzzle[v + 1] <= puzzle_index do v = v + 1 end
+    s.max_vase = math.max(s.max_vase, v)
+    max_puzzle = math.max(max_puzzle, puzzle_index)
+    if overlay then
+      local vase_s = vase_start_puzzle[overlay_vase]
+      local vase_e = vase_start_puzzle[overlay_vase + 1] - 1
+      overlay.set_num_pages(math.min(vase_e, max_puzzle) - vase_s + 1)
+      overlay.move_to_page(math.min(vase_e, puzzle_index) - vase_s + 1)
+    end
+    -- Returns whether the current puzzle (puzzle_index) ends a vase
+    return vase_start_puzzle[v] == puzzle_index
   end
-  s.new_vase = new_vase
+  s.next_puzzle = next_puzzle
 
   local scroll_main = scroll({
     x_min = -W * 2.3,
@@ -140,7 +162,7 @@ local scene_intro = function ()
     end
     if key == 'tab' then
       if s.max_vase < 7 then
-        new_vase(s.max_vase + 1)
+        next_puzzle(vase_start_puzzle[s.max_vase + 1])
       end
     end
     if key == 'n' then
@@ -295,7 +317,7 @@ local scene_intro = function ()
   return s
 end
 
-create_overlay = function (fn_back, fn_confirm)
+create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
   local s = {}
   local W, H = W, H
 
@@ -303,13 +325,7 @@ create_overlay = function (fn_back, fn_confirm)
   local empty_held = false
   local since_exit = -1
 
-  local imgs = {
-    draw.get('icons/number_01'),
-    draw.get('icons/number_02'),
-    draw.get('icons/number_03'),
-    draw.get('icons/number_04'),
-    draw.get('icons/number_05'),
-  }
+  local n = range_end - range_start + 1
 
   local range_w, range_x_cen = W * 0.6, W * 0.5
   local range_h, range_y_cen = H * 0.7, H * 0.6
@@ -318,7 +334,7 @@ create_overlay = function (fn_back, fn_confirm)
   local screen_y_min = range_y_cen - range_h / 2
   local screen_y_max = range_y_cen + range_h / 2
   local scroll_carousel = scroll({
-    x_min = -(screen_x_max - screen_x_min) * (#imgs - 1),
+    x_min = 0,
     x_max = 0,
     screen_x_min = screen_x_min,
     screen_x_max = screen_x_max,
@@ -327,6 +343,15 @@ create_overlay = function (fn_back, fn_confirm)
     carousel = true,
   })
   local scroll_pressed = false
+
+  s.set_num_pages = function (new_n)
+    scroll_carousel.set_x_min(-(screen_x_max - screen_x_min) * (new_n - 1))
+  end
+  s.set_num_pages(n)
+
+  s.move_to_page = function (i)
+    scroll_carousel.dx = (i - 1) * -(screen_x_max - screen_x_min)
+  end
 
   s.press = function (x, y)
     if since_enter <= 240 then return true end
@@ -385,15 +410,19 @@ create_overlay = function (fn_back, fn_confirm)
     end
 
     local sdx = scroll_carousel.dx
-    love.graphics.setColor(1, 1, 1, ease_quad_in_out(rate))
+    local base_alpha = ease_quad_in_out(rate)
     love.graphics.setScissor(
       screen_x_min, screen_y_min,
       screen_x_max - screen_x_min,
       screen_y_max - screen_y_min
     )
-    for i = 1, #imgs do
-      local x = (screen_x_max - screen_x_min) * (i - 1)
-      draw(imgs[i], W / 2 + sdx + x, H / 2)
+    for i = 1, n do
+      local x = sdx + (screen_x_max - screen_x_min) * (i - 1)
+      local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2))
+      local alpha = 1 - ease_quad_in_out(r)
+      love.graphics.setColor(1, 1, 1, alpha * base_alpha)
+      draw.img(string.format('icons/number_%02d', i + range_start - 1),
+        W / 2 + x, H / 2 + offs_y)
     end
     love.graphics.setScissor()
   end

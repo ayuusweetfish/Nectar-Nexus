@@ -78,29 +78,20 @@ return function (puzzle_index)
   buttons[#buttons + 1] = btn_back
 
   local btn_next_fn = function ()
-    -- Go back?
-    local vase_end = {
-      [6] = 1,
-      [10] = 2,
-      [16] = 3,
-      [20] = 4,
-      [24] = 5,
-    }
-    if vase_end[puzzle_index] then
-      local other_scene = _G['intro_scene_instance']
-      if other_scene then
-        other_scene.new_vase(vase_end[puzzle_index] + 1)
-        other_scene.overlay_back()
-        replaceScene(other_scene)
-        return
-      end
-    elseif puzzle_index == 30 then
-      replaceScene(_G['sceneEnding']())
-      return
-    end
+    local other_scene = _G['intro_scene_instance']
+    local vase_end =
+      other_scene and other_scene.next_puzzle(puzzle_index + 1)
 
-    local index = puzzle_index % #puzzles + 1
-    replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+    -- Go back?
+    if puzzle_index == 30 then
+      replaceScene(_G['sceneEnding']())
+    elseif vase_end and other_scene then
+      other_scene.overlay_back()
+      replaceScene(other_scene)
+    else
+      local index = puzzle_index % #puzzles + 1
+      replaceScene(sceneGameplay(index), transitions['fade'](0.1, 0.1, 0.1))
+    end
   end
 
   local btn_next = button(
@@ -321,7 +312,8 @@ return function (puzzle_index)
     if key == 'backspace' or key == 'z' or key == 'p' or key == 'u' or key == 'r' then
       btn_undo_fn()
     elseif key == 'return' or key == 'tab' or key == 'space' or key == 'n' then
-      if key == 'return' and btn_next.enabled then btn_next_fn()
+      if key == 'return' and board.cleared then
+        if btn_next.enabled then btn_next_fn() end
       else trigger(nil, nil) end
     elseif #key == 1 and key >= '0' and key <= '9' then
       local index = string.byte(key, 1) - 48
@@ -612,10 +604,12 @@ return function (puzzle_index)
     elseif not board.cleared then
       since_clear = -1
       btn_next.enabled = false
+      btn_back.enabled = true
     end
     if since_clear >= 0 then
       since_clear = since_clear + 1
       btn_next.enabled = (since_clear >= 240)
+      btn_back.enabled = (since_clear < 240)
     end
   end
 
