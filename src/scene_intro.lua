@@ -304,10 +304,11 @@ create_overlay = function (fn_back, fn_confirm)
   local since_exit = -1
 
   local imgs = {
-    draw.get('weeds/p3-idle/06'),
-    draw.get('weeds/p3-idle/06'),
-    draw.get('weeds/p3-idle/06'),
-    draw.get('weeds/p3-idle/06'),
+    draw.get('icons/number_01'),
+    draw.get('icons/number_02'),
+    draw.get('icons/number_03'),
+    draw.get('icons/number_04'),
+    draw.get('icons/number_05'),
   }
 
   local range_w, range_x_cen = W * 0.6, W * 0.5
@@ -317,7 +318,7 @@ create_overlay = function (fn_back, fn_confirm)
   local screen_y_min = range_y_cen - range_h / 2
   local screen_y_max = range_y_cen + range_h / 2
   local scroll_carousel = scroll({
-    x_min = -(screen_x_max - screen_x_min) * 3,
+    x_min = -(screen_x_max - screen_x_min) * (#imgs - 1),
     x_max = 0,
     screen_x_min = screen_x_min,
     screen_x_max = screen_x_max,
@@ -383,7 +384,6 @@ create_overlay = function (fn_back, fn_confirm)
       rate = 1 - clamp_01(since_exit / 40)
     end
 
---[[
     local sdx = scroll_carousel.dx
     love.graphics.setColor(1, 1, 1, ease_quad_in_out(rate))
     love.graphics.setScissor(
@@ -391,13 +391,11 @@ create_overlay = function (fn_back, fn_confirm)
       screen_x_max - screen_x_min,
       screen_y_max - screen_y_min
     )
-    for i = 1, 4 do
+    for i = 1, #imgs do
       local x = (screen_x_max - screen_x_min) * (i - 1)
-      draw(imgs[i], W / 2 + sdx + x, H / 2,
-        screen_x_max - screen_x_min, screen_y_max - screen_y_min)
+      draw(imgs[i], W / 2 + sdx + x, H / 2)
     end
     love.graphics.setScissor()
-]]
   end
 
   s.destroy = function ()

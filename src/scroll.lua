@@ -69,7 +69,10 @@ return function (options)
     if held and captured then
       -- Calculate velocity
       local time, delta
-      if #history < HISTORY_WINDOW then
+      if #history == 0 then
+        time = 1
+        delta = 0
+      elseif #history < HISTORY_WINDOW then
         time = #history - 1
         delta = history[#history] - history[1]
       else
