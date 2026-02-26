@@ -11,7 +11,7 @@ local ease_tetra_in_out = function (x)
   else return 1 - (1 - x) * (1 - x) * (1 - x) * (1 - x) * 8 end
 end
 local ease_exp_out = function (x)
-  return 1 - (1 - x) * math.exp(-5 * x)
+  return 1 - (1 - x) * math.exp(-3 * x)
 end
 local clamp_01 = function (x)
   if x < 0 then return 0
@@ -43,7 +43,7 @@ local scene_intro = function ()
     btn = button(img, function ()
       since_enter_vase = 0
       vase_offs_x = W / 2 - btn.x
-      vase_offs_y = H / 2 - btn.y
+      vase_offs_y = H / 2 - btn.y + H * ({-0.08, 0.00, 0.00})[(i - 1) % 3 + 1]
       overlay = create_overlay(function ()
         -- Back (from overlay to scene)
         since_enter_vase = -1
@@ -88,7 +88,7 @@ local scene_intro = function ()
     scroll_main.press(x, y)
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
 
-    if scroll_main.dx >= -W * 0.3 and T >= 240 then
+    if scroll_main.dx >= -W * 0.3 and T >= 360 then
       press_x, press_y = x, y
     end
     return true
@@ -180,7 +180,7 @@ local scene_intro = function ()
         offs_y_rate = offs_x_rate
       else
         rate = math.min(1, since_enter_vase / 240)
-        offs_x_rate = ease_exp_out(rate)
+        offs_x_rate = ease_quad_in_out(ease_exp_out(rate))
         offs_y_rate = ease_tetra_in_out(rate)
       end
       scale_rate = ease_tetra_in_out(rate)

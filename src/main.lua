@@ -39,8 +39,6 @@ local fontSizeFactory = function (path, preload)
     return font[size]
   end
 end
--- _G['font_Imprima'] = fontSizeFactory('assets/Imprima-Regular.ttf', {28, 36})
--- love.graphics.setFont(_G['font_Imprima'](40))
 
 _G['sceneLoading'] = require 'scene_loading'
 
@@ -91,15 +89,26 @@ function love.mousereleased(x, y, button, istouch, presses)
   curScene.release((x - offsX) / globalScale, (y - offsY) / globalScale, button)
   mouseScene = nil
 end
+local isLCmdDown, isRCmdDown = false, false
+local keyLCmd, keyRCmd =
+  unpack(love.system.getOS() == 'OS X' and {'lgui', 'rgui'} or {'lctrl', 'rctrl'})
 function love.keypressed(key)
   if key == 'lshift' then
     if not isMobile and not isWeb then
       love.window.setFullscreen(not love.window.getFullscreen())
       updateLogicalDimensions()
     end
+  elseif key == keyLCmd then isLCmdDown = true
+  elseif key == keyRCmd then isRCmdDown = true
+  elseif key == 'q' and (isLCmdDown or isRCmdDown) then
+    love.event.quit()
   elseif curScene.key ~= nil then
     curScene.key(key)
   end
+end
+function love.keyreleased(key)
+  if key == keyLCmd then isLCmdDown = false
+  elseif key == keyRCmd then isRCmdDown = false end
 end
 
 local T = 0
@@ -110,7 +119,7 @@ local sinceAudioUpdate = 0
 function love.update(dt)
   T = T + dt
   local count = 0
-  while T > timeStep and count < 4 do
+  while T > timeStep and count < 8 do
     T = T - timeStep
     count = count + 1
     if lastScene ~= nil then
@@ -119,9 +128,8 @@ function love.update(dt)
       if count <= 4 then
         transitionTimer = transitionTimer + 1
       end
-    else
-      curScene:update()
     end
+    curScene:update()
   end
 
   sinceAudioUpdate = sinceAudioUpdate + dt

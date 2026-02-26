@@ -164,7 +164,6 @@ return function (puzzle_index)
     board.each('bloom', function (o)
       if not o.used then
         local dist = (o.r - r) ^ 2 + (o.c - c) ^ 2
-        print(dist)
         if dist < best_dist then
           bloom_r, bloom_c = o.r, o.c
           best_dist = dist
