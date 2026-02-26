@@ -108,7 +108,10 @@ function love.keypressed(key)
 end
 function love.keyreleased(key)
   if key == keyLCmd then isLCmdDown = false
-  elseif key == keyRCmd then isRCmdDown = false end
+  elseif key == keyRCmd then isRCmdDown = false
+  elseif curScene.keyrel ~= nil then
+    curScene.keyrel(key)
+  end
 end
 
 local T = 0

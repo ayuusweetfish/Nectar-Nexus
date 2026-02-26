@@ -69,5 +69,7 @@ return function (drawable, fn, drawable_scale)
     end
   end
 
+  s.fn = fn
+
   return s
 end

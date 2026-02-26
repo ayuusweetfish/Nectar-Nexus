@@ -125,9 +125,9 @@ return function (options)
       else
         -- Pull into range
         if s.dx < x_min then
-          s.dx = s.dx + (x_min - s.dx) * 0.04
+          s.dx = s.dx + math.min(x_min - s.dx, math.max(0.04, (x_min - s.dx) * 0.04))
         elseif s.dx > x_max then
-          s.dx = s.dx + (x_max - s.dx) * 0.04
+          s.dx = s.dx + math.max(x_max - s.dx, math.min(-0.04, (x_max - s.dx) * 0.04))
         end
       end
     end
@@ -143,6 +143,10 @@ return function (options)
 
   s.set_x_min = function (new_x_min)
     x_min = new_x_min
+  end
+
+  s.is_inside_range = function ()
+    return s.dx >= x_min - 1e-6 and s.dx <= x_max + 1e-6
   end
 
   return s

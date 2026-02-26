@@ -35,6 +35,9 @@ local scene_intro = function ()
   local vase_offs_x, vase_offs_y = 0, 0
   local vase_sel_img, vase_sel_x, vase_sel_y
 
+  local key_l, key_r = false, false
+  local key_v = 0
+
   local buttons = {}
   local shadows = {}  -- {img, x0, y, scale}
 
@@ -74,6 +77,7 @@ local scene_intro = function ()
       local n = math.min(vase_e, max_puzzle) - vase_s + 1
       overlay.set_num_pages(n)
       overlay.move_to_page(max_puzzle < vase_e and n or 1)
+      key_v, key_l, key_r = 0, false, false -- Interrupt key-based scrolling
     end, scale)
     btn.x0 = W * (1.33 + ({0.04, 0.3, 0.56, 1.04, 1.3, 1.56})[i])
     btn.y = H * ({0.5, 0.67, 0.45, 0.48, 0.64, 0.44})[i]
@@ -117,6 +121,7 @@ local scene_intro = function ()
     if since_exit_vase >= 0 then return true end
     if overlay ~= nil and overlay.press(x, y) then return true end
     scroll_main.press(x, y)
+    key_v, key_l, key_r = 0, false, false -- Interrupt key-based scrolling
     for i = 1, #buttons do if buttons[i].press(x, y) then return true end end
 
     if scroll_main.dx >= -W * 0.3 and T >= 360 then
@@ -154,17 +159,17 @@ local scene_intro = function ()
     end
   end
 
+  local update_button_positions = function ()
+    local sdx = scroll_main.dx
+    for i = 1, #buttons do
+      local b = buttons[i]
+      b.x = b.x0 + sdx
+      b.update()
+      b.enabled = (i <= s.max_vase)
+    end
+  end
+
   s.key = function (key)
-    if key == 'escape' then
-      if overlay then
-        overlay.back()
-      end
-    end
-    if key == 'tab' then
-      if s.max_vase < 7 then
-        next_puzzle(vase_start_puzzle[s.max_vase + 1])
-      end
-    end
     if key == 'n' then
       nnnn = nnnn + 1
       if nnnn == 10 then
@@ -173,6 +178,35 @@ local scene_intro = function ()
     else
       nnnn = 0
     end
+
+    if since_exit_vase >= 0 then return true end
+    if overlay ~= nil then
+      overlay.key(key)
+      return true
+    end
+
+    if require('puzzles').debug_navi and key == 'tab' then
+      if s.max_vase < 7 then
+        next_puzzle(vase_start_puzzle[s.max_vase + 1])
+      end
+    end
+    if key == 'left' then key_l = true
+    elseif key == 'right' then key_r = true
+    elseif key == 'return' and scroll_main.is_inside_range() then
+      local best_dist, best_button = 1/0, nil
+      for i = 1, s.max_vase do
+        local d = math.abs(buttons[i].x - W / 2)
+        if best_dist > d then
+          best_dist, best_button = d, i
+        end
+      end
+      buttons[best_button].fn()
+    end
+  end
+
+  s.keyrel = function (key)
+    if key == 'left' then key_l = false
+    elseif key == 'right' then key_r = false end
   end
 
   s.update = function ()
@@ -181,19 +215,23 @@ local scene_intro = function ()
     if since_enter_vase >= 0 then since_enter_vase = since_enter_vase + 1 end
     if since_exit_vase >= 0 then
       since_exit_vase = since_exit_vase + 1
-      if since_exit_vase >= 240 then
+      if since_exit_vase == 1 then
+        local dx =
+          math.min(0, vase_offs_x + W * 0.375) +
+          math.max(0, vase_offs_x - W * 0.375)
+        scroll_main.dx = scroll_main.dx + dx
+        vase_offs_x = vase_offs_x - dx
+        update_button_positions()
+      elseif since_exit_vase >= 240 then
         since_exit_vase = -1
         overlay = nil
       end
     end
+    local key_vtarget = (key_l and 4 or 0) + (key_r and -4 or 0)
+    key_v = key_v + (key_vtarget - key_v) * (key_vtarget == 0 and 0.05 or 0.1)
+    scroll_main.dx = scroll_main.dx + key_v
     scroll_main.update()
-    local sdx = scroll_main.dx
-    for i = 1, #buttons do
-      local b = buttons[i]
-      b.x = b.x0 + sdx
-      b.update()
-      b.enabled = (i <= s.max_vase)
-    end
+    update_button_positions()
   end
   s.update()
 
@@ -282,11 +320,9 @@ local scene_intro = function ()
 
     if vase_sel_img then
       love.graphics.setColor(1, 1, 1, ease_tetra_in_out(overlay_rate))
-      if not love.keyboard.isDown('space') then
       draw.img(vase_sel_img,
         vase_sel_x + sdx, vase_sel_y,
         draw.get(vase_sel_img):getWidth() / 2.75)
-      end
     end
 
     -- Butterfly (Bee!)
@@ -394,6 +430,13 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
     if since_exit == -1 then
       fn_back()
       since_exit = 0
+    end
+  end
+
+  s.key = function (key)
+    if key == 'escape' and since_enter > 240 then
+      s.back()
+      return true
     end
   end
 
