@@ -73,7 +73,7 @@ local scene_intro = function ()
         replaceScene(sceneGameplay(vase_s + carousel_index - 1))
       end,
         vase_start_puzzle[i], vase_e,
-        H * ({0.095, 0.01, -0.05})[genus])
+        H * ({0.095, 0.01, -0.069})[genus])
       local n = math.min(vase_e, max_puzzle) - vase_s + 1
       overlay.set_num_pages(n)
       overlay.move_to_page(max_puzzle < vase_e and n or 1)
