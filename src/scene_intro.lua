@@ -358,7 +358,7 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
   local W, H = W, H
 
   local since_enter = 0
-  local empty_held = false
+  local empty_held, empty_x0, empty_y0 = false, nil, nil
   local since_exit = -1
 
   local n = range_end - range_start + 1
@@ -392,10 +392,12 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
   s.press = function (x, y)
     if since_enter <= 240 then return true end
     if scroll_carousel.press(x, y) then
-      scroll_pressed = true
+      if (x - range_x_cen)^2 + (y - range_y_cen)^2 < W * W * 0.01 then
+        scroll_pressed = true
+      end
       return true
     end
-    empty_held = true
+    empty_held, empty_x0, empty_y0 = true, x, y
     return true
   end
 
@@ -406,6 +408,9 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
     local r = scroll_carousel.move(x, y)
     if r == 2 then scroll_pressed = false end   -- Cancel press
     if r then return true end
+    if empty_held and (x - empty_x0)^2 + (y - empty_y0)^2 > W * W * 0.01 then
+      empty_held = false
+    end
     return true
   end
 
@@ -414,6 +419,7 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
       if scroll_pressed then
         -- Pressed on scroll area and not cancelled, confirm
         fn_confirm(scroll_carousel.carousel_page_index())
+        scroll_pressed = false
       end
       return true
     end
@@ -465,12 +471,12 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
     local s2x, s2y = love.graphics.transformPoint(
       screen_x_max - W * 0.015, screen_y_max)
     love.graphics.setScissor(s1x, s1y, s2x - s1x, s2y - s1y)
-    love.graphics.setColor(1, 1, 1)
+    local tint = scroll_pressed and 0.6 or 1
     for i = 1, n do
       local x = sdx + (screen_x_max - screen_x_min) * (i - 1)
       local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2 - W * 0.015))
       local alpha = 1 - ease_quad_in_out(math.max(0, math.abs(r) - 0.1))
-      love.graphics.setColor(1, 1, 1, alpha * base_alpha)
+      love.graphics.setColor(tint, tint, tint, alpha * base_alpha)
       draw.img(string.format('icons/number_%02d', i + range_start - 1),
         W / 2 + x, H / 2 + offs_y)
       love.graphics.circle('line',
