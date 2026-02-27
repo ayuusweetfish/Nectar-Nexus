@@ -73,7 +73,7 @@ local scene_intro = function ()
         replaceScene(sceneGameplay(vase_s + carousel_index - 1))
       end,
         vase_start_puzzle[i], vase_e,
-        H * ({0.09, -0.015, -0.072})[genus])
+        H * ({0.095, 0.01, -0.05})[genus])
       local n = math.min(vase_e, max_puzzle) - vase_s + 1
       overlay.set_num_pages(n)
       overlay.move_to_page(max_puzzle < vase_e and n or 1)
@@ -363,8 +363,8 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
 
   local n = range_end - range_start + 1
 
-  local range_w, range_x_cen = W * 0.6, W * 0.5
-  local range_h, range_y_cen = H * 0.7, H * 0.6
+  local range_w, range_x_cen = W * 0.5, W * 0.5
+  local range_h, range_y_cen = H * 0.7, H * 0.5 + offs_y
   local screen_x_min = range_x_cen - range_w / 2
   local screen_x_max = range_x_cen + range_w / 2
   local screen_y_min = range_y_cen - range_h / 2
@@ -460,18 +460,21 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
 
     local sdx = scroll_carousel.dx
     local base_alpha = ease_quad_in_out(rate)
-    love.graphics.setScissor(
-      screen_x_min, screen_y_min,
-      screen_x_max - screen_x_min,
-      screen_y_max - screen_y_min
-    )
+    local s1x, s1y = love.graphics.transformPoint(
+      screen_x_min + W * 0.015, screen_y_min)
+    local s2x, s2y = love.graphics.transformPoint(
+      screen_x_max - W * 0.015, screen_y_max)
+    love.graphics.setScissor(s1x, s1y, s2x - s1x, s2y - s1y)
+    love.graphics.setColor(1, 1, 1)
     for i = 1, n do
       local x = sdx + (screen_x_max - screen_x_min) * (i - 1)
-      local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2))
-      local alpha = 1 - ease_quad_in_out(r)
+      local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2 - W * 0.015))
+      local alpha = 1 - ease_quad_in_out(math.max(0, math.abs(r) - 0.1))
       love.graphics.setColor(1, 1, 1, alpha * base_alpha)
       draw.img(string.format('icons/number_%02d', i + range_start - 1),
         W / 2 + x, H / 2 + offs_y)
+      love.graphics.circle('line',
+        W / 2 + x, H / 2 + offs_y, H * 0.075)
     end
     love.graphics.setScissor()
   end
