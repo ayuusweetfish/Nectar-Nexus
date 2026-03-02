@@ -852,18 +852,6 @@ return function (puzzle_index)
     end)
 
     board.each('pollen', function (o)
-      local shadow_radius = (o.matched and 0 or 1)
-      local anim_progress = clamp_01((since_anim - 120) / 60)
-      if anim_progress < 1 and find_anim(o, 'pollen_match') then
-        shadow_radius = 1 - ease_quad_in_out(anim_progress)
-      end
-
-      local highlight_radius = (o.visited and 0 or 1)
-      local anim_progress = clamp_01((since_anim - 50) / 60)
-      if anim_progress < 1 and find_anim(o, 'pollen_visit') ~= nil then
-        highlight_radius = 1 - ease_quad_in_out(anim_progress)
-      end
-
     --[[
       local t = T / 240 * 1.5
       local rel_scale_x = 1 + math.sin(t) * 0.01
