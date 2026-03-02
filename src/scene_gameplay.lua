@@ -1150,14 +1150,16 @@ return function (puzzle_index)
     draw.img(icon_puzzle_num, W * 0.18, H * 0.85, H * 0.09)
 
     -- Buttons
+    local btn_next_alpha = 0
+    if since_clear ~= -1 then
+      btn_next_alpha = ease_quad_in_out(math.max(0, math.min(1, (since_clear - 240) / 60)))
+    end
     for i = 1, #buttons do
       local alpha = buttons[i].enabled and 1 or 0.3
       if buttons[i] == btn_next then
-        if since_clear == -1 then
-          alpha = 0
-        else
-          alpha = ease_quad_in_out(math.max(0, math.min(1, (since_clear - 240) / 60)))
-        end
+        alpha = btn_next_alpha
+      elseif buttons[i] == btn_back then
+        alpha = 1 - btn_next_alpha * 0.7
       end
       love.graphics.setColor(1, 1, 1, alpha * tutorial_hide_alpha)
       buttons[i].draw()
