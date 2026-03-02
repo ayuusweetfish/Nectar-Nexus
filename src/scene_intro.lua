@@ -473,13 +473,16 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       screen_x_max - W * 0.015, screen_y_max)
     love.graphics.setScissor(s1x, s1y, s2x - s1x, s2y - s1y)
     local tint = scroll_pressed and 0.6 or 1
+    local alpha_for_x = function (x)
+      local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2 - W * 0.015))
+      return 1 - ease_quad_in_out(math.max(0, math.abs(r) - 0.1))
+    end
     for i = 1, n do
       local x = sdx + (screen_x_max - screen_x_min) * (i - 1)
-      local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2 - W * 0.015))
-      local alpha = 1 - ease_quad_in_out(math.max(0, math.abs(r) - 0.1))
+      local alpha = alpha_for_x(x)
 
       -- First layer of vines
-      love.graphics.setColor(tint, tint, tint, alpha * base_alpha * 0.6)
+      love.graphics.setColor(tint, tint, tint, alpha * alpha * base_alpha * 0.7)
       draw.img(string.format('vines/%02d', i + range_start - 1),
         W / 2 + x, H / 2 + offs_y, W / 3)
 
@@ -489,6 +492,7 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       local global_scale = 1 / 1.5
       local cell_w_orig = 100 * global_scale
       local cell_w = math.min(cell_w_orig, H * 0.92 / puzzle.size[1], W * 0.9 / puzzle.size[2]) / 3
+        -- width is taken / 3, as the vines are drawn at W / 3 width
       local board_offs_x = W / 2 + x - puzzle.size[2] / 2 * cell_w
       local board_offs_y = H / 2 + offs_y - puzzle.size[1] / 2 * cell_w
       local cell_scale = cell_w / cell_w_orig
@@ -513,23 +517,26 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       for i = 1, #puzzle.objs do
         local o = puzzle.objs[i]
         local name, r, c = unpack(o)
-        local x = board_offs_x + (c + 0.5) * cell_w
-        local y = board_offs_y + (r + 0.5) * cell_w
+        local cx = board_offs_x + (c + 0.5) * cell_w
+        local cy = board_offs_y + (r + 0.5) * cell_w
+        -- Stretching and parallax
+        cx = cx + (cx - W / 2) * (0.1 + math.abs(x / W) * 1.5)
+        local ca = alpha_for_x(cx - W / 2)
         if name == 'pollen' then
           local r, g, b = unpack(glow_colours[palette_num][o.group])
           r = 1 - (1 - r) * 0.4
           g = 1 - (1 - g) * 0.4
           b = 1 - (1 - b) * 0.4
-          love.graphics.setColor(r * tint, g * tint, b * tint, alpha * base_alpha * 0.75)
-          love.graphics.circle('fill', x, y, W * 0.007)
+          love.graphics.setColor(r * tint, g * tint, b * tint, ca * base_alpha * 0.8)
+          love.graphics.circle('fill', cx, cy, W * 0.007)
         elseif name == 'bloom' then
-          love.graphics.setColor(tint, tint, tint, alpha * base_alpha * 0.8)
-          love.graphics.circle('fill', x, y, W * 0.005)
+          love.graphics.setColor(tint, tint, tint, ca * base_alpha * 0.875)
+          love.graphics.circle('fill', cx, cy, W * 0.005)
         end
       end
 
       -- Second layer of vines
-      love.graphics.setColor(tint, tint, tint, alpha * base_alpha * 0.5)
+      love.graphics.setColor(tint, tint, tint, alpha * alpha * base_alpha * 0.5)
       draw.img(string.format('vines/%02d', i + range_start - 1),
         W / 2 + x, H / 2 + offs_y, W / 3)
     end
