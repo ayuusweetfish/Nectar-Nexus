@@ -72,8 +72,9 @@ local scene_intro = function ()
         _G['intro_scene_instance'] = s
         replaceScene(sceneGameplay(vase_s + carousel_index - 1))
       end,
+        genus,
         vase_start_puzzle[i], vase_e,
-        H * ({0.095, 0.01, -0.069})[genus])
+        H * ({0.096, 0.013, -0.0685})[genus])
       local n = math.min(vase_e, max_puzzle) - vase_s + 1
       overlay.set_num_pages(n)
       overlay.move_to_page(max_puzzle < vase_e and n or 1)
@@ -353,7 +354,7 @@ local scene_intro = function ()
   return s
 end
 
-create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
+create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_end, offs_y)
   local s = {}
   local W, H = W, H
 
@@ -476,11 +477,61 @@ create_overlay = function (fn_back, fn_confirm, range_start, range_end, offs_y)
       local x = sdx + (screen_x_max - screen_x_min) * (i - 1)
       local r = math.min(1, x / ((screen_x_max - screen_x_min) / 2 - W * 0.015))
       local alpha = 1 - ease_quad_in_out(math.max(0, math.abs(r) - 0.1))
-      love.graphics.setColor(tint, tint, tint, alpha * base_alpha)
-      draw.img(string.format('icons/number_%02d', i + range_start - 1),
-        W / 2 + x, H / 2 + offs_y)
-      love.graphics.circle('line',
-        W / 2 + x, H / 2 + offs_y, H * 0.075)
+
+      -- First layer of vines
+      love.graphics.setColor(tint, tint, tint, alpha * base_alpha * 0.6)
+      draw.img(string.format('vines/%02d', i + range_start - 1),
+        W / 2 + x, H / 2 + offs_y, W / 3)
+
+      -- Mostly copied from `scene_gameplay.lua`
+      local puzzles = require 'puzzles'
+      local puzzle = puzzles[i + range_start - 1]
+      local global_scale = 1 / 1.5
+      local cell_w_orig = 100 * global_scale
+      local cell_w = math.min(cell_w_orig, H * 0.92 / puzzle.size[1], W * 0.9 / puzzle.size[2]) / 3
+      local board_offs_x = W / 2 + x - puzzle.size[2] / 2 * cell_w
+      local board_offs_y = H / 2 + offs_y - puzzle.size[1] / 2 * cell_w
+      local cell_scale = cell_w / cell_w_orig
+      local glow_colours = {
+        {
+          {1, 0.559168, 0},
+          {0.802, 0.046516, 0.780655},
+          {0.092556, 0.857, 0.838502},
+          {0.201596, 0.118656, 0.927},
+        }, {
+          {1, 0.298, 0.370283},
+          {1, 0.948875, 0.023},
+          {0.733127, 1, 0.4},
+          {1, 0.613995, 0.558},
+        }, {
+          {0.797314, 1, 0.473},
+          {0.216216, 0.591241, 0.792},
+          {0.163329, 0.115251, 0.937},
+          {0.847555, 0.506656, 0.892},
+        }
+      }
+      for i = 1, #puzzle.objs do
+        local o = puzzle.objs[i]
+        local name, r, c = unpack(o)
+        local x = board_offs_x + (c + 0.5) * cell_w
+        local y = board_offs_y + (r + 0.5) * cell_w
+        if name == 'pollen' then
+          local r, g, b = unpack(glow_colours[palette_num][o.group])
+          r = 1 - (1 - r) * 0.4
+          g = 1 - (1 - g) * 0.4
+          b = 1 - (1 - b) * 0.4
+          love.graphics.setColor(r * tint, g * tint, b * tint, alpha * base_alpha * 0.75)
+          love.graphics.circle('fill', x, y, W * 0.007)
+        elseif name == 'bloom' then
+          love.graphics.setColor(tint, tint, tint, alpha * base_alpha * 0.8)
+          love.graphics.circle('fill', x, y, W * 0.005)
+        end
+      end
+
+      -- Second layer of vines
+      love.graphics.setColor(tint, tint, tint, alpha * base_alpha * 0.5)
+      draw.img(string.format('vines/%02d', i + range_start - 1),
+        W / 2 + x, H / 2 + offs_y, W / 3)
     end
     love.graphics.setScissor()
   end
