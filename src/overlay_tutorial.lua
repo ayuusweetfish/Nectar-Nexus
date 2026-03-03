@@ -48,15 +48,16 @@ return function (palette_num, activate_imm)
     btn_next.y = H * 0.84
   end
 
+  local btn_icon_fn = function ()
+    if not active or since_out >= 0 then
+      active = true
+      since_in = 0
+      since_out = -1
+    end
+  end
   local btn_icon = button(
     draw.get('icons/diagram'),
-    function ()
-      if not active or since_out >= 0 then
-        active = true
-        since_in = 0
-        since_out = -1
-      end
-    end,
+    btn_icon_fn,
     H * 0.09 / 100 * 1.5
   )
   btn_icon.x = W * 0.87
@@ -89,7 +90,12 @@ return function (palette_num, activate_imm)
   end
 
   s.key = function (key)
-    if not active then return false end
+    if not active then
+      if key == '/' then
+        btn_icon_fn()
+        return true
+      else return false end
+    end
     if key == 'return' or key == 'escape' or (key == 'right' and require('puzzles').debug_navi) then
       btn_next_fn()
       return true
