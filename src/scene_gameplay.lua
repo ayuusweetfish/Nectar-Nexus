@@ -371,9 +371,10 @@ return function (puzzle_index)
   glaze_tile_opacity_in_game = glaze_tile_opacity_in_game[palette_num]
 
   -- Vines
-  local vine_name = string.format('vines/%02d', puzzle_index)
-  if draw.get(vine_name) == nil then
-    vine_name = nil
+  local vines_name = string.format('vines/%02d', puzzle_index)
+  local vines_r, vines_g, vines_b = 1, 1, 1
+  if puzzle_index == 30 then
+    vines_r, vines_g, vines_b = 0x2e / 255, 0x42 / 255, 0x71 / 255
   end
 
   local still = {}
@@ -677,9 +678,8 @@ return function (puzzle_index)
     end
 
     -- Vines
-    if vine_name ~= nil then
-      draw.img(vine_name, W / 2, H / 2, W, H)
-    end
+    love.graphics.setColor(vines_r, vines_g, vines_b)
+    draw.img(vines_name, W / 2, H / 2, W, H)
 
     -- Objects
     local object_images = {}

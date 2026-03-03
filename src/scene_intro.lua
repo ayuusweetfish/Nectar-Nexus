@@ -478,17 +478,24 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       return 1 - ease_quad_in_out(math.max(0, math.abs(r) - 0.1))
     end
     for i = 1, n do
+      local puzzle_index = i + range_start - 1
       local x = sdx + (screen_x_max - screen_x_min) * (i - 1)
       local alpha = alpha_for_x(x)
 
       -- First layer of vines
-      love.graphics.setColor(tint, tint, tint, alpha * alpha * base_alpha * 0.7)
-      draw.img(string.format('vines/%02d', i + range_start - 1),
+      local vines_r, vines_g, vines_b = 1, 1, 1
+      if puzzle_index == 30 then
+        vines_r, vines_g, vines_b = 0x40 / 255, 0x20 / 255, 0x16 / 255
+      end
+      love.graphics.setColor(
+        vines_r * tint, vines_g * tint, vines_b * tint,
+        alpha * alpha * base_alpha * 0.7)
+      draw.img(string.format('vines/%02d', puzzle_index),
         W / 2 + x, H / 2 + offs_y, W / 3)
 
       -- Mostly copied from `scene_gameplay.lua`
       local puzzles = require 'puzzles'
-      local puzzle = puzzles[i + range_start - 1]
+      local puzzle = puzzles[puzzle_index]
       local global_scale = 1 / 1.5
       local cell_w_orig = 100 * global_scale
       local cell_w = math.min(cell_w_orig, H * 0.92 / puzzle.size[1], W * 0.9 / puzzle.size[2]) / 3
@@ -536,8 +543,10 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       end
 
       -- Second layer of vines
-      love.graphics.setColor(tint, tint, tint, alpha * alpha * base_alpha * 0.5)
-      draw.img(string.format('vines/%02d', i + range_start - 1),
+      love.graphics.setColor(
+        vines_r * tint, vines_g * tint, vines_b * tint,
+        alpha * alpha * base_alpha * 0.5)
+      draw.img(string.format('vines/%02d', puzzle_index),
         W / 2 + x, H / 2 + offs_y, W / 3)
     end
     love.graphics.setScissor()
