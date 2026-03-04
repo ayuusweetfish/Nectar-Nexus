@@ -441,14 +441,14 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
 
   s.key = function (key)
     if since_enter <= 240 then return true end
-    if key == 'escape' then
+    if key == 'escape' or key == 'backspace' then
       s.back()
       return true
     elseif key == 'left' then
       scroll_carousel.carousel_flip_page(1)
     elseif key == 'right' then
       scroll_carousel.carousel_flip_page(-1)
-    elseif key == 'return' then
+    elseif key == 'return' or key == 'space' then
       fn_confirm(scroll_carousel.carousel_page_index())
     end
   end
