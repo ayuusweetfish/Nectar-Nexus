@@ -20,47 +20,67 @@
         user-select: none;
         color: #fefefe;
       }
+      button#fullscreen-button {
+        background: none; border: none;
+        padding: 0; line-height: 0;
+        margin: 12px;
+        position: absolute; bottom: 0; right: 0;
+        opacity: 0.6;
+        transition: opacity 0.1s ease;
+        cursor: pointer;
+      }
+      button#fullscreen-button:hover,
+      button#fullscreen-button:active {
+        opacity: 1;
+      }
+      button#fullscreen-button > img {
+        width: 48px; height: 48px;
+      }
     </style>
   </head>
   <body>
-    <canvas id="loadingCanvas" oncontextmenu="event.preventDefault()" width="720" height="480"></canvas>
     <canvas id="canvas" oncontextmenu="event.preventDefault()"></canvas>
     <p id='loading'>Loading...</p>
+    <button id='fullscreen-button' style='display: none'><img src=''></button>
 
     <script type='text/javascript'>
       var loadingText = document.getElementById('loading');
-      function goFullScreen(){
-            var canvas = document.getElementById("canvas");
-            if(canvas.requestFullScreen)
-                canvas.requestFullScreen();
-            else if(canvas.webkitRequestFullScreen)
-                canvas.webkitRequestFullScreen();
-            else if(canvas.mozRequestFullScreen)
-                canvas.mozRequestFullScreen();
-      }
-      function FullScreenHook(){
-        var canvas = document.getElementById("canvas");
-        canvas.width = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-        canvas.height = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
-      }
-      var loadingContext = document.getElementById('loadingCanvas').getContext('2d');
-      function drawLoadingText(text) {
-        var canvas = loadingContext.canvas;
-
-        loadingContext.fillStyle = "rgb(142, 195, 227)";
-        loadingContext.fillRect(0, 0, canvas.scrollWidth, canvas.scrollHeight);
-
-        loadingContext.font = '2em arial';
-        loadingContext.textAlign = 'center'
-        loadingContext.fillStyle = "rgb( 11, 86, 117 )";
-        loadingContext.fillText(text, canvas.scrollWidth / 2, canvas.scrollHeight / 2);
-
-        loadingContext.fillText("Powered By Emscripten.", canvas.scrollWidth / 2, canvas.scrollHeight / 4);
-        loadingContext.fillText("Powered By LÖVE.", canvas.scrollWidth / 2, canvas.scrollHeight / 4 * 3);
-      }
 
       window.onload = function () { window.focus(); };
       window.onclick = function () { window.focus(); };
+
+      window.addEventListener('load', () => {
+        const button = document.getElementById('fullscreen-button')
+        const image = button.querySelector('img')
+        const updateIcon = () => {
+          if (document.fullscreenElement || document.webkitFullscreenElement)
+            image.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0iI2ZmZmZmZiIgdmlld0JveD0iMCAwIDI1NiAyNTYiPjxwYXRoIGQ9Ik0xNDQsMTA0VjY0YTgsOCwwLDAsMSwxNiwwVjg0LjY5bDQyLjM0LTQyLjM1YTgsOCwwLDAsMSwxMS4zMiwxMS4zMkwxNzEuMzEsOTZIMTkyYTgsOCwwLDAsMSwwLDE2SDE1MkE4LDgsMCwwLDEsMTQ0LDEwNFptLTQwLDQwSDY0YTgsOCwwLDAsMCwwLDE2SDg0LjY5TDQyLjM0LDIwMi4zNGE4LDgsMCwwLDAsMTEuMzIsMTEuMzJMOTYsMTcxLjMxVjE5MmE4LDgsMCwwLDAsMTYsMFYxNTJBOCw4LDAsMCwwLDEwNCwxNDRabTY3LjMxLDE2SDE5MmE4LDgsMCwwLDAsMC0xNkgxNTJhOCw4LDAsMCwwLTgsOHY0MGE4LDgsMCwwLDAsMTYsMFYxNzEuMzFsNDIuMzQsNDIuMzVhOCw4LDAsMCwwLDExLjMyLTExLjMyWk0xMDQsNTZhOCw4LDAsMCwwLTgsOFY4NC42OUw1My42Niw0Mi4zNEE4LDgsMCwwLDAsNDIuMzQsNTMuNjZMODQuNjksOTZINjRhOCw4LDAsMCwwLDAsMTZoNDBhOCw4LDAsMCwwLDgtOFY2NEE4LDgsMCwwLDAsMTA0LDU2WiI+PC9wYXRoPjwvc3ZnPgo='
+          else
+            image.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgZmlsbD0iI2ZmZmZmZiIgdmlld0JveD0iMCAwIDI1NiAyNTYiPjxwYXRoIGQ9Ik0yMTYsNDhWOTZhOCw4LDAsMCwxLTE2LDBWNjcuMzFsLTQyLjM0LDQyLjM1YTgsOCwwLDAsMS0xMS4zMi0xMS4zMkwxODguNjksNTZIMTYwYTgsOCwwLDAsMSwwLTE2aDQ4QTgsOCwwLDAsMSwyMTYsNDhaTTk4LjM0LDE0Ni4zNCw1NiwxODguNjlWMTYwYTgsOCwwLDAsMC0xNiwwdjQ4YTgsOCwwLDAsMCw4LDhIOTZhOCw4LDAsMCwwLDAtMTZINjcuMzFsNDIuMzUtNDIuMzRhOCw4LDAsMCwwLTExLjMyLTExLjMyWk0yMDgsMTUyYTgsOCwwLDAsMC04LDh2MjguNjlsLTQyLjM0LTQyLjM1YTgsOCwwLDAsMC0xMS4zMiwxMS4zMkwxODguNjksMjAwSDE2MGE4LDgsMCwwLDAsMCwxNmg0OGE4LDgsMCwwLDAsOC04VjE2MEE4LDgsMCwwLDAsMjA4LDE1MlpNNjcuMzEsNTZIOTZhOCw4LDAsMCwwLDAtMTZINDhhOCw4LDAsMCwwLTgsOFY5NmE4LDgsMCwwLDAsMTYsMFY2Ny4zMWw0Mi4zNCw0Mi4zNWE4LDgsMCwwLDAsMTEuMzItMTEuMzJaIj48L3BhdGg+PC9zdmc+Cg=='
+        }
+        const fullScreenFn = [(
+          document.body.requestFullscreen ||
+          document.body.webkitRequestFullscreen ||
+          document.body.webkitEnterFullscreen
+        ), (
+          document.exitFullscreen ||
+          document.webkitExitFullscreen
+        )]
+        if (fullScreenFn[0] && fullScreenFn[1]) {
+          button.addEventListener('click', () => {
+            if (document.fullscreenElement || document.webkitFullscreenElement)
+              fullScreenFn[1].apply(document)
+            else
+              fullScreenFn[0].apply(document.body)
+            updateIcon()
+          })
+          document.addEventListener('fullscreenchange', (e) => updateIcon())
+          button.style.display = ''
+          updateIcon()
+        } else {
+          button.remove()
+        }
+      })
 
       window.addEventListener("keydown", function(e) {
         // space and arrow keys
@@ -96,7 +116,6 @@
         setStatus: function(text) {
           if (text) {
             if (text === 'Running...') text = 'Loading assets...';
-            drawLoadingText(text);
             loadingText.innerText = text;
           } else if (Module.remainingDependencies === 0) {
             document.getElementById('loadingCanvas').style.display = 'none';
