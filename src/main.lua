@@ -120,6 +120,7 @@ local timeStep = 1 / 240
 local sinceAudioUpdate = 0
 
 function love.update(dt)
+  if dt >= 2 then dt = 0 end
   T = T + dt
   local count = 0
   while T > timeStep and count < 8 do
