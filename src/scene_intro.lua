@@ -460,24 +460,24 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
   end
 
   local circle_tex = {}
-  local circle_texture = function (cx, cy, r)
-    local tex = circle_tex[r]
+  local circle_texture = function (cx, cy, r_outer, r_inner)
+    local tex = circle_tex[r_outer * 8 + r_inner]
     if not tex then
-      local w = math.ceil(r * 2 + 2)
+      local w = math.ceil(r_outer * 2 + 2)
       local d = love.image.newImageData(w, w)
       d:mapPixel(function (x, y)
         x, y = x + 0.5, y + 0.5
         local dsq = (x - w / 2) ^ 2 + (y - w / 2) ^ 2
-        if dsq <= r * r then
+        if dsq <= r_inner * r_inner then
           return 1, 1, 1, 1
-        elseif dsq >= (r + 1) * (r + 1) then
+        elseif dsq >= r_outer * r_outer then
           return 1, 1, 1, 0
         else
-          return 1, 1, 1, 1 - (math.sqrt(dsq) - r)
+          return 1, 1, 1, (r_outer - math.sqrt(dsq)) / (r_outer - r_inner)
         end
       end)
       tex = love.graphics.newImage(d)
-      circle_tex[r] = tex
+      circle_tex[r_outer * 8 + r_inner] = tex
     end
     local w = tex:getWidth()
     love.graphics.draw(tex, cx - w / 2, cy - w / 2)
@@ -552,6 +552,9 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
         local cy = board_offs_y + (r + 0.5) * cell_w
         -- Stretching and parallax
         cx = cx + (cx - W / 2) * (0.1 + math.abs(x / W) * 1.5)
+        -- Offset that the puzzle displays aligned when centred
+        local dx_puzzle_cen = (c + 0.5 - puzzle.size[2] / 2) * cell_w
+        cx = cx - dx_puzzle_cen * 0.1
         local ca = alpha_for_x(cx - W / 2)
         if name == 'pollen' then
           local r, g, b = unpack(glow_colours[palette_num][o.group])
@@ -559,10 +562,10 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
           g = 1 - (1 - g) * 0.4
           b = 1 - (1 - b) * 0.4
           love.graphics.setColor(r * tint, g * tint, b * tint, ca * base_alpha * 0.8)
-          circle_texture(cx, cy, W * 0.007)
+          circle_texture(cx, cy, W * 0.008, W * 0.006)
         elseif name == 'bloom' then
           love.graphics.setColor(tint, tint, tint, ca * base_alpha * 0.875)
-          circle_texture(cx, cy, W * 0.005)
+          circle_texture(cx, cy, W * 0.006, W * 0.005)
         end
       end
 
