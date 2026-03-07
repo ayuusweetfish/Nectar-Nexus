@@ -81,12 +81,14 @@ return function (options)
         delta = history[history_ptr] - history[history_ptr % HISTORY_WINDOW + 1]
       end
       inertia_v = delta / time
-      -- Carousel?
-      if carousel then
-        carousel_target = math.floor((s.dx + math.max(-w/2, math.min(w/2, inertia_v * 60))) / w + 0.5) * w
-        carousel_target = math.max(x_min, math.min(x_max, carousel_target))
-        inertia_v = inertia_v / 2
-      end
+    else
+      inertia_v = 0
+    end
+    if held and carousel then
+      -- Snap to the nearest page
+      carousel_target = math.floor((s.dx + math.max(-w/2, math.min(w/2, inertia_v * 60))) / w + 0.5) * w
+      carousel_target = math.max(x_min, math.min(x_max, carousel_target))
+      inertia_v = inertia_v / 2
     end
 
     local prev_held = held
