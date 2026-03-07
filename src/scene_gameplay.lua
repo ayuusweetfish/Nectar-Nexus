@@ -372,6 +372,7 @@ return function (puzzle_index)
 
   -- Vines
   local vines_name = string.format('vines/%02d', puzzle_index)
+  local vines_disp_w = draw.get(vines_name):getWidth() * W / 1920
   local vines_r, vines_g, vines_b = 1, 1, 1
   if puzzle_index == 30 then
     vines_r, vines_g, vines_b = 0x2e / 255, 0x42 / 255, 0x71 / 255
@@ -679,7 +680,7 @@ return function (puzzle_index)
 
     -- Vines
     love.graphics.setColor(vines_r, vines_g, vines_b)
-    draw.img(vines_name, W / 2, H / 2, W, H)
+    draw.img(vines_name, 0, 0, vines_disp_w, nil, 0, 0)
 
     -- Objects
     local object_images = {}

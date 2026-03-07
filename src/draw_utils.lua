@@ -27,12 +27,22 @@ end)
 
 -- Returns (progress, total, name)
 local imgs_to_load_ptr = 0
+local full_npot = love.graphics.getSupported()['fullnpot']
 local load_img_step = function ()
   if imgs_to_load_ptr >= #imgs_to_load then return end
   imgs_to_load_ptr = imgs_to_load_ptr + 1
   local name, img_path = unpack(imgs_to_load[imgs_to_load_ptr])
   local use_mipmaps = (name:sub(1, 6) == 'vines/')
-  imgs[name] = love.graphics.newImage(img_path, { mipmaps = use_mipmaps })
+  local data = love.image.newImageData(img_path)
+  if use_mipmaps and not full_npot then
+    -- Extend to power-of-two
+    local w, h = data:getDimensions()
+    local ext_w, ext_h = 2 ^ math.ceil(math.log(w, 2)), 2 ^ math.ceil(math.log(h, 2))
+    local ext_data = love.image.newImageData(ext_w, ext_h)
+    ext_data:paste(data, 0, 0, 0, 0, w, h)
+    data = ext_data
+  end
+  imgs[name] = love.graphics.newImage(data, { mipmaps = use_mipmaps })
   return imgs_to_load_ptr, #imgs_to_load, name
 end
 

@@ -514,8 +514,13 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       love.graphics.setColor(
         vines_r * tint, vines_g * tint, vines_b * tint,
         alpha * alpha * base_alpha * 0.7)
-      draw.img(string.format('vines/%02d', puzzle_index),
-        W / 2 + x, H / 2 + offs_y, W / 3)
+      local vines_tex_name = string.format('vines/%02d', puzzle_index)
+      local vines_tex_w = draw.get(vines_tex_name):getWidth()
+      local vines_disp_w = W / 3
+      draw.img(vines_tex_name,
+        W / 2 + x - vines_disp_w / 2,
+        H / 2 + offs_y - vines_disp_w / 2 * H / W,
+        vines_disp_w * vines_tex_w / 1920, nil, 0, 0)
 
       -- Mostly copied from `scene_gameplay.lua`
       local puzzles = require 'puzzles'
@@ -573,8 +578,10 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
       love.graphics.setColor(
         vines_r * tint, vines_g * tint, vines_b * tint,
         alpha * alpha * base_alpha * 0.5)
-      draw.img(string.format('vines/%02d', puzzle_index),
-        W / 2 + x, H / 2 + offs_y, W / 3)
+      draw.img(vines_tex_name,
+        W / 2 + x - vines_disp_w / 2,
+        H / 2 + offs_y - vines_disp_w / 2 * H / W,
+        vines_disp_w * vines_tex_w / 1920, nil, 0, 0)
     end
     love.graphics.setScissor()
   end
