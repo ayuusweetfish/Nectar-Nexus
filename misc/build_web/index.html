@@ -118,8 +118,6 @@
             if (text === 'Running...') text = 'Loading assets...';
             loadingText.innerText = text;
           } else if (Module.remainingDependencies === 0) {
-            document.getElementById('loadingCanvas').style.display = 'none';
-            document.getElementById('canvas').style.visibility = 'visible';
             loadingText.innerText = '';
           }
         },
