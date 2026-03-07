@@ -145,7 +145,8 @@ return function ()
       local progress = math.max(0, math.min(1, (since_bloom - 1200) / 80))
       frame = 1 + math.floor(progress * (8 - 1))
     end
-    draw.img('ending/' .. tostring(frame), W * 0.5, H * 0.5, W, H)
+    draw.img('ending/' .. tostring(frame), 0, 0, W, H * 400 / 1080, 0, 0)
+    draw.img('ending/0', 0, H * 400 / 1080, W, H * 680 / 1080, 0, 0)
 
     -- Butterfly (Bee!)
     local frame = math.floor(T / 240 * 24) % 16 + 1
