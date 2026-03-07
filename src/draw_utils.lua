@@ -37,7 +37,9 @@ local load_img_step = function ()
   if use_mipmaps and not full_npot then
     -- Extend to power-of-two
     local w, h = data:getDimensions()
-    local ext_w, ext_h = 2 ^ math.ceil(math.log(w, 2)), 2 ^ math.ceil(math.log(h, 2))
+    local ext_w, ext_h = 1, 1
+    while ext_w < w do ext_w = ext_w * 2 end
+    while ext_h < h do ext_h = ext_h * 2 end
     local ext_data = love.image.newImageData(ext_w, ext_h)
     ext_data:paste(data, 0, 0, 0, 0, w, h)
     data = ext_data
