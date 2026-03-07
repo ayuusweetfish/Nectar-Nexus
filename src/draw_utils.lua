@@ -31,7 +31,8 @@ local load_img_step = function ()
   if imgs_to_load_ptr >= #imgs_to_load then return end
   imgs_to_load_ptr = imgs_to_load_ptr + 1
   local name, img_path = unpack(imgs_to_load[imgs_to_load_ptr])
-  imgs[name] = love.graphics.newImage(img_path)
+  local use_mipmaps = (name:sub(1, 6) == 'vines/')
+  imgs[name] = love.graphics.newImage(img_path, { mipmaps = use_mipmaps })
   return imgs_to_load_ptr, #imgs_to_load, name
 end
 

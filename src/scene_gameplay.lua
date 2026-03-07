@@ -372,6 +372,10 @@ return function (puzzle_index)
 
   -- Vines
   local vines_name = string.format('vines/%02d', puzzle_index)
+  local vines_r, vines_g, vines_b = 1, 1, 1
+  if puzzle_index == 30 then
+    vines_r, vines_g, vines_b = 0x2e / 255, 0x42 / 255, 0x71 / 255
+  end
 
   local still = {}
   local still_offs = {}
@@ -674,7 +678,7 @@ return function (puzzle_index)
     end
 
     -- Vines
-    love.graphics.setColor(1, 1, 1)
+    love.graphics.setColor(vines_r, vines_g, vines_b)
     draw.img(vines_name, W / 2, H / 2, W, H)
 
     -- Objects
