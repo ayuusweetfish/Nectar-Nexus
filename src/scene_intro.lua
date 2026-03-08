@@ -222,7 +222,6 @@ local scene_intro = function ()
           math.min(0, vase_offs_x - scroll_main.dx + W * 0.375) +
           math.max(0, vase_offs_x - scroll_main.dx - W * 0.375)
         scroll_main.dx = scroll_main.dx + dx
-        vase_offs_x = vase_offs_x - dx
         update_button_positions()
       elseif since_exit_vase >= 240 then
         since_exit_vase = -1
