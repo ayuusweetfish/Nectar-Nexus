@@ -52,7 +52,7 @@ local scene_intro = function ()
     btn = button(img, function ()
       overlay_vase = i
       since_enter_vase = 0
-      vase_offs_x = W / 2 - btn.x
+      vase_offs_x = W / 2 - btn.x0  -- Real offset should be deduced by `scroll_main.dx`
       vase_offs_y = H / 2 - btn.y + H * ({-0.08, 0.00, 0.00})[genus]
       vase_sel_img = 'intro/large_vase_' .. genus .. '_sel'
       local sel_offs_x, sel_offs_y =
@@ -193,7 +193,8 @@ local scene_intro = function ()
     end
     if key == 'left' then key_l = true
     elseif key == 'right' then key_r = true
-    elseif key == 'return' and scroll_main.is_inside_range() then
+    elseif key == 'return' then
+      s.release(-W, -H)
       local best_dist, best_button = 1/0, nil
       for i = 1, math.min(6, max_vase) do
         local d = math.abs(buttons[i].x - W / 2)
@@ -218,8 +219,8 @@ local scene_intro = function ()
       since_exit_vase = since_exit_vase + 1
       if since_exit_vase == 1 then
         local dx =
-          math.min(0, vase_offs_x + W * 0.375) +
-          math.max(0, vase_offs_x - W * 0.375)
+          math.min(0, vase_offs_x - scroll_main.dx + W * 0.375) +
+          math.max(0, vase_offs_x - scroll_main.dx - W * 0.375)
         scroll_main.dx = scroll_main.dx + dx
         vase_offs_x = vase_offs_x - dx
         update_button_positions()
@@ -242,7 +243,7 @@ local scene_intro = function ()
     local pushed_transform = false
     local overlay_rate = 0
     if since_enter_vase ~= -1 or since_exit_vase ~= -1 then
-      local vase_offs_x, vase_offs_y = vase_offs_x, vase_offs_y
+      local vase_offs_x, vase_offs_y = vase_offs_x - scroll_main.dx, vase_offs_y
       local vase_scale
       local rate, offs_x_rate, offs_y_rate, scale_rate
       if since_exit_vase ~= -1 then
@@ -449,6 +450,7 @@ create_overlay = function (fn_back, fn_confirm, palette_num, range_start, range_
     elseif key == 'right' then
       scroll_carousel.carousel_flip_page(-1)
     elseif key == 'return' or key == 'space' then
+      scroll_carousel.release(-W, -H)
       fn_confirm(scroll_carousel.carousel_page_index())
     end
   end
