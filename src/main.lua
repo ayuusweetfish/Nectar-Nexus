@@ -123,15 +123,13 @@ function love.update(dt)
   if dt >= 2 then dt = 0 end
   T = T + dt
   local count = 0
-  while T > timeStep and count < 8 do
+  -- No slowdown if graphics run at >= 15 FPS
+  while T > timeStep and count < 16 do
     T = T - timeStep
     count = count + 1
     if lastScene ~= nil then
       lastScene:update()
-      -- At most 4 ticks per update for transitions
-      if count <= 4 then
-        transitionTimer = transitionTimer + 1
-      end
+      transitionTimer = transitionTimer + 1
     end
     curScene:update()
   end
