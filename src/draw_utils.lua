@@ -1,6 +1,7 @@
 local imgs = {}
 
 local img_paths = {}
+local img_data = {}
 
 local imgs_to_load = {}
 local function find_imgs(path)
@@ -9,11 +10,9 @@ local function find_imgs(path)
     local basename = files[i]
     if basename:sub(-4) == '.png' or basename:sub(-4) == '.jpg' then
       local name = (path .. '/' .. basename:sub(1, #basename - 4)):sub(2)
-      if name:sub(1, 6) ~= 'vines/' then
-        local img_path = 'img' .. path .. '/' .. basename
-        img_paths[name] = img_path
-        imgs_to_load[#imgs_to_load + 1] = name
-      end
+      local img_path = 'img' .. path .. '/' .. basename
+      img_paths[name] = img_path
+      imgs_to_load[#imgs_to_load + 1] = name
     else
       -- Folder?
       if love.filesystem.getInfo('img' .. path .. '/' .. basename).type == 'directory' then
@@ -31,21 +30,10 @@ table.sort(imgs_to_load, function (a, b)
 end)
 
 local load_single_image = function (name)
-  local img_path = img_paths[name]
   local use_mipmaps = (name:sub(1, 6) == 'vines/')
-  local data = love.image.newImageData(img_path)
-  if use_mipmaps and not full_npot then
-    -- Extend to power-of-two
-    local w, h = data:getDimensions()
-    local ext_w, ext_h = 1, 1
-    while ext_w < w do ext_w = ext_w * 2 end
-    while ext_h < h do ext_h = ext_h * 2 end
-    local ext_data = love.image.newImageData(ext_w, ext_h)
-    ext_data:paste(data, 0, 0, 0, 0, w, h)
-    data:release()
-    data = ext_data
-  end
-  imgs[name] = love.graphics.newImage(data, { mipmaps = use_mipmaps })
+  local i = love.graphics.newImage(img_data[name], { mipmaps = use_mipmaps })
+  imgs[name] = i
+  return i
 end
 
 local unload_single_image = function (name)
@@ -60,7 +48,26 @@ local load_img_step = function ()
   if imgs_to_load_ptr >= #imgs_to_load then return end
   imgs_to_load_ptr = imgs_to_load_ptr + 1
   local name = imgs_to_load[imgs_to_load_ptr]
-  load_single_image(name)
+  local use_mipmaps = (name:sub(1, 6) == 'vines/')
+  local data = love.image.newImageData(img_paths[name])
+  if use_mipmaps and not full_npot then
+    -- Extend to power-of-two
+    local w, h = data:getDimensions()
+    local ext_w, ext_h = 1, 1
+    while ext_w < w do ext_w = ext_w * 2 end
+    while ext_h < h do ext_h = ext_h * 2 end
+    local ext_data = love.image.newImageData(ext_w, ext_h)
+    ext_data:paste(data, 0, 0, 0, 0, w, h)
+    data:release()
+    data = ext_data
+  end
+  img_data[name] = data
+  if name:sub(1, 6) ~= 'vines/' and
+     name:sub(1, 11) ~= 'chameleon/p' and
+     name:sub(1, 7) ~= 'ending/'
+  then
+    load_single_image(name)
+  end
   return imgs_to_load_ptr, #imgs_to_load, name
 end
 
@@ -83,8 +90,40 @@ local draw = function (drawable, x, y, w, h, ax, ay, r)
     ax * iw, ay * ih)
 end
 
+local recent_vines = {}
+local recent_chameleons = {}
+local get = function (name)
+  local i = imgs[name]
+  if not i and img_data[name] ~= nil then
+    if name:sub(1, 6) == 'vines/' then
+      if #recent_vines >= 2 then
+        unload_single_image(recent_vines[1])
+        table.remove(recent_vines, 1)
+      end
+      recent_vines[#recent_vines + 1] = name
+    elseif name:sub(1, 11) == 'chameleon/p' or name:sub(1, 7) == 'ending/' then
+      local palette = function (name)
+        return (name:sub(1, 7) == 'ending/' and 'ending' or name:sub(1, 12))
+      end
+      if #recent_chameleons > 0 and
+          palette(recent_chameleons[1]) ~= palette(name) then
+        for i = 1, #recent_chameleons do
+          unload_single_image(recent_chameleons[i])
+        end
+        recent_chameleons = {}
+      end
+      recent_chameleons[#recent_chameleons + 1] = name
+    end
+
+    i = load_single_image(name)
+  end
+  return i
+end
+
+local exists = function (name) return imgs[name] or img_data[name] end
+
 local img = function (name, x, y, w, h, ax, ay, r)
-  draw(imgs[name], x, y, w, h, ax, ay, r)
+  draw(get(name), x, y, w, h, ax, ay, r)
 end
 
 local shadow = function (R, G, B, A, drawable, x, y, w, h, ax, ay, r)
@@ -114,7 +153,8 @@ local draw_ = {
   load_img_step = load_img_step,
   load = load_single_image,
   unload = unload_single_image,
-  get = function (name) return imgs[name] end,
+  get = get,
+  exists = exists,
   img = img,
   shadow = shadow,
   enclose = enclose,

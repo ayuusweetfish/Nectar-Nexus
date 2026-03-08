@@ -502,7 +502,7 @@ return function (puzzle_index)
     aseq[string.format('chameleon-tongue-%d', d)] = t
     for i = 1, 8 do
       local name = string.format('chameleon/p%d-tongue/%d-%d', palette_num, d, i)
-      if not draw.get(name) then break end
+      if not draw.exists(name) then break end
       t[i] = name
     end
   end
